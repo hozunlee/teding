@@ -1,0 +1,840 @@
+<!-- 해당문서는 워크시트 가이드 -->
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>The Monkey King's Journey — Reading Worksheet</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --gold: #c8963e;
+                --deep: #1a1208;
+                --ink: #2c1f0a;
+                --parchment: #f5edd8;
+                --light-parchment: #fbf7ee;
+                --red: #9b2335;
+                --faded: #8a7560;
+                --border: #c8963e44;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                background: var(--light-parchment);
+                font-family: "Crimson Pro", Georgia, serif;
+                color: var(--ink);
+                min-height: 100vh;
+            }
+
+            /* PRINT STYLES */
+            @media print {
+                body {
+                    background: white;
+                }
+                .no-print {
+                    display: none;
+                }
+                .page-break {
+                    page-break-after: always;
+                }
+                section {
+                    break-inside: avoid;
+                }
+            }
+
+            .wrapper {
+                max-width: 860px;
+                margin: 0 auto;
+                padding: 40px 40px 80px;
+            }
+
+            /* HEADER */
+            .header {
+                text-align: center;
+                padding: 48px 0 32px;
+                border-bottom: 3px double var(--gold);
+                margin-bottom: 40px;
+                position: relative;
+            }
+            .header::before,
+            .header::after {
+                content: "☯";
+                font-size: 1.5rem;
+                color: var(--gold);
+                position: absolute;
+                top: 50px;
+            }
+            .header::before {
+                left: 0;
+            }
+            .header::after {
+                right: 0;
+            }
+
+            .grade-tag {
+                font-family: "Space Mono", monospace;
+                font-size: 0.7rem;
+                letter-spacing: 0.15em;
+                color: var(--faded);
+                text-transform: uppercase;
+                margin-bottom: 12px;
+            }
+
+            .header h1 {
+                font-size: 2.6rem;
+                font-weight: 700;
+                color: var(--deep);
+                line-height: 1.1;
+                margin-bottom: 6px;
+            }
+
+            .header h1 span {
+                color: var(--gold);
+            }
+
+            .header .subtitle {
+                font-size: 1rem;
+                color: var(--faded);
+                font-style: italic;
+            }
+
+            /* INFO BAR */
+            .info-bar {
+                display: flex;
+                gap: 0;
+                border: 1.5px solid var(--gold);
+                margin-bottom: 40px;
+                background: var(--parchment);
+            }
+            .info-field {
+                flex: 1;
+                padding: 10px 16px;
+                border-right: 1px solid var(--border);
+                font-size: 0.9rem;
+            }
+            .info-field:last-child {
+                border-right: none;
+            }
+            .info-field label {
+                font-family: "Space Mono", monospace;
+                font-size: 0.65rem;
+                letter-spacing: 0.1em;
+                color: var(--faded);
+                text-transform: uppercase;
+                display: block;
+                margin-bottom: 4px;
+            }
+            .info-field .line {
+                border-bottom: 1px solid var(--ink);
+                min-height: 22px;
+            }
+
+            /* SECTION HEADERS */
+            .section-label {
+                font-family: "Space Mono", monospace;
+                font-size: 0.7rem;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                color: var(--red);
+                margin-bottom: 4px;
+            }
+
+            section {
+                margin-bottom: 44px;
+            }
+
+            section h2 {
+                font-size: 1.45rem;
+                font-weight: 700;
+                color: var(--deep);
+                border-bottom: 1.5px solid var(--border);
+                padding-bottom: 8px;
+                margin-bottom: 20px;
+            }
+
+            /* PASSAGE */
+            .passage-box {
+                background: var(--parchment);
+                border-left: 4px solid var(--gold);
+                padding: 28px 32px;
+                line-height: 1.85;
+                font-size: 1.08rem;
+                position: relative;
+            }
+
+            .passage-box p {
+                margin-bottom: 14px;
+            }
+            .passage-box p:last-child {
+                margin-bottom: 0;
+            }
+
+            /* VOCABULARY */
+            .vocab-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .vocab-item {
+                background: var(--parchment);
+                border: 1px solid var(--border);
+                padding: 14px 16px;
+            }
+
+            .vocab-word {
+                font-weight: 700;
+                font-size: 1.05rem;
+                color: var(--red);
+                margin-bottom: 2px;
+            }
+
+            .vocab-pos {
+                font-family: "Space Mono", monospace;
+                font-size: 0.65rem;
+                color: var(--faded);
+                margin-bottom: 6px;
+                display: block;
+            }
+
+            .vocab-def {
+                font-size: 0.92rem;
+                line-height: 1.5;
+                color: var(--ink);
+            }
+
+            /* COMPREHENSION */
+            .q-block {
+                margin-bottom: 28px;
+            }
+
+            .q-block .q-num {
+                font-family: "Space Mono", monospace;
+                font-size: 0.75rem;
+                color: var(--gold);
+                margin-bottom: 4px;
+            }
+
+            .q-block p {
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: var(--deep);
+                margin-bottom: 12px;
+                line-height: 1.5;
+            }
+
+            .choices {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .choice {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 8px 14px;
+                background: var(--parchment);
+                border: 1px solid var(--border);
+                font-size: 0.97rem;
+                cursor: pointer;
+                transition: all 0.15s;
+            }
+
+            .choice:hover {
+                border-color: var(--gold);
+                background: #f0e4c8;
+            }
+
+            .choice-letter {
+                font-family: "Space Mono", monospace;
+                font-weight: 700;
+                color: var(--gold);
+                font-size: 0.85rem;
+                min-width: 18px;
+                margin-top: 1px;
+            }
+
+            .answer-line {
+                border-bottom: 1px solid var(--ink);
+                margin-top: 10px;
+                min-height: 32px;
+                width: 100%;
+            }
+
+            .answer-lines {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            /* ESSAY */
+            .essay-prompt {
+                background: var(--parchment);
+                border: 1.5px solid var(--gold);
+                padding: 20px 24px;
+                margin-bottom: 20px;
+                font-size: 1.05rem;
+                line-height: 1.6;
+            }
+
+            .essay-tips {
+                background: #f0f0f0;
+                border-left: 3px solid var(--faded);
+                padding: 14px 18px;
+                margin-bottom: 20px;
+                font-size: 0.88rem;
+                line-height: 1.65;
+                color: var(--ink);
+            }
+
+            .essay-tips strong {
+                color: var(--deep);
+                display: block;
+                margin-bottom: 4px;
+                font-family: "Space Mono", monospace;
+                font-size: 0.7rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+
+            .essay-lines {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+            }
+
+            .essay-line {
+                border-bottom: 1px solid #c0b090;
+                min-height: 28px;
+            }
+
+            /* ANSWER KEY (hidden by default) */
+            .answer-key {
+                margin-top: 60px;
+                border-top: 3px double var(--gold);
+                padding-top: 32px;
+            }
+
+            .answer-key h3 {
+                font-family: "Space Mono", monospace;
+                font-size: 0.75rem;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                color: var(--faded);
+                margin-bottom: 16px;
+            }
+
+            .answer-key-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .ak-item {
+                font-family: "Space Mono", monospace;
+                font-size: 0.8rem;
+                background: var(--parchment);
+                border: 1px solid var(--border);
+                padding: 6px 14px;
+                color: var(--red);
+            }
+
+            /* PRINT BUTTON */
+            .print-btn {
+                position: fixed;
+                bottom: 32px;
+                right: 32px;
+                background: var(--gold);
+                color: var(--deep);
+                border: none;
+                padding: 12px 24px;
+                font-family: "Space Mono", monospace;
+                font-size: 0.75rem;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                cursor: pointer;
+                box-shadow: 4px 4px 0 var(--deep);
+                transition: all 0.15s;
+            }
+            .print-btn:hover {
+                box-shadow: 6px 6px 0 var(--deep);
+                transform: translate(-1px, -1px);
+            }
+            .print-btn:active {
+                box-shadow: 2px 2px 0 var(--deep);
+                transform: translate(1px, 1px);
+            }
+
+            /* DECORATIVE DIVIDER */
+            .divider {
+                text-align: center;
+                color: var(--gold);
+                font-size: 1.2rem;
+                letter-spacing: 0.5em;
+                margin: 8px 0 28px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <!-- HEADER -->
+            <div class="header">
+                <div class="grade-tag">English Reading Worksheet · Grade 6</div>
+                <h1>The <span>Monkey King's</span> Journey</h1>
+                <div class="subtitle">
+                    Based on the classic Chinese tale of Sun Wukong
+                </div>
+            </div>
+
+            <!-- INFO BAR -->
+            <div class="info-bar">
+                <div class="info-field">
+                    <label>Name</label>
+                    <div class="line"></div>
+                </div>
+                <div class="info-field">
+                    <label>Date</label>
+                    <div class="line"></div>
+                </div>
+                <div class="info-field">
+                    <label>Class</label>
+                    <div class="line"></div>
+                </div>
+                <div class="info-field">
+                    <label>Score</label>
+                    <div class="line"></div>
+                </div>
+            </div>
+
+            <!-- PART 1: READING PASSAGE -->
+            <section>
+                <div class="section-label">Part 1</div>
+                <h2>📖 Reading Passage</h2>
+                <p
+                    style="
+                        font-size: 0.92rem;
+                        color: var(--faded);
+                        margin-bottom: 16px;
+                        font-style: italic;
+                    "
+                >
+                    Read the passage carefully before answering the questions
+                    below.
+                </p>
+
+                <div class="passage-box">
+                    <p>
+                        The Monkey King, Sun Wukong, was known across the
+                        heavens for his incredible powers. After causing great
+                        trouble—stealing a potion of immortality and defeating
+                        the Jade Emperor's strongest warriors—he was finally
+                        captured and locked in a fiery prison. But instead of
+                        weakening him, the heat only made him stronger.
+                        Desperate, the Jade Emperor turned to the only being
+                        more powerful than himself: the Buddha.
+                    </p>
+                    <p>
+                        Sun Wukong refused to show respect even before the
+                        Buddha. Boasting of his abilities, he demanded to be
+                        made Emperor. The Buddha smiled and offered him a
+                        challenge: if the Monkey King could somersault out of
+                        his palm, he would grant the wish. Confident as always,
+                        Sun Wukong leapt into the air and flew to what he
+                        thought was the edge of the heavens—a place marked by
+                        five great pillars. He left his mark there and returned
+                        to claim his prize.
+                    </p>
+                    <p>
+                        But the Buddha simply pointed down. Sun Wukong had never
+                        left the Buddha's hand at all. The "pillars" were the
+                        Buddha's five fingers. Before the Monkey King could
+                        react, those fingers became a mountain range and pinned
+                        him to the ground. There he remained for 500 years,
+                        growing more desperate with every passing century.
+                    </p>
+                    <p>
+                        After five hundred years, a goddess named Guanyin passed
+                        by his prison. She was guiding a holy monk named
+                        Tripitaka, who was traveling west to retrieve sacred
+                        scriptures. The journey was long and dangerous, so
+                        Guanyin offered Sun Wukong a deal: serve as Tripitaka's
+                        faithful disciple, and she would set him free. The
+                        Monkey King agreed without hesitation.
+                    </p>
+                    <p>
+                        Freedom, however, proved harder than he expected. When
+                        bandits attacked them, Sun Wukong's violent temper
+                        flared up. Tripitaka scolded him, and the embarrassed
+                        Monkey King ran away. But after reflecting on a wise
+                        dragon king's advice—that true enlightenment requires
+                        giving up one's ego—Sun Wukong returned to apologize.
+                    </p>
+                    <p>
+                        Guanyin, not fully trusting him yet, had given Tripitaka
+                        a golden headband and a secret spell. When the Monkey
+                        King put on the beautiful cap that held the band,
+                        Tripitaka recited the spell and the golden ring squeezed
+                        tight around Sun Wukong's head. It caused him great pain
+                        whenever he lost control. At last, the Monkey King was
+                        ready—not just for the journey West, but perhaps for the
+                        journey toward becoming a better version of himself.
+                    </p>
+                </div>
+            </section>
+
+            <!-- PART 2: VOCABULARY -->
+            <section>
+                <div class="section-label">Part 2</div>
+                <h2>📚 Key Vocabulary</h2>
+                <p
+                    style="
+                        font-size: 0.92rem;
+                        color: var(--faded);
+                        margin-bottom: 16px;
+                        font-style: italic;
+                    "
+                >
+                    Study these words from the passage before answering the
+                    questions.
+                </p>
+
+                <div class="vocab-grid">
+                    <div class="vocab-item">
+                        <div class="vocab-word">immortality</div>
+                        <span class="vocab-pos">noun</span>
+                        <div class="vocab-def">
+                            The ability to live forever and never die. Sun
+                            Wukong <em>stole a potion of immortality</em>.
+                        </div>
+                    </div>
+                    <div class="vocab-item">
+                        <div class="vocab-word">somersault</div>
+                        <span class="vocab-pos">verb / noun</span>
+                        <div class="vocab-def">
+                            A rolling jump where the body turns completely over
+                            in the air.
+                        </div>
+                    </div>
+                    <div class="vocab-item">
+                        <div class="vocab-word">enlightenment</div>
+                        <span class="vocab-pos">noun</span>
+                        <div class="vocab-def">
+                            A state of deep wisdom and peace, especially in
+                            Buddhist belief; understanding the truth about life.
+                        </div>
+                    </div>
+                    <div class="vocab-item">
+                        <div class="vocab-word">disciple</div>
+                        <span class="vocab-pos">noun</span>
+                        <div class="vocab-def">
+                            A student or follower who learns from and helps a
+                            teacher or leader.
+                        </div>
+                    </div>
+                    <div class="vocab-item">
+                        <div class="vocab-word">ego</div>
+                        <span class="vocab-pos">noun</span>
+                        <div class="vocab-def">
+                            A person's sense of their own importance; pride in
+                            oneself, sometimes too much pride.
+                        </div>
+                    </div>
+                    <div class="vocab-item">
+                        <div class="vocab-word">scripture</div>
+                        <span class="vocab-pos">noun</span>
+                        <div class="vocab-def">
+                            Sacred or holy writings that are considered very
+                            important in a religion.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PART 3: COMPREHENSION -->
+            <section>
+                <div class="section-label">Part 3</div>
+                <h2>🧠 Comprehension Questions</h2>
+
+                <!-- Q1 -->
+                <div class="q-block">
+                    <div class="q-num">Question 01 — Multiple Choice</div>
+                    <p>
+                        Why was Sun Wukong put in prison at the beginning of the
+                        story?
+                    </p>
+                    <div class="choices">
+                        <div class="choice">
+                            <span class="choice-letter">A)</span> He refused to
+                            fight the Jade Emperor's warriors.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">B)</span> He stole a
+                            potion of immortality and defeated the Jade
+                            Emperor's warriors.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">C)</span> He lost a
+                            somersaulting contest to the Buddha.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">D)</span> He tried to
+                            steal the sacred scriptures from the West.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="q-block">
+                    <div class="q-num">Question 02 — Multiple Choice</div>
+                    <p>What was the Buddha's challenge to Sun Wukong?</p>
+                    <div class="choices">
+                        <div class="choice">
+                            <span class="choice-letter">A)</span> Defeat all
+                            five of the Buddha's warriors in a fight.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">B)</span> Somersault to
+                            the edge of the universe and back in one minute.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">C)</span> Somersault out
+                            of the palm of the Buddha's hand.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">D)</span> Carry
+                            Tripitaka safely to the West.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="q-block">
+                    <div class="q-num">Question 03 — Multiple Choice</div>
+                    <p>
+                        What did Sun Wukong discover when he returned from his
+                        somersault?
+                    </p>
+                    <div class="choices">
+                        <div class="choice">
+                            <span class="choice-letter">A)</span> He had
+                            traveled beyond the heavens and won the challenge.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">B)</span> The five
+                            pillars were actually the Buddha's five fingers.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">C)</span> Tripitaka had
+                            already left on the journey without him.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">D)</span> Guanyin had
+                            freed him from prison while he was gone.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="q-block">
+                    <div class="q-num">Question 04 — Multiple Choice</div>
+                    <p>
+                        What deal did Guanyin offer Sun Wukong after 500 years
+                        of imprisonment?
+                    </p>
+                    <div class="choices">
+                        <div class="choice">
+                            <span class="choice-letter">A)</span> She would free
+                            him if he defeated the bandits on the road to the
+                            West.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">B)</span> She would free
+                            him if he promised never to fight again.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">C)</span> She would free
+                            him if he became Tripitaka's faithful disciple on a
+                            sacred journey.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">D)</span> She would free
+                            him if he apologized to the Jade Emperor.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="q-block">
+                    <div class="q-num">Question 05 — Multiple Choice</div>
+                    <p>
+                        What is the purpose of the golden headband that Guanyin
+                        gives Tripitaka?
+                    </p>
+                    <div class="choices">
+                        <div class="choice">
+                            <span class="choice-letter">A)</span> It protects
+                            Tripitaka from attacks by bandits.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">B)</span> It tightens
+                            around Sun Wukong's head to help control his
+                            behavior.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">C)</span> It shows
+                            everyone that Sun Wukong is a loyal disciple.
+                        </div>
+                        <div class="choice">
+                            <span class="choice-letter">D)</span> It gives Sun
+                            Wukong the power to somersault faster.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Q6 Short Answer -->
+                <div class="q-block">
+                    <div class="q-num">Question 06 — Short Answer</div>
+                    <p>
+                        What advice did the Dragon King give to Sun Wukong, and
+                        why was it important?
+                    </p>
+                    <div class="answer-lines">
+                        <div class="answer-line"></div>
+                        <div class="answer-line"></div>
+                        <div class="answer-line"></div>
+                    </div>
+                </div>
+
+                <!-- Q7 Short Answer -->
+                <div class="q-block">
+                    <div class="q-num">Question 07 — Short Answer</div>
+                    <p>
+                        How does Sun Wukong change from the beginning to the end
+                        of the passage? Use at least
+                        <strong>two</strong> details from the text.
+                    </p>
+                    <div class="answer-lines">
+                        <div class="answer-line"></div>
+                        <div class="answer-line"></div>
+                        <div class="answer-line"></div>
+                        <div class="answer-line"></div>
+                    </div>
+                </div>
+
+                <!-- Q8 Inference -->
+                <div class="q-block">
+                    <div class="q-num">Question 08 — Inference</div>
+                    <p>
+                        Why do you think Guanyin was "skeptical" of Sun Wukong's
+                        change of heart? What does this tell us about his past
+                        behavior?
+                    </p>
+                    <div class="answer-lines">
+                        <div class="answer-line"></div>
+                        <div class="answer-line"></div>
+                        <div class="answer-line"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PART 4: ESSAY -->
+            <section class="page-break">
+                <div class="section-label">Part 4</div>
+                <h2>✍️ Short Essay</h2>
+
+                <div class="essay-prompt">
+                    <strong>Prompt:</strong> In the story, Sun Wukong must learn
+                    to control his ego and temper in order to grow as a person.
+                    Think about a time when <em>you</em> or someone you know had
+                    to learn an important lesson about self-control or humility.
+                    Write a short essay (3–4 paragraphs) comparing that
+                    experience to Sun Wukong's journey. How is it similar? How
+                    is it different?
+                </div>
+
+                <div class="essay-tips">
+                    <strong>💡 Writing Tips</strong>
+                    Your essay should include: (1) an
+                    <strong>introduction</strong> that states your main idea,
+                    (2) <strong>body paragraphs</strong> with specific examples,
+                    and (3) a <strong>conclusion</strong> that wraps up your
+                    thoughts. Use transition words like
+                    <em
+                        >similarly, however, just like, in contrast, as a
+                        result</em
+                    >.
+                </div>
+
+                <div class="essay-lines">
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                    <div class="essay-line"></div>
+                </div>
+            </section>
+
+            <!-- ANSWER KEY -->
+            <div class="answer-key no-print">
+                <h3>🔑 Answer Key (Teacher Use Only)</h3>
+                <div class="answer-key-grid">
+                    <div class="ak-item">Q1 → B</div>
+                    <div class="ak-item">Q2 → C</div>
+                    <div class="ak-item">Q3 → B</div>
+                    <div class="ak-item">Q4 → C</div>
+                    <div class="ak-item">Q5 → B</div>
+                </div>
+                <p
+                    style="
+                        margin-top: 14px;
+                        font-size: 0.88rem;
+                        color: var(--faded);
+                        font-style: italic;
+                    "
+                >
+                    Q6 Model: The Dragon King told Sun Wukong that to attain
+                    enlightenment, he had to abandon his ego even if it was
+                    painful. This was important because it showed him that true
+                    growth required humility, not just power.<br /><br />
+                    Q7 Model: At the start, Sun Wukong is arrogant and
+                    violent—he steals, fights, and runs away from
+                    responsibility. By the end, he accepts the golden headband,
+                    apologizes to Tripitaka, and commits to the journey, showing
+                    growth in self-control.<br /><br />
+                    Q8 Open-ended: Accept reasonable responses. Key idea:
+                    Guanyin's doubt reflects Sun Wukong's long history of bad
+                    behavior. It shows that trust must be earned through actions
+                    over time, not just words.
+                </p>
+            </div>
+        </div>
+
+        <button class="print-btn no-print" onclick="window.print()">
+            🖨 Print / Save PDF
+        </button>
+    </body>
+</html>
