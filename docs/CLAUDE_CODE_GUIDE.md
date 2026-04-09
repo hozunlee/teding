@@ -775,7 +775,17 @@ const player = new YT.Player('player', {
 
 ---
 
-## 5. 배포
+## 5. Agent Engineering Skills (기능 구현 시 필수 점검)
+
+장기적 코드 균형 및 안정성을 유지하기 위해 코드를 작성하거나 수정할 때 다음의 에이전트 스킬(지침)을 반영한다.
+
+- **Code Simplification (코드 단순화)**: 불필요한 추상화나 과도한 훅(Hook) 사용을 지양한다. 기존 코드를 리팩토링할 때는 데드 코드(Dead Code)를 반드시 제거하며, 단일 책임 원칙(SRP)을 유지하되 지나치게 잘게 쪼개는 것은 피한다.
+- **API & Interface Design (API 설계)**: `/api` 라우트 구현 시 **멱등성(Idempotency)**을 보장한다 (예: upsert 시 `ignoreDuplicates: true`). 예외 상황(Exception)에 대해 명확한 HTTP 상태 코드와 에러 메시지를 반환하여 프론트엔드가 Graceful Degradation 할 수 있도록 한다.
+- **Debugging & Error Recovery (디버깅 전략)**: Vercel 타임아웃, React 19 호환성, 혹은 Supabase 클라이언트 권한 문제 등 에러가 발생하면 무작정 코드를 고치지 않는다. `가설 수립 -> 재현 파악 -> 문제 고립 -> 수정` 형태의 시니어 디버깅 파이프라인을 엄수한다.
+
+---
+
+## 6. 배포
 
 ### Vercel (권장)
 
