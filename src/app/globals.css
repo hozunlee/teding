@@ -117,6 +117,21 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+:root {
+  --brand-primary: #185FA5;
+  --brand-accent: #C8963E;
+  --step-1: #E6F1FB;
+  --step-2: #EAF3DE;
+  --step-3: #FAEEDA;
+  --step-4: #EEEDFE;
+  --ws-gold: #C8963E;
+  --ws-parchment: #FBF7EE;
+  --ws-ink: #2C1F0A;
+  --ws-deep: #1A1208;
+  --ws-red: #9B2335;
+  --ws-faded: #8A7560;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -126,5 +141,29 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@media print {
+  nav, header, .step-progress, .pdf-bar, .upload-section, .step-nav {
+    display: none !important;
+  }
+
+  #worksheet-container {
+    display: block !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 11pt;
+    color: #000;
+  }
+
+  @page {
+    size: A4;
+    margin: 18mm 22mm;
+  }
+
+  .ws-passage-block {
+    break-inside: avoid;
   }
 }

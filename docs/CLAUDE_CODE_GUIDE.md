@@ -2,6 +2,8 @@
 
 이 문서는 Claude Code가 TED-fi를 처음부터 구현할 때 따라야 할 순서와 세부 지침이다.
 
+@AGENTS.md
+
 ---
 
 ## 0. 전제 조건
@@ -18,7 +20,7 @@ pnpm >= 9
 ```bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
 # Anthropic
