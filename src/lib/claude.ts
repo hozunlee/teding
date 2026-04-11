@@ -8,55 +8,52 @@ function buildPrompt(transcript: string): string {
 Your goal is to create a high-quality English reading worksheet based on the provided TED-Ed script.
 
 [English Proficiency Level: CEFR A2 (Basic, Simple, and Clear English for Beginners)]
-[Target Language: ENGLISH (except for Korean fields specified below)]
+[Target Language: ENGLISH (except for Korean support fields specified below)]
+
+⚠️ STRATEGIC INSTRUCTION:
+1. First, create a SIMPLIFIED ENGLISH VERSION of the script (Reading Passage, 5-6 paragraphs, A2 level).
+2. Then, EXCLUSIVELY from the "Reading Passage" YOU JUST CREATED, select 5 key phrases and 6-8 sentences for analysis.
+   - This is CRITICAL: The "pattern" in phrases and the "text" in sentences MUST match the words in your Reading Passage exactly (verbatim).
 
 ⚠️ CRITICAL LANGUAGE RULE: 
-- EVERY field in "worksheet" (paragraphs, vocabulary, questions, choices, modelAnswer, essayPrompt) MUST be in ENGLISH only.
-- DO NOT translate the passage, questions, or choices into Korean.
-- ONLY the following fields should be in KOREAN:
-  - phrases.korean
+- EVERY field in "worksheet" (paragraphs, vocabulary, questions, choices, modelAnswer, essayPrompt, modelEssay) MUST be in ENGLISH only.
+- ONLY the following fields MUST use the mixed "[English definition] / [Korean meaning]" format:
   - phrases.explanation
-  - phrases.dailyUse
   - sentences.tip
+  - multipleChoice.explanation
+  - shortAnswer.explanation
+- The field "vocabulary.koreanMeaning" MUST be in KOREAN only.
 
 SCRIPT:
 ${transcript}
 
-Return a single JSON object with this exact structure (respect the language rules for each field):
+Return a single JSON object with this exact structure:
 {
   "worksheet": {
-    "readingPassage": {
-      "paragraphs": [{ "heading": "string (ENGLISH)", "body": "string (ENGLISH - A2 level)" }]
-    },
-    "vocabulary": [
-      { "word": "string (ENGLISH)", "pos": "string (ENGLISH - e.g. noun, verb)", "definition": "string (ENGLISH)", "example": "string (ENGLISH)" }
-    ],
-    "multipleChoice": [
-      { "question": "string (ENGLISH)", "choices": ["A) ... (ENGLISH)", "B) ... (ENGLISH)", "C) ... (ENGLISH)", "D) ... (ENGLISH)"], "answer": "A" }
-    ],
-    "shortAnswer": [
-      { "question": "string (ENGLISH)", "modelAnswer": "string (ENGLISH sentence)" }
-    ],
-    "essayPrompt": "string (ENGLISH prompt)"
+    "readingPassage": { "paragraphs": [{ "heading": "string (ENGLISH)", "body": "string (ENGLISH - A2 level)" }] },
+    "vocabulary": [{ "word": "string (ENGLISH)", "pos": "string (ENGLISH)", "definition": "string (ENGLISH)", "koreanMeaning": "string (KOREAN)", "example": "string (ENGLISH)" }],
+    "multipleChoice": [{ "question": "string (ENGLISH)", "choices": ["A) ...", "B) ...", "C) ...", "D) ..."], "answer": "A", "explanation": "string ([English] / [Korean])" }],
+    "shortAnswer": [{ "question": "string (ENGLISH)", "modelAnswer": "string (ENGLISH)", "explanation": "string ([English] / [Korean])" }],
+    "essayPrompt": "string (ENGLISH)",
+    "modelEssay": "string (ENGLISH - An example essay for the prompt)"
   },
   "phrases": [
-    { "pattern": "string (ENGLISH)", "korean": "string (KOREAN translation)", "explanation": "string (KOREAN)",
-      "example": "string (ENGLISH)", "dailyUse": "string (KOREAN - how to use in daily life)", "tags": ["string (ENGLISH)"] }
+    { "pattern": "string (MUST BE VERBATIM FROM PASSAGE)", "korean": "string (KOREAN translation)", "explanation": "string ([English] / [Korean])",
+      "example": "string (ENGLISH)", "dailyUse": "string (KOREAN)", "tags": ["string (ENGLISH)"] }
   ],
   "sentences": [
-    { "text": "string (ENGLISH from script)", "structureLabel": "string (ENGLISH - e.g. Relative Clause)",
-      "parse": [{ "role": "string (ENGLISH - e.g. Subject, Verb, etc.)", "chunk": "string (ENGLISH)", "cssClass": "subj|verb|obj|mod" }],
-      "tip": "string (KOREAN explanation)", "vocab": ["string (ENGLISH)"] }
+    { "text": "string (MUST BE VERBATIM FROM PASSAGE)", "structureLabel": "string (ENGLISH)",
+      "parse": [{ "role": "string (ENGLISH)", "chunk": "string (ENGLISH)", "cssClass": "subj|verb|obj|mod" }],
+      "tip": "string ([English] / [Korean])", "vocab": ["string (ENGLISH)"] }
   ]
 }
 
 SPECIFIC RULES:
-- readingPassage: Create a SIMPLIFIED ENGLISH VERSION of the script (A2 level, 5-6 paragraphs). Do not just copy the raw script.
-- vocabulary: Exactly 6 English items with English definitions.
-- multipleChoice: Exactly 5 questions. All questions and choices must be in English. Answer must be "A", "B", "C", or "D".
-- shortAnswer: Exactly 3 questions in English.
-- sentences: 6-8 key sentences for grammar analysis.
-- ALL tips and translations in 'phrases' and 'sentences.tip' must be in natural KOREAN.
+- vocabulary: Exactly 6 items. Include a clear Korean meaning.
+- multipleChoice: Exactly 5 questions based on your generated passage.
+- shortAnswer: Exactly 3 questions based on your generated passage.
+- Mixed Format: For "explanation" and "tip", always provide a simple English explanation first, then a slash (/), then the Korean translation. 
+  Example: "To say you will not do something. / 제안이나 요청을 딱 잘라 거절할 때 씁니다."
 
 Return ONLY the JSON object. Do not include markdown fences or any other text.`
 }

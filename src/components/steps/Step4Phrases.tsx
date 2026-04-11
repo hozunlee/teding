@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import type { Phrase, SentenceAnalysis } from '@/types/worksheet'
 
 interface Props {
@@ -18,6 +19,175 @@ const CSS_CLASS_COLORS: Record<string, string> = {
   verb: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
   obj: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   mod: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+}
+
+// 핵심 표현 카드 컴포넌트
+function PhraseCard({ phrase }: { phrase: Phrase }) {
+  const [showKorean, setShowKorean] = useState(false)
+  const parts = phrase.explanation.split(' / ')
+  const englishExp = parts[0]
+  const koreanExp = parts[1] || ''
+
+  return (
+    <Card className='group overflow-hidden border-border/50 shadow-sm transition-all hover:border-[var(--brand-orange)]/30'>
+      <CardContent className='p-5'>
+        <div className='mb-3 flex items-start justify-between gap-4'>
+          <div className='space-y-1'>
+            <p className='text-lg font-bold tracking-tight text-[var(--brand-orange)]'>{phrase.pattern}</p>
+            <div className='relative'>
+              <p 
+                onClick={() => setShowKorean(!showKorean)}
+                className={cn(
+                  'text-sm font-medium text-muted-foreground transition-all cursor-pointer',
+                  !showKorean && 'blur-[4px] select-none'
+                )}
+              >
+                {phrase.korean}
+              </p>
+              {!showKorean && <span className='absolute inset-0 flex items-center text-[10px] uppercase font-bold text-orange-500/40 pointer-events-none'>Tap to reveal</span>}
+            </div>
+          </div>
+          <div className='flex gap-1 flex-wrap justify-end'>
+            {phrase.tags.map(tag => (
+              <Badge key={tag} variant='secondary' className='rounded-[4px] bg-black/5 text-[10px] uppercase font-mono'>
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        <div className='space-y-3 rounded-lg bg-muted/30 p-4'>
+          <div className='space-y-1'>
+            <p className='text-[10px] font-bold uppercase text-muted-foreground'>Explanation</p>
+            <p className='text-sm leading-relaxed'>{englishExp}</p>
+          </div>
+
+          {koreanExp && (
+            <div className='pt-2 border-t border-border/50'>
+              <button 
+                onClick={() => setShowKorean(!showKorean)}
+                className='text-[10px] font-bold uppercase text-[var(--brand-orange)] hover:underline mb-1'
+              >
+                {showKorean ? 'Hide Translation' : 'Show Translation'}
+              </button>
+              {showKorean && (
+                <p className='text-sm text-foreground font-medium leading-relaxed animate-in fade-in slide-in-from-top-1'>
+                  {koreanExp}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className='mt-4 space-y-2 px-1'>
+          <p className='text-[10px] font-bold uppercase text-muted-foreground'>Example & Usage</p>
+          <p className='text-sm italic leading-relaxed'>&ldquo;{phrase.example}&rdquo;</p>
+          <p className='text-xs text-muted-foreground'>💬 {phrase.dailyUse}</p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// 구문 분석 카드 컴포넌트
+function SentenceCard({ 
+  sentence, 
+  index, 
+  isKnown, 
+  onToggleKnown, 
+  isActive, 
+  onToggleActive 
+}: { 
+  sentence: SentenceAnalysis, 
+  index: number,
+  isKnown: boolean,
+  onToggleKnown: (i: number) => void,
+  isActive: boolean,
+  onToggleActive: (i: number | null) => void
+}) {
+  const [showKorean, setShowKorean] = useState(false)
+  const parts = sentence.tip.split(' / ')
+  const englishTip = parts[0]
+  const koreanTip = parts[1] || ''
+
+  return (
+    <Card
+      className={cn(
+        'group overflow-hidden border-border/50 shadow-sm transition-all',
+        isActive ? 'ring-2 ring-[var(--brand-orange)] border-transparent' : 'hover:border-border'
+      )}
+    >
+      <CardContent className='p-5' onClick={() => onToggleActive(isActive ? null : index)}>
+        <div className='mb-3 flex items-start justify-between gap-4'>
+          <Badge variant='outline' className='rounded-[4px] border-border bg-muted/20 px-2 py-0.5 text-[10px] font-mono uppercase'>
+            {sentence.structureLabel}
+          </Badge>
+          <label
+            className='flex cursor-pointer items-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground'
+            onClick={e => e.stopPropagation()}
+          >
+            <input
+              type='checkbox'
+              checked={isKnown}
+              onChange={() => onToggleKnown(index)}
+              className='h-4 w-4 rounded-[4px] border-border accent-[var(--brand-orange)]'
+            />
+            I got it!
+          </label>
+        </div>
+
+        <div className='flex flex-wrap gap-1.5 mb-4'>
+          {sentence.parse.map((chunk, j) => (
+            <div
+              key={j}
+              className={cn(
+                'rounded px-2 py-1 text-sm font-medium transition-colors',
+                CSS_CLASS_COLORS[chunk.cssClass] ?? 'bg-muted text-muted-foreground'
+              )}
+            >
+              <p className='mb-0.5 text-[8px] font-mono uppercase opacity-60 leading-none'>{chunk.role}</p>
+              <p className='leading-tight'>{chunk.chunk}</p>
+            </div>
+          ))}
+        </div>
+
+        {(isActive || showKorean) && (
+          <div className='space-y-3 rounded-lg bg-muted/30 p-4 animate-in fade-in slide-in-from-top-2' onClick={e => e.stopPropagation()}>
+            <div className='space-y-1'>
+              <p className='text-[10px] font-bold uppercase text-muted-foreground'>Grammar Tip</p>
+              <p className='text-sm leading-relaxed'>{englishTip}</p>
+            </div>
+
+            {koreanTip && (
+              <div className='pt-2 border-t border-border/50'>
+                <button 
+                  onClick={() => setShowKorean(!showKorean)}
+                  className='text-[10px] font-bold uppercase text-[var(--brand-orange)] hover:underline mb-1'
+                >
+                  {showKorean ? 'Hide Translation' : 'Show Translation'}
+                </button>
+                {showKorean && (
+                  <p className='text-sm text-foreground font-medium leading-relaxed'>
+                    {koreanTip}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {sentence.vocab.length > 0 && (
+              <div className='flex flex-wrap gap-1.5 pt-1'>
+                {sentence.vocab.map(v => (
+                  <Badge key={v} variant='outline' className='rounded-[4px] bg-white text-[10px] px-1.5 border-border/50'>
+                    {v}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
 }
 
 export function Step4Phrases({ videoId, phrases, sentences }: Props) {
@@ -45,22 +215,23 @@ export function Step4Phrases({ videoId, phrases, sentences }: Props) {
       body: JSON.stringify({ videoId, step: 4, knownSentences }),
     })
     await fetch('/api/streak', { method: 'POST' })
-    router.push(`/study/complete?videoId=${videoId}`)
+    router.push(`/study?step=5`)
   }
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className='flex flex-col gap-6'>
       {/* 탭 */}
-      <div className='flex gap-1 rounded-lg bg-muted p-1'>
+      <div className='flex gap-1 rounded-lg bg-black/5 p-1'>
         {(['phrases', 'sentences'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={cn(
+              'flex-1 rounded-[6px] px-3 py-2 text-sm font-medium transition-all',
               tab === t
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-white text-[var(--dark-blue)] shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
-            }`}
+            )}
           >
             {t === 'phrases' ? '핵심 표현' : '구문 분석'}
           </button>
@@ -69,95 +240,41 @@ export function Step4Phrases({ videoId, phrases, sentences }: Props) {
 
       {/* 핵심 표현 탭 */}
       {tab === 'phrases' && (
-        <div className='flex flex-col gap-3'>
-          {phrases.map((phrase, i) => (
-            <Card key={i}>
-              <CardContent className='pt-4'>
-                <div className='mb-2 flex items-start justify-between gap-2'>
-                  <div>
-                    <p className='font-semibold text-[var(--brand-orange)]'>{phrase.pattern}</p>
-                    <p className='text-sm text-muted-foreground'>{phrase.korean}</p>
-                  </div>
-                  <div className='flex gap-1 flex-wrap justify-end'>
-                    {phrase.tags.map(tag => (
-                      <Badge key={tag} variant='secondary' className='shrink-0'>
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <p className='mb-1 text-sm'>{phrase.explanation}</p>
-                <p className='mb-1 text-sm italic text-muted-foreground'>&ldquo;{phrase.example}&rdquo;</p>
-                <p className='text-xs text-muted-foreground'>💬 {phrase.dailyUse}</p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className='flex flex-col gap-4'>
+          <p className='text-mono-label px-1 text-muted-foreground'>AI가 엄선한 일상 활용 표현</p>
+          <div className='flex flex-col gap-4'>
+            {phrases.map((phrase, i) => (
+              <PhraseCard key={i} phrase={phrase} />
+            ))}
+          </div>
         </div>
       )}
 
       {/* 구문 분석 탭 */}
       {tab === 'sentences' && (
-        <div className='flex flex-col gap-3'>
-          {sentences.map((s, i) => (
-            <Card
-              key={i}
-              className={`cursor-pointer transition-colors ${
-                activeSentence === i ? 'ring-2 ring-[var(--brand-orange)]' : ''
-              }`}
-              onClick={() => setActiveSentence(activeSentence === i ? null : i)}
-            >
-              <CardContent className='pt-4'>
-                <div className='mb-2 flex items-start justify-between gap-2'>
-                  <Badge variant='outline' className='shrink-0 text-xs'>
-                    {s.structureLabel}
-                  </Badge>
-                  <label
-                    className='flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground'
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <input
-                      type='checkbox'
-                      checked={known.has(i)}
-                      onChange={() => toggleKnown(i)}
-                      className='h-3 w-3 accent-[var(--brand-orange)]'
-                    />
-                    알았어요
-                  </label>
-                </div>
-
-                <div className='flex flex-wrap gap-1.5 mb-2'>
-                  {s.parse.map((chunk, j) => (
-                    <span
-                      key={j}
-                      className={`rounded px-1.5 py-0.5 text-sm ${CSS_CLASS_COLORS[chunk.cssClass] ?? ''}`}
-                      title={chunk.role}
-                    >
-                      {chunk.chunk}
-                    </span>
-                  ))}
-                </div>
-
-                {activeSentence === i && (
-                  <div className='mt-2 space-y-1 border-t pt-2'>
-                    <p className='text-xs text-muted-foreground'>{s.tip}</p>
-                    {s.vocab.length > 0 && (
-                      <div className='flex flex-wrap gap-1'>
-                        {s.vocab.map(v => (
-                          <Badge key={v} variant='ghost' className='text-xs'>
-                            {v}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+        <div className='flex flex-col gap-4'>
+          <p className='text-mono-label px-1 text-muted-foreground'>문장 구문 분석</p>
+          <div className='flex flex-col gap-4'>
+            {sentences.map((s, i) => (
+              <SentenceCard 
+                key={i} 
+                sentence={s} 
+                index={i}
+                isKnown={known.has(i)}
+                onToggleKnown={toggleKnown}
+                isActive={activeSentence === i}
+                onToggleActive={setActiveSentence}
+              />
+            ))}
+          </div>
         </div>
       )}
 
-      <Button onClick={handleComplete} disabled={loading} className='w-full'>
+      <Button 
+        onClick={handleComplete} 
+        disabled={loading} 
+        className='h-12 w-full rounded-lg bg-[var(--dark-blue)] text-base font-semibold shadow-[var(--shadow-elegant)] transition-transform active:scale-[0.98]'
+      >
         {loading ? '저장 중...' : '학습 완료 🎉'}
       </Button>
     </div>
