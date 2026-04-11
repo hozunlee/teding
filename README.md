@@ -16,12 +16,14 @@
 
 ## 🌟 Introduction
 
-**TED-fi**는 수많은 영어 강의와 자료 속에서 헤매지 않도록, **'매일 하나의 영상'**에만 집중하게 만드는 AI 기반 영어 학습 서비스입니다. 
+**TED-fi**는 수많은 영어 강의와 자료 속에서 헤매지 않도록, **'매일 하나의 영상'** 에만 집중하게 만드는 AI 기반 영어 학습 서비스입니다. 
 관리자가 매일 하나의 TED-Ed 영상을 등록하면, **Google Gemini 2.5 Flash-Lite** 모델이 영상을 분석해 자동으로 학습지, 핵심 어휘, 구문 분석 자료를 생성합니다. 생성된 자료는 전역 캐싱되어 모든 사용자가 대기 시간 없이 즉각적으로 학습에 돌입할 수 있습니다.
 
 ## ✨ Core Features
 
 *   📺 **오늘의 영상 (Daily Video)**: 매일 새롭게 제공되는 TED-Ed 영상 1개. 무한 스크롤의 늪에 빠지지 않도록 선택의 고민을 없앴습니다.
+
+  
 *   🔄 **4단계 학습 사이클 (Study Cycle)**:
     1.  **무자막 시청**: 오직 소리와 영상에만 집중하여 스토리를 파악합니다. (`cc_load_policy=0` 적용)
     2.  **스크립트 확인**: AI가 분석한 영상의 단어 수, 문장 수, 수준 등을 파악하며 스크립트 미리보기를 제공합니다.
@@ -36,7 +38,7 @@
 *   **Framework**: Next.js 16 (App Router)
 *   **Language**: TypeScript
 *   **Database & Auth**: Supabase (PostgreSQL, Auth, Storage)
-*   **AI Model**: Google Gemini 1.5 Flash (응답 파싱 안전성을 위한 `application/json` Schema 강제 적용) / Claude 3.5 Sonnet (Fallback)
+*   **AI Model**: Google Gemini 2.5 Flash-lite (응답 파싱 안전성을 위한 `application/json` Schema 강제 적용) / Claude 3.5 Sonnet (Fallback)
 *   **UI/Styling**: Tailwind CSS, shadcn/ui
 *   **State / Routing**: URL SearchParams (Single Source of Truth)
 *   **Deployment**: Vercel (AI 라우트 `maxDuration` 지원)
