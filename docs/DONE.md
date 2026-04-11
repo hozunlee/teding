@@ -3,6 +3,7 @@
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
 - 2026-04-11 TASK_010: 학습 경험 고도화 (By Gemini) — 지문 내 핵심표현/구문 하이라이트 매칭률 100% 보장(Passage-First 전략), 반응형 상세보기(Popover/Drawer), 단어장 클릭/호버 블러 해제 기능 적용 완료
+- 2026-04-12 TASK_012: 모바일 UI/UX 및 반응형 개선 (By Gemini) — 하단 네비게이션 바 제거 및 상단 햄버거 메뉴(Sheet) 도입, Step 3 단어장 모바일 1열 레이아웃 최적화 완료
 - 2026-04-11 TASK_011: 학습 완료 화면(Complete) 리뉴얼 및 이력 연동 — 대형 체크 애니메이션, 학습 통계, 최근 학습 이력(RecentList) 실제 데이터 연동 완료
 - 2026-04-11 TASK_009: 홈 화면(Home) UI/UX 리뉴얼 — UI_UX_GUIDE.md 4-2 명세 기반 레이아웃 개편 및 디자인 시스템 전면 적용 완료
 - 2026-04-11 TASK_008: Step 3 학습지 UI 리뉴얼 — worksheet_guide.html 사양 이식 및 자동 폴링 로딩 UI 구현 완료

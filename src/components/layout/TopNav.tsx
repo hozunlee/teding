@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { MobileMenu } from './MobileMenu'
 import type { Database } from '@/types/database'
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row']
@@ -13,6 +14,7 @@ export async function TopNav() {
 
   let nickname: string | null = null
   let streak = 0
+  const isAdmin = user?.email === process.env.ADMIN_EMAIL
 
   if (user) {
     const { data: profileData } = await supabase
@@ -32,31 +34,51 @@ export async function TopNav() {
   }
 
   return (
-    <header className='hidden sm:flex sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
+    <header className='sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='container mx-auto flex h-14 items-center justify-between px-4'>
-        <Link
-          href={user ? '/home' : '/'}
-          className='flex items-center gap-2 font-bold text-lg'
-          style={{ color: 'var(--brand-primary)' }}
-        >
-          TED-fi
-        </Link>
+        <div className='flex items-center gap-4'>
+          <Link
+            href={user ? '/home' : '/'}
+            className='flex items-center gap-2 font-bold text-lg'
+            style={{ color: 'var(--brand-primary)' }}
+          >
+            TED-fi
+          </Link>
+          
+          {user && (
+            <nav className='hidden md:flex items-center gap-6 text-sm ml-4'>
+              <Link href='/home' className='text-muted-foreground hover:text-foreground transition-colors'>홈</Link>
+              <Link href='/study' className='text-muted-foreground hover:text-foreground transition-colors'>학습</Link>
+              <Link href='/guide' className='text-muted-foreground hover:text-foreground transition-colors'>가이드</Link>
+            </nav>
+          )}
+        </div>
 
-        {user ? (
-          <div className='flex items-center gap-4'>
-            <nav className='hidden md:flex items-center gap-6 text-sm'>
-              <Link
-                href='/home'
-                className='text-muted-foreground hover:text-foreground transition-colors'
-              >
-                홈
-              </Link>
-              <Link
-                href='/study'
-                className='text-muted-foreground hover:text-foreground transition-colors'
-              >
-                학습
-              </Link>
+        <div className='flex items-center gap-2'>
+          {user ? (
+            <>
+              <div className='hidden sm:flex items-center gap-4 mr-2'>
+                <div className='flex items-center gap-2 text-sm'>
+                  {streak > 0 && (
+                    <span className='flex items-center gap-1 text-amber-600 font-medium'>
+                      <span>🔥</span>
+                      <span>{streak}일</span>
+                    </span>
+                  )}
+                  <span className='text-muted-foreground'>
+                    {nickname ?? user.email?.split('@')[0]}
+                  </span>
+                </div>
+              </div>
+              
+              <MobileMenu 
+                isAdmin={isAdmin} 
+                email={user.email} 
+                nickname={nickname} 
+              />
+            </>
+          ) : (
+            <nav className='flex items-center gap-4 text-sm'>
               <Link
                 href='/guide'
                 className='text-muted-foreground hover:text-foreground transition-colors'
@@ -64,28 +86,8 @@ export async function TopNav() {
                 학습 가이드
               </Link>
             </nav>
-            <div className='flex items-center gap-2 text-sm'>
-              {streak > 0 && (
-                <span className='flex items-center gap-1 text-amber-600 font-medium'>
-                  <span>🔥</span>
-                  <span>{streak}일</span>
-                </span>
-              )}
-              <span className='text-muted-foreground'>
-                {nickname ?? user.email?.split('@')[0]}
-              </span>
-            </div>
-          </div>
-        ) : (
-          <nav className='flex items-center gap-4 text-sm'>
-            <Link
-              href='/guide'
-              className='text-muted-foreground hover:text-foreground transition-colors'
-            >
-              학습 가이드
-            </Link>
-          </nav>
-        )}
+          )}
+        </div>
       </div>
     </header>
   )

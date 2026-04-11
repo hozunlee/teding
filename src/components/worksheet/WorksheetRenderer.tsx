@@ -154,7 +154,7 @@ export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
         <h2 className='mb-5 border-b-[1.5px] border-[var(--ws-gold)]/30 pb-2 text-[1.45rem] font-bold text-[var(--ws-deep)]'>
           📚 Key Vocabulary
         </h2>
-        <div className='grid grid-cols-2 gap-3'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
           {worksheet.vocabulary.map((item, i) => (
             <div 
               key={i} 
