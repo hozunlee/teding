@@ -1,18 +1,101 @@
 'use client'
 
-import { useState } from 'react'
-import type { Worksheet } from '@/types/worksheet'
+import { useState, useMemo, ReactNode } from 'react'
+import { cn } from '@/lib/utils'
+import type { Worksheet, Phrase, SentenceAnalysis } from '@/types/worksheet'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import { useMediaQuery } from "@/lib/hooks/use-media-query"
+import { Button } from "@/components/ui/button"
 
 interface Props {
   worksheet: Worksheet
+  phrases: Phrase[]
+  sentences: SentenceAnalysis[]
 }
 
-export function WorksheetRenderer({ worksheet }: Props) {
+const CSS_CLASS_COLORS: Record<string, string> = {
+  subj: 'bg-blue-100 text-blue-800',
+  verb: 'bg-red-100 text-red-800',
+  obj: 'bg-green-100 text-green-800',
+  mod: 'bg-orange-100 text-orange-800',
+}
+
+export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
   const [showAnswer, setShowAnswer] = useState(false)
+  const [revealedVocab, setRevealedVocab] = useState<Set<number>>(new Set())
+  const isDesktop = useMediaQuery("(min-width: 768px)")
+
+  const toggleVocab = (idx: number) => {
+    setRevealedVocab(prev => {
+      const next = new Set(prev)
+      if (next.has(idx)) next.delete(idx)
+      else next.add(idx)
+      return next
+    })
+  }
+
+  // 매칭할 패턴 리스트 준비 (길이 역순 정렬하여 긴 문장 우선 매칭)
+  const patterns = useMemo(() => {
+    const items = [
+      ...phrases.map(p => ({ type: 'phrase', text: p.pattern, data: p })),
+      ...sentences.map(s => ({ type: 'sentence', text: s.text, data: s }))
+    ].sort((a, b) => b.text.length - a.text.length)
+    return items
+  }, [phrases, sentences])
+
+  // 하이라이트 렌더링 함수
+  const renderHighlightedText = (text: string) => {
+    if (patterns.length === 0) return <span>{text}</span>
+
+    // 정규식 생성 (특수문자 이스케이프 처리 필요)
+    const regexSource = patterns
+      .map(p => p.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|')
+    const regex = new RegExp(`(${regexSource})`, 'gi')
+
+    const parts = text.split(regex)
+
+    return (
+      <>
+        {parts.map((part, i) => {
+          const match = patterns.find(p => p.text.toLowerCase() === part.toLowerCase())
+          if (match) {
+            return (
+              <StudyContextTrigger 
+                key={i} 
+                item={match.data} 
+                type={match.type as 'phrase' | 'sentence'}
+                isDesktop={isDesktop}
+              >
+                <span className='cursor-pointer border-b-2 border-[var(--ws-gold)]/40 bg-[var(--ws-gold)]/10 px-0.5 font-medium transition-colors hover:bg-[var(--ws-gold)]/20 print:border-none print:bg-transparent print:p-0 print:font-normal'>
+                  {part}
+                </span>
+              </StudyContextTrigger>
+            )
+          }
+          return <span key={i}>{part}</span>
+        })}
+      </>
+    )
+  }
+
   return (
     <div
       id='worksheet-container'
-      className='ws-wrapper mx-auto max-w-[860px] bg-[var(--ws-parchment)] p-10 font-serif text-[var(--ws-ink)] shadow-[var(--shadow-elegant)] print:bg-white print:p-0 print:shadow-none'
+      className='ws-wrapper mx-auto max-w-[860px] bg-[var(--ws-parchment)] p-6 md:p-10 font-serif text-[var(--ws-ink)] shadow-[var(--shadow-elegant)] print:bg-white print:p-0 print:shadow-none'
     >
       {/* HEADER */}
       <div className='relative mb-10 border-b-[3px] border-double border-[var(--ws-gold)] pb-8 pt-12 text-center'>
@@ -48,10 +131,10 @@ export function WorksheetRenderer({ worksheet }: Props) {
           📖 Reading Passage
         </h2>
         <p className='mb-4 text-[0.92rem] italic text-[var(--ws-faded)]'>
-          Read the passage carefully before answering the questions below.
+          Tap the highlighted text to see explanations.
         </p>
 
-        <div className='border-l-4 border-[var(--ws-gold)] bg-[#f5edd8] px-8 py-7 text-[1.08rem] leading-[1.85] print:bg-transparent'>
+        <div className='border-l-4 border-[var(--ws-gold)] bg-[#f5edd8] px-6 md:px-8 py-7 text-[1.05rem] md:text-[1.08rem] leading-[1.85] print:bg-transparent'>
           {worksheet.readingPassage.paragraphs.map((para, i) => (
             <div key={i} className='mb-3 last:mb-0'>
               {para.heading && (
@@ -59,7 +142,7 @@ export function WorksheetRenderer({ worksheet }: Props) {
                   {para.heading}
                 </p>
               )}
-              <p>{para.body}</p>
+              <p>{renderHighlightedText(para.body)}</p>
             </div>
           ))}
         </div>
@@ -73,16 +156,35 @@ export function WorksheetRenderer({ worksheet }: Props) {
         </h2>
         <div className='grid grid-cols-2 gap-3'>
           {worksheet.vocabulary.map((item, i) => (
-            <div key={i} className='border border-[var(--ws-gold)]/30 bg-[#f5edd8] p-3.5 print:bg-transparent'>
-              <div className='text-[1.05rem] font-bold text-[var(--ws-red)]'>{item.word}</div>
-              <span className='font-mono text-[0.65rem] text-[var(--ws-faded)] uppercase'>{item.pos}</span>
-              <div className='mt-1 text-[0.92rem] leading-normal text-[var(--ws-ink)]'>
-                {item.definition} <em className='text-[var(--ws-faded)]'>{item.example}</em>
+            <div 
+              key={i} 
+              onClick={() => toggleVocab(i)}
+              className='group relative cursor-pointer border border-[var(--ws-gold)]/30 bg-[#f5edd8] p-3.5 transition-colors hover:border-[var(--ws-gold)] print:bg-transparent'
+            >
+              <div className='flex items-baseline justify-between'>
+                <div className='text-[1.05rem] font-bold text-[var(--ws-red)]'>{item.word}</div>
+                <span className='font-mono text-[0.65rem] text-[var(--ws-faded)] uppercase'>{item.pos}</span>
               </div>
+              <div className='mt-1 text-[0.92rem] leading-normal text-[var(--ws-ink)]'>
+                {item.definition}
+              </div>
+              <div className='mt-1.5 flex items-center gap-2'>
+                <span className='text-[10px] font-bold uppercase text-[var(--ws-gold)] print:hidden'>Meaning:</span>
+                <span 
+                  className={cn(
+                    'text-[0.9rem] font-medium text-[var(--ws-red)] transition-all print:blur-0',
+                    !revealedVocab.has(i) && 'blur-[4px] group-hover:blur-0'
+                  )}
+                >
+                  {item.koreanMeaning}
+                </span>
+              </div>
+              <em className='mt-2 block text-[0.85rem] italic leading-tight text-[var(--ws-faded)]'>{item.example}</em>
             </div>
           ))}
         </div>
       </section>
+
 
       {/* PART 3: COMPREHENSION */}
       <section className='mb-11'>
@@ -147,42 +249,171 @@ export function WorksheetRenderer({ worksheet }: Props) {
           onClick={() => setShowAnswer(v => !v)}
           className='mb-4 w-full rounded border border-[var(--ws-gold)]/40 bg-[#f5edd8] py-2 font-mono text-[0.75rem] uppercase tracking-[0.2em] text-[var(--ws-faded)] transition-colors hover:bg-[#f0e4c8] print:hidden'
         >
-          {showAnswer ? '🔒 정답 숨기기' : '🔑 정답 확인하기'}
+          {showAnswer ? '🔒 정답 숨기기' : '🔑 정답 및 해설 확인하기'}
         </button>
 
         <div className={showAnswer ? 'block' : 'hidden print:block'}>
           <div className='border-t-[3px] border-double border-[var(--ws-gold)] pt-8'>
-            <h3 className='mb-4 font-mono text-[0.75rem] uppercase tracking-[0.2em] text-[var(--ws-faded)]'>
-              🔑 Answer Key
+            <h3 className='mb-6 font-mono text-[0.75rem] uppercase tracking-[0.2em] text-[var(--ws-faded)]'>
+              🔑 Answer Key & Explanations
             </h3>
 
-            {/* 객관식 정답 */}
-            <div className='mb-5'>
+            {/* 객관식 정답 및 해설 */}
+            <div className='mb-8 space-y-4'>
               <p className='mb-2 font-mono text-[0.65rem] uppercase tracking-widest text-[var(--ws-faded)]'>Multiple Choice</p>
-              <div className='flex flex-wrap gap-2.5'>
+              <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 {worksheet.multipleChoice.map((q, i) => (
-                  <div key={i} className='border border-[var(--ws-gold)]/30 bg-[#f5edd8] px-3.5 py-1.5 font-mono text-[0.8rem] text-[var(--ws-red)] print:bg-transparent'>
-                    Q{i+1} → {q.answer}
+                  <div key={i} className='border border-[var(--ws-gold)]/30 bg-[#f5edd8] p-4 text-[0.88rem] print:bg-transparent'>
+                    <p className='font-bold text-[var(--ws-red)]'>Q{i+1} → {q.answer}</p>
+                    <p className='mt-1 italic leading-relaxed text-[var(--ws-ink)]/80'>{q.explanation}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* 단답형 모범 답안 */}
-            <div>
-              <p className='mb-2 font-mono text-[0.65rem] uppercase tracking-widest text-[var(--ws-faded)]'>Short Answer — Model Answers</p>
-              <div className='space-y-3 text-[0.88rem] leading-relaxed'>
+            {/* 단답형 해설 */}
+            <div className='mb-8 space-y-4'>
+              <p className='mb-2 font-mono text-[0.65rem] uppercase tracking-widest text-[var(--ws-faded)]'>Short Answer</p>
+              <div className='space-y-4 text-[0.88rem] leading-relaxed'>
                 {worksheet.shortAnswer.map((q, i) => (
-                  <div key={i} className='border-l-2 border-[var(--ws-gold)]/40 pl-3'>
-                    <p className='font-semibold text-[var(--ws-deep)]'>Q{worksheet.multipleChoice.length + i + 1}. {q.question}</p>
-                    <p className='italic text-[var(--ws-faded)]'>{q.modelAnswer}</p>
+                  <div key={i} className='border-l-2 border-[var(--ws-gold)]/40 bg-[#f5edd8]/30 p-4 print:bg-transparent'>
+                    <p className='font-bold text-[var(--ws-deep)]'>Q{worksheet.multipleChoice.length + i + 1} Model Answer:</p>
+                    <p className='mt-1 font-medium'>{q.modelAnswer}</p>
+                    <p className='mt-2 italic text-[var(--ws-faded)]'>{q.explanation}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* 모범 에세이 */}
+            <div className='border-t border-[var(--ws-gold)]/20 pt-6'>
+              <h4 className='mb-3 font-mono text-[0.7rem] uppercase text-[var(--ws-faded)]'>📝 Model Essay Example</h4>
+              <div className='whitespace-pre-wrap rounded bg-[#f5edd8] p-5 text-[0.95rem] leading-relaxed italic text-[var(--ws-ink)]/90 print:bg-transparent print:p-0'>
+                {worksheet.modelEssay}
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+// 상세 학습 정보 렌더링 컴포넌트
+function StudyContextContent({ item, type }: { item: Phrase | SentenceAnalysis, type: 'phrase' | 'sentence' }) {
+  const [showKorean, setShowKorean] = useState(false)
+  
+  // "[English] / [Korean]" 형식을 분리
+  const splitText = (text: string) => {
+    const parts = text.split(' / ')
+    return {
+      english: parts[0],
+      korean: parts[1] || ''
+    }
+  }
+
+  const tip = splitText(type === 'phrase' ? (item as Phrase).explanation : (item as SentenceAnalysis).tip)
+
+  return (
+    <div className='flex flex-col gap-4 p-4 md:p-0'>
+      <div className='space-y-1'>
+        <p className='text-mono-label text-[var(--ws-gold)]'>{type === 'phrase' ? 'Key Phrase' : 'Grammar Point'}</p>
+        <h3 className='text-xl font-bold text-[var(--ws-deep)]'>
+          {type === 'phrase' ? (item as Phrase).pattern : (item as SentenceAnalysis).structureLabel}
+        </h3>
+      </div>
+
+      <div className='rounded-lg bg-[var(--ws-gold)]/5 p-4 space-y-3 border border-[var(--ws-gold)]/10'>
+        <div className='space-y-1'>
+          <p className='text-[10px] font-bold uppercase text-[var(--ws-faded)]'>Explanation</p>
+          <p className='text-[1rem] leading-relaxed'>{tip.english}</p>
+        </div>
+
+        {tip.korean && (
+          <div className='pt-2 border-t border-[var(--ws-gold)]/10'>
+            <button 
+              onClick={() => setShowKorean(!showKorean)}
+              className='text-[10px] font-bold uppercase text-[var(--brand-orange)] hover:underline mb-1'
+            >
+              {showKorean ? 'Hide Translation' : 'Show Translation (한글 해석)'}
+            </button>
+            {showKorean && (
+              <p className='text-[0.95rem] text-[var(--ws-red)] font-medium leading-relaxed animate-in fade-in slide-in-from-top-1'>
+                {tip.korean}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {type === 'phrase' && (
+        <div className='space-y-2'>
+          <p className='text-[10px] font-bold uppercase text-[var(--ws-faded)]'>Example & Usage</p>
+          <p className='text-[0.95rem] italic leading-relaxed text-[var(--ws-ink)]/80'>
+            &ldquo;{(item as Phrase).example}&rdquo;
+          </p>
+          <p className='text-[0.9rem] text-[var(--ws-faded)]'>💬 {(item as Phrase).dailyUse}</p>
+        </div>
+      )}
+
+      {type === 'sentence' && (
+        <div className='flex flex-wrap gap-1.5'>
+          {(item as SentenceAnalysis).parse.map((chunk, i) => (
+            <div key={i} className={`rounded px-2 py-1 shadow-sm ${CSS_CLASS_COLORS[chunk.cssClass] || 'bg-muted'}`}>
+              <p className='text-[9px] font-mono uppercase opacity-70'>{chunk.role}</p>
+              <p className='text-sm font-medium'>{chunk.chunk}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function StudyContextTrigger({ 
+  children, 
+  item, 
+  type, 
+  isDesktop 
+}: { 
+  children: ReactNode, 
+  item: Phrase | SentenceAnalysis, 
+  type: 'phrase' | 'sentence',
+  isDesktop: boolean 
+}) {
+  const [open, setOpen] = useState(false)
+
+  if (isDesktop) {
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger className='appearance-none border-none bg-transparent p-0 text-left outline-none'>
+          {children}
+        </PopoverTrigger>
+        <PopoverContent className='w-[380px] bg-[var(--ws-parchment)] border-[var(--ws-gold)]/30 shadow-xl p-5'>
+          <StudyContextContent item={item} type={type} />
+        </PopoverContent>
+      </Popover>
+    )
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger className='appearance-none border-none bg-transparent p-0 text-left outline-none'>
+        {children}
+      </DrawerTrigger>
+      <DrawerContent className='bg-[var(--ws-parchment)] border-t-[var(--ws-gold)]/30 max-h-[85vh]'>
+        <div className='mx-auto w-full max-w-lg overflow-y-auto px-4 pb-8 pt-2'>
+          <DrawerHeader className='px-0'>
+            <DrawerTitle className='sr-only'>Details</DrawerTitle>
+          </DrawerHeader>
+          <StudyContextContent item={item} type={type} />
+          <DrawerFooter className='px-0 mt-4'>
+            <DrawerClose asChild>
+              <Button variant='outline' className='w-full border-[var(--ws-gold)]/30 text-[var(--ws-faded)]'>Close</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </div>
+      </DrawerContent>
+    </Drawer>
   )
 }
