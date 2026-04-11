@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { DailyVideoBanner } from '@/components/home/DailyVideoBanner'
 import { StreakCard } from '@/components/home/StreakCard'
+import { RecentList } from '@/components/home/RecentList'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -62,17 +63,7 @@ export default async function HomePage() {
           lastStudyDate={streak?.last_study_date ?? null}
         />
 
-        <div className='flex flex-col gap-3'>
-          <p className='text-mono-label px-1 text-muted-foreground'>최근 학습 기록</p>
-          <div className='flex min-h-[100px] items-center justify-center rounded-lg border border-border bg-muted/10 p-8 text-center text-xs text-muted-foreground shadow-sm'>
-            <div className='flex flex-col items-center gap-2'>
-              <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' className='text-muted-foreground/50'>
-                <path d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' />
-              </svg>
-              학습 완료 기록이 이곳에 표시됩니다.
-            </div>
-          </div>
-        </div>
+        <RecentList />
       </div>
     </div>
   )
