@@ -1,6 +1,6 @@
 # TASK_005: Step 3 (학습지 렌더링 및 PDF 기능)
 
-> 상태: TODO
+> 상태: DONE
 
 ## 목표
 
@@ -17,9 +17,9 @@
 
 ## 완료 기준
 
-- [ ] `learning_materials.worksheet_json`을 읽고 UI 가이드 사양에 맞춰 시각적으로 렌더링하는가 (골드 색상, 이중선 등)
-- [ ] "PDF 다운로드" 버튼을 눌렀을 때 `window.print()`를 트리거하고, `@media print`가 정확히 작동하여 A4 템플릿만 출력하는가
-- [ ] "필기본 업로드"로 PDF 파일을 선택하면 Supabase Storage 버킷에 저장되고 `user_uploads` 테이블에 기록되는가
+- [x] `learning_materials.worksheet_json`을 읽고 UI 가이드 사양에 맞춰 시각적으로 렌더링하는가 (골드 색상, 이중선 등)
+- [x] "PDF 다운로드" 버튼을 눌렀을 때 `window.print()`를 트리거하고, `@media print`가 정확히 작동하여 A4 템플릿만 출력하는가
+- [x] "필기본 업로드"로 PDF 파일을 선택하면 Supabase Storage 버킷에 저장되고 `user_uploads` 테이블에 기록되는가
 
 ## 제약
 

@@ -7,7 +7,7 @@
   <p>
     <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js%2016-black?style=for-the-badge&logo=next.js&logoColor=white" /></a>
     <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" /></a>
-    <a href="https://ai.google.dev/"><img src="https://img.shields.io/badge/Gemini_1.5_Flash-8E75B2?style=for-the-badge&logo=googlebard&logoColor=white" /></a>
+    <a href="https://ai.google.dev/"><img src="https://img.shields.io/badge/Gemini_2.5_Flash_Lite-8E75B2?style=for-the-badge&logo=googlebard&logoColor=white" /></a>
     <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" /></a>
   </p>
 </div>
@@ -17,7 +17,7 @@
 ## 🌟 Introduction
 
 **TED-fi**는 수많은 영어 강의와 자료 속에서 헤매지 않도록, **'매일 하나의 영상'**에만 집중하게 만드는 AI 기반 영어 학습 서비스입니다. 
-관리자가 매일 하나의 TED-Ed 영상을 등록하면, **Google Gemini 1.5 Flash** 모델이 영상을 분석해 자동으로 학습지, 핵심 어휘, 구문 분석 자료를 생성합니다. 생성된 자료는 전역 캐싱되어 모든 사용자가 대기 시간 없이 즉각적으로 학습에 돌입할 수 있습니다.
+관리자가 매일 하나의 TED-Ed 영상을 등록하면, **Google Gemini 2.5 Flash-Lite** 모델이 영상을 분석해 자동으로 학습지, 핵심 어휘, 구문 분석 자료를 생성합니다. 생성된 자료는 전역 캐싱되어 모든 사용자가 대기 시간 없이 즉각적으로 학습에 돌입할 수 있습니다.
 
 ## ✨ Core Features
 

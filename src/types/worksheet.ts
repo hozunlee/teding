@@ -7,6 +7,7 @@ export interface VocabItem {
   word: string
   pos: string
   definition: string
+  koreanMeaning: string
   example: string
 }
 
@@ -14,11 +15,13 @@ export interface MCQuestion {
   question: string
   choices: string[]
   answer: 'A' | 'B' | 'C' | 'D'
+  explanation: string
 }
 
 export interface SAQuestion {
   question: string
   modelAnswer: string
+  explanation: string
 }
 
 export interface Worksheet {
@@ -27,6 +30,7 @@ export interface Worksheet {
   multipleChoice: MCQuestion[]
   shortAnswer: SAQuestion[]
   essayPrompt: string
+  modelEssay: string
 }
 
 export interface Phrase {

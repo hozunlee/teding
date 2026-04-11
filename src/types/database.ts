@@ -39,6 +39,7 @@ export interface Database {
           duration?: string
           created_at?: string
         }
+        Relationships: []
       }
       transcripts: {
         Row: {
@@ -65,6 +66,7 @@ export interface Database {
           sentence_count?: number
           created_at?: string
         }
+        Relationships: []
       }
       learning_materials: {
         Row: {
@@ -94,6 +96,7 @@ export interface Database {
           raw_json?: Json
           created_at?: string
         }
+        Relationships: []
       }
       user_progress: {
         Row: {
@@ -138,6 +141,7 @@ export interface Database {
           quiz_results?: Json
           created_at?: string
         }
+        Relationships: []
       }
       user_uploads: {
         Row: {
@@ -164,6 +168,7 @@ export interface Database {
           file_name?: string
           created_at?: string
         }
+        Relationships: []
       }
       streaks: {
         Row: {
@@ -190,26 +195,31 @@ export interface Database {
           last_study_date?: string | null
           updated_at?: string
         }
+        Relationships: []
       }
       profiles: {
         Row: {
           id: string
           nickname: string
           avatar_url: string | null
+          role: string
           created_at: string
         }
         Insert: {
           id: string
           nickname: string
           avatar_url?: string | null
+          role?: string
           created_at?: string
         }
         Update: {
           id?: string
           nickname?: string
           avatar_url?: string | null
+          role?: string
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>

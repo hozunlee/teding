@@ -1,6 +1,6 @@
 # TASK_002: 데이터 파이프라인 (Data Pipeline)
 
-> 상태: TODO
+> 상태: DONE
 
 ## 목표
 
@@ -19,10 +19,10 @@
 
 ## 완료 기준
 
-- [ ] `/api/admin/daily`를 호출하면 `daily_videos`에 영상이 등록되는가 (관리자 시크릿 검증 적용)
-- [ ] `/api/transcript`를 통해 스크립트 텍스트가 정상 추출 및 DB `transcripts`에 캐싱되는가
-- [ ] `/api/generate`를 통해 Gemini Flash 응답이 JSON으로 정상 반환 및 `learning_materials` 테이블에 단일 row로 Atomic하게 upsert되는가
-- [ ] Vercel 타임아웃 방지를 위해 AI 라우트에 `export const maxDuration = 60;` 이 명시되었는가
+- [x] `/api/admin/daily`를 호출하면 `daily_videos`에 영상이 등록되는가 (관리자 시크릿 검증 적용)
+- [x] `/api/transcript`를 통해 스크립트 텍스트가 정상 추출 및 DB `transcripts`에 캐싱되는가
+- [x] `/api/generate`를 통해 Gemini Flash 응답이 JSON으로 정상 반환 및 `learning_materials` 테이블에 단일 row로 Atomic하게 upsert되는가
+- [x] Vercel 타임아웃 방지를 위해 AI 라우트에 `export const maxDuration = 60;` 이 명시되었는가
 
 ## 제약
 

@@ -164,17 +164,23 @@
 }
 
 @media print {
-  nav, header, .step-progress, .pdf-bar, .upload-section, .step-nav {
-    display: none !important;
+  /* 전체 숨기고 worksheet만 보이게 */
+  body * {
+    visibility: hidden;
+  }
+
+  #worksheet-container,
+  #worksheet-container * {
+    visibility: visible;
   }
 
   #worksheet-container {
-    display: block !important;
+    position: absolute;
+    inset: 0;
     width: 100%;
-    margin: 0;
-    padding: 0;
     font-size: 11pt;
     color: #000;
+    background: white;
   }
 
   @page {
@@ -182,7 +188,7 @@
     margin: 18mm 22mm;
   }
 
-  .ws-passage-block {
+  .ws-passage-block, .break-inside-avoid {
     break-inside: avoid;
   }
 }

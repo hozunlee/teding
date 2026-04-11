@@ -1,6 +1,6 @@
 # TASK_004: Step 1 (무자막 시청) & Step 2 (스크립트)
 
-> 상태: TODO
+> 상태: DONE
 
 ## 목표
 
@@ -17,10 +17,10 @@
 
 ## 완료 기준
 
-- [ ] URL `?step=N`을 SSoT로 사용하여 스텝을 전환할 수 있는가 (useState 사용 지양)
-- [ ] YouTube iFrame에서 `cc_load_policy=0` 속성이 정상 적용되어 기본적으로 자막이 꺼지는가
-- [ ] Step 2에서 `/api/materials` 캐시를 확인하고 없다면 추출/생성을 자연스럽게 트리거하며 Loading State를 지원하는가
-- [ ] Step 전환별 DB 진행 저장 (`/api/progress`) 연동이 동작하는가
+- [x] URL `?step=N`을 SSoT로 사용하여 스텝을 전환할 수 있는가 (useState 사용 지양)
+- [x] YouTube iFrame에서 `cc_load_policy=0` 속성이 정상 적용되어 기본적으로 자막이 꺼지는가
+- [x] Step 2에서 `/api/materials` 캐시를 확인하고 없다면 추출/생성을 자연스럽게 트리거하며 Loading State를 지원하는가
+- [x] Step 전환별 DB 진행 저장 (`/api/progress`) 연동이 동작하는가
 
 ## 제약
 

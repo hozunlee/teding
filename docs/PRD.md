@@ -4,7 +4,7 @@
 **Stack:** Next.js (App Router) · Supabase · Gemini API (Free Tier) · youtube-transcript-api
 
 > Prisma 미사용. Supabase SDK + `supabase gen types` 로 타입 안전성 확보.  
-> AI 생성: Gemini 1.5 Flash (Free Tier) 우선, 폴백으로 Claude API.
+> AI 생성: Gemini 2.5 Flash-Lite (Free Tier) 우선, 폴백으로 Claude API.
 
 ---
 
@@ -255,13 +255,13 @@ create policy "read_daily_videos" on daily_videos
 
 ## 6. Gemini API 호출 구조
 
-학습지·핵심표현·구문분석은 **Gemini 1.5 Flash 단 1회 호출**로 생성, `learning_materials` 테이블에 **1회 upsert**로 원자적 저장한다.
+학습지·핵심표현·구문분석은 **Gemini 2.5 Flash-Lite 단 1회 호출**로 생성, `learning_materials` 테이블에 **1회 upsert**로 원자적 저장한다.
 
-### Free Tier 한도 (2025 기준)
+### Free Tier 한도 (2026 기준)
 | 항목 | 한도 |
 |------|------|
 | 분당 요청(RPM) | 15 |
-| 일 요청(RPD) | 1,500 |
+| 일 요청(RPD) | 1,000 |
 | 입력 컨텍스트 | 1M 토큰 |
 
 관리자가 하루 1회 `/api/admin/daily` 를 호출해 사전 생성하므로 Free Tier로 충분하다.
@@ -278,7 +278,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function generateLearningMaterials(transcript: string) {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.5-flash-lite',
     generationConfig: {
       responseMimeType: 'application/json',  // JSON만 반환 — 파싱 안전
       temperature: 0.4,                       // 낮게 유지해 구조 일관성 확보

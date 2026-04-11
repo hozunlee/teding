@@ -355,7 +355,7 @@ export const maxDuration = 60;  // route.ts 상단 — Vercel Pro 필요
       → 부분 실패(Partial Failure) 구조적으로 불가능
 
 Gemini 설정:
-  model: 'gemini-1.5-flash'
+  model: 'gemini-2.5-flash-lite-flash'
   generationConfig: {
     responseMimeType: 'application/json',  // JSON 전용 응답 — 파싱 안전
     temperature: 0.4,                       // 구조 일관성 확보
