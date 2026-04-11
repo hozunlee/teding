@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Lexend, Lora } from 'next/font/google'
 import './globals.css'
 
 const geistSans = Geist({
@@ -10,6 +10,16 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+})
+
+const lexend = Lexend({
+  variable: '--font-lexend',
+  subsets: ['latin', 'latin-ext'],
+})
+
+const lora = Lora({
+  variable: '--font-lora',
+  subsets: ['latin', 'latin-ext'],
 })
 
 export const metadata: Metadata = {
@@ -31,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang='ko'
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${lexend.variable} ${lora.variable} h-full antialiased`}
     >
       <body className='min-h-full flex flex-col bg-background text-foreground'>
         {children}

@@ -6,14 +6,16 @@ import { Button } from '@/components/ui/button'
 import { WorksheetRenderer } from '@/components/worksheet/WorksheetRenderer'
 import { PDFDownloadButton } from '@/components/worksheet/PDFDownloadButton'
 import { UploadAnnotated } from '@/components/worksheet/UploadAnnotated'
-import type { Worksheet } from '@/types/worksheet'
+import type { Worksheet, Phrase, SentenceAnalysis } from '@/types/worksheet'
 
 interface Props {
   videoId: string
   worksheet: Worksheet
+  phrases: Phrase[]
+  sentences: SentenceAnalysis[]
 }
 
-export function Step3Worksheet({ videoId, worksheet }: Props) {
+export function Step3Worksheet({ videoId, worksheet, phrases, sentences }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -34,8 +36,12 @@ export function Step3Worksheet({ videoId, worksheet }: Props) {
         <UploadAnnotated videoId={videoId} />
       </div>
 
-      <WorksheetRenderer worksheet={worksheet} />
-
+      <WorksheetRenderer 
+        worksheet={worksheet} 
+        phrases={phrases} 
+        sentences={sentences} 
+      />
+...
       <div className='step-nav print:hidden'>
         <Button onClick={handleComplete} disabled={loading} className='w-full'>
           {loading ? '저장 중...' : '학습지 완료 → Step 4'}

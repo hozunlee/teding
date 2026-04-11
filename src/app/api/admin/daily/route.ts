@@ -28,10 +28,11 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { videoId, title, duration } = await req.json() as {
+    const { videoId, title, duration, force = false } = await req.json() as {
       videoId: string
       title: string
       duration: string
+      force?: boolean
     }
 
     const supabase = createServiceClient()
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     // 1. daily_videos 등록 (중복 방지)
     const { error: videoError } = await supabase.from('daily_videos').upsert(
       { date: today, video_id: videoId, title, duration },
-      { onConflict: 'date', ignoreDuplicates: true }
+      { onConflict: 'date', ignoreDuplicates: !force }
     )
     if (videoError) return Response.json({ error: videoError.message }, { status: 500 })
 
@@ -52,25 +53,25 @@ export async function POST(req: Request) {
       .eq('video_id', videoId)
       .single()
 
-    if (cachedTranscript) {
+    if (cachedTranscript && !force) {
       transcriptText = cachedTranscript.raw_text
     } else {
       const { text, wordCount, sentenceCount } = await getTranscript(videoId)
       transcriptText = text
       await supabase.from('transcripts').upsert(
         { video_id: videoId, raw_text: text, word_count: wordCount, sentence_count: sentenceCount },
-        { onConflict: 'video_id', ignoreDuplicates: true }
+        { onConflict: 'video_id', ignoreDuplicates: !force }
       )
     }
 
-    // 3. learning_materials 캐시 확인 → 없으면 생성
+    // 3. learning_materials 캐시 확인 → 없으면 생성 (force일 때는 무시하고 생성)
     const { data: cachedMaterials } = await supabase
       .from('learning_materials')
       .select('id')
       .eq('video_id', videoId)
       .single()
 
-    if (!cachedMaterials) {
+    if (!cachedMaterials || force) {
       const materials = await generateWithFallback(transcriptText)
       const { error: matError } = await supabase.from('learning_materials').upsert(
         {
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
           sentences_json: materials.sentences as unknown as Json,
           raw_json: materials as unknown as Json,
         },
-        { onConflict: 'video_id', ignoreDuplicates: true }
+        { onConflict: 'video_id', ignoreDuplicates: false }
       )
       if (matError) return Response.json({ error: matError.message }, { status: 500 })
     }

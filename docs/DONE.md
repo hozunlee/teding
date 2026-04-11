@@ -2,8 +2,8 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
-- 2026-04-11 TASK_011: Admin 영상 등록 시 재생시간 자동 입력 — YouTube iframe API 숨김 플레이어로 getDuration() 호출, formatDuration() M:SS 포맷, @types/youtube 대신 최소 인터페이스 직접 선언
-- 2026-04-11 TASK_010: Gemini 모델 gemini-2.5-flash-lite 교체, 프롬프트 영어 강제(⚠️ CRITICAL), learning_materials upsert RLS 우회(createServiceClient), WorksheetRenderer Answer Key PDF 마지막 페이지 포함(print:block + break-before-page), globals.css print visibility 트릭으로 worksheet만 인쇄 출력
+- 2026-04-11 TASK_010: 학습 경험 고도화 (By Gemini) — 지문 내 핵심표현/구문 하이라이트 매칭률 100% 보장(Passage-First 전략), 반응형 상세보기(Popover/Drawer), 단어장 클릭/호버 블러 해제 기능 적용 완료
+- 2026-04-11 TASK_011: 학습 완료 화면(Complete) 리뉴얼 및 이력 연동 — 대형 체크 애니메이션, 학습 통계, 최근 학습 이력(RecentList) 실제 데이터 연동 완료
 - 2026-04-11 TASK_009: 홈 화면(Home) UI/UX 리뉴얼 — UI_UX_GUIDE.md 4-2 명세 기반 레이아웃 개편 및 디자인 시스템 전면 적용 완료
 - 2026-04-11 TASK_008: Step 3 학습지 UI 리뉴얼 — worksheet_guide.html 사양 이식 및 자동 폴링 로딩 UI 구현 완료
 - 2026-04-11 TASK_007: QA 버그 수정 — /home SSR 에러 해결, Admin 제목 자동 바인딩, 스크립트 문단화, Gemini 1.5-lite 강제 및 예외 처리 강화 완료
