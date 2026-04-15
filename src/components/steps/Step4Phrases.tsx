@@ -1,17 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { useAuthModal } from '@/lib/store/auth-modal'
 import type { Phrase, SentenceAnalysis } from '@/types/worksheet'
 
 interface Props {
   videoId: string
   phrases: Phrase[]
   sentences: SentenceAnalysis[]
+  isLoggedIn?: boolean
 }
 
 const CSS_CLASS_COLORS: Record<string, string> = {
@@ -190,8 +192,10 @@ function SentenceCard({
   )
 }
 
-export function Step4Phrases({ videoId, phrases, sentences }: Props) {
+export function Step4Phrases({ videoId, phrases, sentences, isLoggedIn = true }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const openModal = useAuthModal((s) => s.open)
   const [tab, setTab] = useState<'phrases' | 'sentences'>('phrases')
   const [known, setKnown] = useState<Set<number>>(new Set())
   const [activeSentence, setActiveSentence] = useState<number | null>(null)
@@ -207,6 +211,10 @@ export function Step4Phrases({ videoId, phrases, sentences }: Props) {
   }
 
   async function handleComplete() {
+    if (!isLoggedIn) {
+      openModal()
+      return
+    }
     setLoading(true)
     const knownSentences = [...known].map(i => sentences[i]?.text ?? '')
     await fetch('/api/progress', {
@@ -215,7 +223,9 @@ export function Step4Phrases({ videoId, phrases, sentences }: Props) {
       body: JSON.stringify({ videoId, step: 4, knownSentences }),
     })
     await fetch('/api/streak', { method: 'POST' })
-    router.push(`/study?step=5`)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('step', '5')
+    router.push(`/study?${params.toString()}`)
   }
 
   return (

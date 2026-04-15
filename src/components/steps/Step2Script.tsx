@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
@@ -20,6 +20,7 @@ interface Props {
 
 export function Step2Script({ videoId, transcript, materialsReady }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [generating, setGenerating] = useState(!materialsReady)
   const [loading, setLoading] = useState(false)
@@ -28,12 +29,16 @@ export function Step2Script({ videoId, transcript, materialsReady }: Props) {
     if (materialsReady) return
 
     async function triggerGenerate() {
-      await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoId, transcript: transcript.raw_text }),
-      })
-      setGenerating(false)
+      try {
+        await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId, transcript: transcript.raw_text }),
+        })
+        setGenerating(false)
+      } catch (error) {
+        console.error('Failed to trigger generate:', error)
+      }
     }
 
     triggerGenerate()
@@ -41,12 +46,23 @@ export function Step2Script({ videoId, transcript, materialsReady }: Props) {
 
   async function handleComplete() {
     setLoading(true)
-    await fetch('/api/progress', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, step: 2 }),
-    })
-    router.push(`/study?step=3`)
+    try {
+      await Promise.all([
+        fetch('/api/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId, step: 2 }),
+        }),
+        fetch('/api/streak', { method: 'POST' })
+      ])
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('step', '3')
+      router.push(`/study?${params.toString()}`)
+    } catch (error) {
+      console.error('Failed to complete step 2:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const preview = transcript.raw_text.slice(0, 500)

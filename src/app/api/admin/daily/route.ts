@@ -1,6 +1,7 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getTranscript } from '@/lib/transcript'
 import { generateWithFallback } from '@/lib/gemini'
+import { getKSTDate } from '@/lib/utils'
 import type { Json } from '@/types/database'
 
 export const maxDuration = 60
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
     }
 
     const supabase = createServiceClient()
-    const today = new Date().toISOString().split('T')[0]
+    const today = getKSTDate()
 
     // 1. daily_videos 등록 (중복 방지)
     const { error: videoError } = await supabase.from('daily_videos').upsert(

@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { getKSTDate } from '@/lib/utils'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL
 
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     const supabase = createServiceClient()
     const { videoId } = await req.json() as { videoId?: string }
 
-    const today = new Date().toISOString().split('T')[0]
+    const today = getKSTDate()
 
     let targetVideoId = videoId
 

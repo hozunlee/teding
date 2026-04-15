@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getKSTDate } from '@/lib/utils'
 
 export async function GET() {
   const supabase = await createClient()
@@ -19,8 +20,8 @@ export async function POST() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const today = new Date().toISOString().split('T')[0]
-  const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0]
+  const today = getKSTDate()
+  const yesterday = getKSTDate(new Date(Date.now() - 86_400_000))
 
   const { data: streak } = await supabase
     .from('streaks')

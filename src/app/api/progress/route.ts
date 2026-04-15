@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/database'
+import { getKSTDate } from '@/lib/utils'
 
 type ProgressInsert = Database['public']['Tables']['user_progress']['Insert']
 
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
 
   const body = await req.json() as ProgressBody
   const { videoId, step, knownSentences, quizResults } = body
-  const today = new Date().toISOString().split('T')[0]
+  const today = getKSTDate()
   const now = new Date().toISOString()
 
   const update: ProgressInsert = {

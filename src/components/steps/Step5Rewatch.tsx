@@ -7,7 +7,7 @@
 // 별도 학습 없이 영상만 틀면 된다.
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 
 interface Props {
@@ -16,6 +16,7 @@ interface Props {
 
 export function Step5Rewatch({ videoId }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [checked, setChecked] = useState(false)
 
   const embedUrl =
@@ -55,7 +56,12 @@ export function Step5Rewatch({ videoId }: Props) {
       </div>
 
       <Button
-        onClick={() => router.push(`/study/complete?videoId=${videoId}`)}
+        onClick={() => {
+          const params = new URLSearchParams(searchParams.toString())
+          params.set('videoId', videoId)
+          params.delete('step') // remove step parameter from URL as we are going to complete page
+          router.push(`/study/complete?${params.toString()}`)
+        }}
         disabled={!checked}
         className='w-full'
       >

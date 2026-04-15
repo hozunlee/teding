@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 
 export function Step1Player({ videoId }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [checked, setChecked] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -19,12 +20,23 @@ export function Step1Player({ videoId }: Props) {
 
   async function handleComplete() {
     setLoading(true)
-    await fetch('/api/progress', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, step: 1 }),
-    })
-    router.push(`/study?step=2`)
+    try {
+      await Promise.all([
+        fetch('/api/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId, step: 1 }),
+        }),
+        fetch('/api/streak', { method: 'POST' })
+      ])
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('step', '2')
+      router.push(`/study?${params.toString()}`)
+    } catch (error) {
+      console.error('Failed to complete step 1:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -40,7 +52,7 @@ export function Step1Player({ videoId }: Props) {
         </div>
       </div>
 
-      <div className='rounded-lg border p-4'>
+      <div className='rounded-lg border border-border p-4'>
         <p className='mb-3 text-sm font-medium'>시청 체크리스트</p>
         <label className='flex cursor-pointer items-center gap-3 text-sm'>
           <input
