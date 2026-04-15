@@ -45,7 +45,7 @@ export async function SiteHeader() {
             <TeddingLogo className='text-lg' />
           </Link>
           
-          <SiteNav isAdmin={isAdmin} />
+          <SiteNav isAdmin={isAdmin} isLoggedIn={!!user} />
         </div>
 
         <div className='flex items-center gap-4'>

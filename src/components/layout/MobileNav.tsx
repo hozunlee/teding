@@ -148,7 +148,7 @@ export function MobileNav({ isAdmin, email, nickname }: { isAdmin?: boolean; ema
                     key={item.href}
                     onClick={() => {
                       setOpen(false)
-                      openAuth()
+                      openAuth('지난 학습을 다시 하고 싶다면 먼저 로그인하세요!')
                     }}
                     className='w-full text-left'
                   >
