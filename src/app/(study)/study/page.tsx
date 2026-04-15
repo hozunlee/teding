@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { StepProgress } from '@/components/steps/StepProgress'
 import { Step1Player } from '@/components/steps/Step1Player'
 import { Step2Script } from '@/components/steps/Step2Script'
@@ -18,12 +18,13 @@ export default async function StudyPage({
   const step = Math.max(1, Math.min(5, Number(stepParam) || 1))
 
   const supabase = await createClient()
+  const adminSupabase = createServiceClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   const today = getKSTDate()
   const targetDate = dateParam ?? today
 
-  const { data: video } = await supabase
+  const { data: video } = await adminSupabase
     .from('daily_videos')
     .select('*')
     .eq('date', targetDate)
@@ -42,7 +43,7 @@ export default async function StudyPage({
   // Step 2+ needs transcript
   let transcript = null
   if (step >= 2) {
-    const { data } = await supabase
+    const { data } = await adminSupabase
       .from('transcripts')
       .select('*')
       .eq('video_id', video.video_id)
@@ -53,7 +54,7 @@ export default async function StudyPage({
   // Step 3~4 needs materials (Step 5는 재시청이므로 불필요)
   let materials = null
   if (step >= 3 && step <= 4) {
-    const { data } = await supabase
+    const { data } = await adminSupabase
       .from('learning_materials')
       .select('*')
       .eq('video_id', video.video_id)
@@ -64,7 +65,7 @@ export default async function StudyPage({
   // Step 2: also check materials exist (for background generate trigger)
   let materialsReady = false
   if (step === 2) {
-    const { data } = await supabase
+    const { data } = await adminSupabase
       .from('learning_materials')
       .select('id')
       .eq('video_id', video.video_id)

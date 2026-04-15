@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { DailyVideoBanner } from '@/components/home/DailyVideoBanner'
 import { StreakCard } from '@/components/home/StreakCard'
 import { RecentList } from '@/components/home/RecentList'
@@ -6,10 +6,11 @@ import { getKSTDate } from '@/lib/utils'
 
 export default async function TodayPage() {
   const supabase = await createClient()
+  const adminSupabase = createServiceClient()
   const { data: { user } } = await supabase.auth.getUser()
   const today = getKSTDate()
 
-  const videoResult = await supabase.from('daily_videos').select('*').eq('date', today).single()
+  const videoResult = await adminSupabase.from('daily_videos').select('*').eq('date', today).single()
   const video = videoResult.data
 
   let streak = null
@@ -67,8 +68,8 @@ export default async function TodayPage() {
 
   if (video) {
     const cacheChecks = await Promise.all([
-      supabase.from('transcripts').select('id').eq('video_id', video.video_id).single(),
-      supabase.from('learning_materials').select('id').eq('video_id', video.video_id).single(),
+      adminSupabase.from('transcripts').select('id').eq('video_id', video.video_id).single(),
+      adminSupabase.from('learning_materials').select('id').eq('video_id', video.video_id).single(),
     ])
     cached = { transcript: !!cacheChecks[0].data, materials: !!cacheChecks[1].data }
 

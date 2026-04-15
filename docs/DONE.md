@@ -2,10 +2,11 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
-- 2026-04-16 Bug Fix: Next.js Client/Server Component 경계 오류 해결 (By Gemini) — `SiteHeader` 서버 컴포넌트 내에 있던 `shadcn`의 NavigationMenu(클라이언트 컴포넌트)를 `SiteNav`로 완전히 분리해 `legacyBehavior` 및 Next.js 충돌 이슈 해결 완료
-
+- 2026-04-16 Bug Fix: 비로그인 시 영상 미노출 해결 (By Gemini) — `createServiceClient`를 활용해 서버 컴포넌트(Home/Study)에서 RLS를 우회하여 공개 데이터(`daily_videos` 등) 패치 완료
+- 2026-04-16 TASK_015: 헤더네비 및 About 추가 (By Gemini) — 상단/모바일 메뉴 순서 최적화 및 `About` 라우트(데스크톱/모바일) 연동 완료
+- 2026-04-16 Bug Fix: `legacyBehavior` 지원 중단 경고 해결 (By Gemini) — `SiteNav.tsx`의 `NavigationMenuLink`를 Base UI `render` Prop 방식으로 리팩토링하여 Next.js 15+ 경고 제거 완료
+- 2026-04-16 Bug Fix: Next.js Client/Server Component 경계 오류 해결 (By Gemini) — `SiteHeader` 서버 컴포넌트 내 `NavigationMenu` 충돌을 `SiteNav` 클라이언트 컴포넌트 분리로 해결 완료
 - 2026-04-16 TASK_014~016: 모바일 반응형 및 레이아웃 분리 리팩토링 (By Gemini) — TopNav/Sidebar를 반응형 단일 Header(Sheet 햄버거 결합)로 통합 및 /study Route Group 별도 격리 적용 완료
-
 - 2026-04-16 TASK_013: 버그 수정 (By Gemini) — 보고또보고(Archive) 메뉴에서 단계 전환 시 date 파라미터 유실 현상 수정 (Step 1~5 useSearchParams 연동) 완료
 - 2026-04-11 TASK_010: 학습 경험 고도화 (By Gemini) — 지문 내 핵심표현/구문 하이라이트 매칭률 100% 보장(Passage-First 전략), 반응형 상세보기(Popover/Drawer), 단어장 클릭/호버 블러 해제 기능 적용 완료
 - 2026-04-12 TASK_012: 모바일 UI/UX 및 반응형 개선 (By Gemini) — 하단 네비게이션 바 제거 및 상단 햄버거 메뉴(Sheet) 도입, Step 3 단어장 모바일 1열 레이아웃 최적화 완료
