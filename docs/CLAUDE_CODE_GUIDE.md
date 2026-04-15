@@ -1,6 +1,6 @@
-# TED-fi — Claude Code 구현 가이드
+# Teding — Claude Code 구현 가이드
 
-이 문서는 Claude Code가 TED-fi를 처음부터 구현할 때 따라야 할 순서와 세부 지침이다.
+이 문서는 Claude Code가 Teding를 처음부터 구현할 때 따라야 할 순서와 세부 지침이다.
 
 @AGENTS.md
 
@@ -41,7 +41,7 @@ NEXT_PUBLIC_KAKAO_JS_KEY=
 
 # 앱
 NEXT_PUBLIC_LOCAL_APP_URL=http://localhost:4000
-NEXT_PUBLIC_APP_URL=https://ted-fi-web.vercel.app
+NEXT_PUBLIC_APP_URL=https://Teding-web.vercel.app
 ```
 
 ---
@@ -578,7 +578,7 @@ SentenceAnalysis (sentences_json 배열):
 
 SNS 공유:
   const text = `오늘 TED-Ed로 영어 공부 완료! 🎉\n"${videoTitle}"\n${streak}일 연속 학습 중\n\n${APP_URL}`;
-  if (navigator.share) navigator.share({ title: 'TED-fi', text });
+  if (navigator.share) navigator.share({ title: 'Teding', text });
   else navigator.clipboard.writeText(text);
 ```
 
@@ -603,7 +603,7 @@ SNS 공유:
 
 SEO:
   export const metadata = {
-    title: '학습 가이드 — TED-fi',
+    title: '학습 가이드 — Teding',
     description: 'TED-Ed 영상으로 영어를 배우는 4단계 학습법',
   }
 ```

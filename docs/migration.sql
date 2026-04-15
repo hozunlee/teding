@@ -1,4 +1,4 @@
--- TED-fi Supabase Migration (초기 설치)
+-- Teding Supabase Migration (초기 설치)
 -- 신규 프로젝트에서 Supabase Dashboard > SQL Editor에 붙여넣고 실행
 -- 이미 테이블이 생성된 경우 → migration_patch.sql 실행
 

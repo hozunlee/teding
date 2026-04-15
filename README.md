@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/TED_Ed_logo.svg" alt="TED-fi Logo" width="100" />
-  <h1>TED-fi</h1>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/TED_Ed_logo.svg" alt="Teding Logo" width="100" />
+  <h1>Teding</h1>
   <p><strong>매일 조금씩, 영어 귀가 트이는 경험</strong></p>
 
   <p>
@@ -31,7 +31,7 @@
 
 ## 어떻게 공부하나요?
 
-TED-fi의 학습 방식은 한 영상을 **여러 번, 목적을 바꿔가며** 보는 구조다.  
+Teding의 학습 방식은 한 영상을 **여러 번, 목적을 바꿔가며** 보는 구조다.  
 이 방법론은 [이 영상](https://www.youtube.com/watch?v=Z6NXm05VC14)에서 영감을 받았다.
 
 자세한 학습 방법은 → **[학습 가이드](/guide)** 에서 확인 (로그인 불필요)

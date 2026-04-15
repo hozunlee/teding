@@ -8,7 +8,7 @@
 
 ## Project Overview
 
-TED-fi는 TED-Ed 영상 한 편을 4단계로 학습하는 AI 기반 영어 학습 웹앱이다.
+Teding는 TED-Ed 영상 한 편을 4단계로 학습하는 AI 기반 영어 학습 웹앱이다.
 
 핵심 메커니즘: 관리자가 매일 TED-Ed 영상 1개를 등록하면, 모든 사용자가 동일한 영상으로 학습한다. 학습자료(학습지·핵심표현·구문분석)는 최초 1회 Gemini API로 생성 후 DB에 전역 캐싱된다. 두 번째 사용자부터는 API 호출 없이 즉시 로드된다.
 
@@ -72,10 +72,10 @@ import { createClient } from "@/lib/supabase/server";
 - `useState`로 스텝 관리 금지 — 새로고침/뒤로가기 시 증발함.
 - 완료 화면은 `/study/complete` 별도 라우트 (공유 링크 오염 방지).
 
-### Middleware
+### Proxy (Middleware Replacement)
 
-- `src/middleware.ts` 에 `config.matcher` 필수 설정.
-- 정적 파일(`_next/static`, 이미지, 파비콘)을 matcher에서 제외하지 않으면 모든 정적 요청에서 Supabase Auth 연산 실행 → TTFB 저하.
+- Next.js의 `middleware.ts` 규약이 `proxy.ts`로 변경됨에 따라 `src/proxy.ts`를 사용.
+- `config.matcher` 필수 설정 및 정적 파일 제외 처리로 TTFB 최적화.
 
 ```typescript
 export const config = {
@@ -126,7 +126,7 @@ src/
 │       ├── upload/route.ts
 │       ├── streak/route.ts
 │       └── admin/daily/route.ts        # maxDuration=60
-├── middleware.ts                        # matcher 필수
+├── proxy.ts                             # matcher 필수 (middleware 대체)
 └── types/
     ├── database.ts     # supabase gen types 자동생성 — 직접 편집 금지
     └── worksheet.ts    # ClaudeResponse 등 수동 타입 정의
