@@ -137,6 +137,16 @@
   --ws-faded: #8A7560;
 }
 
+@keyframes logo-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.logo-colon {
+  animation: logo-blink 1s step-start infinite;
+  color: var(--brand-orange);
+}
+
 @layer utilities {
   .text-display {
     font-size: 4rem;

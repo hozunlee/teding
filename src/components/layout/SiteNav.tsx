@@ -15,40 +15,45 @@ export function SiteNav({ isAdmin }: { isAdmin?: boolean }) {
       <NavigationMenu>
         <NavigationMenuList className='gap-2'>
           <NavigationMenuItem>
-            <Link href='/' legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                홈
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink 
+              className={navigationMenuTriggerStyle()} 
+              render={<Link href='/' />}
+            >
+              홈
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href='/study' legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                오늘 학습
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink 
+              className={navigationMenuTriggerStyle()} 
+              render={<Link href='/guide' />}
+            >
+              가이드
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href='/archive' legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                보고또보고
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink 
+              className={navigationMenuTriggerStyle()} 
+              render={<Link href='/study' />}
+            >
+              오늘 학습
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <Link href='/guide' legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                가이드
-              </NavigationMenuLink>
-            </Link>
+            <NavigationMenuLink 
+              className={navigationMenuTriggerStyle()} 
+              render={<Link href='/archive' />}
+            >
+              보고또보고
+            </NavigationMenuLink>
           </NavigationMenuItem>
           {isAdmin && (
             <NavigationMenuItem>
-              <Link href='/admin' legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  어드민
-                </NavigationMenuLink>
-              </Link>
+              <NavigationMenuLink 
+                className={navigationMenuTriggerStyle()} 
+                render={<Link href='/admin' />}
+              >
+                어드민
+              </NavigationMenuLink>
             </NavigationMenuItem>
           )}
         </NavigationMenuList>

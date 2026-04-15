@@ -26,6 +26,17 @@ const navItems = [
     ),
   },
   {
+    href: '/guide',
+    label: '학습 가이드',
+    icon: (
+      <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <circle cx='12' cy='12' r='10' />
+        <path d='M12 16v-4' />
+        <path d='M12 8h.01' />
+      </svg>
+    ),
+  },
+  {
     href: '/study',
     label: '오늘 학습',
     icon: (
@@ -45,13 +56,13 @@ const navItems = [
     ),
   },
   {
-    href: '/guide',
-    label: '학습 가이드',
+    href: '/about',
+    label: 'About',
     icon: (
       <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
         <circle cx='12' cy='12' r='10' />
-        <path d='M12 16v-4' />
-        <path d='M12 8h.01' />
+        <line x1='12' y1='16' x2='12' y2='12' />
+        <line x1='12' y1='8' x2='12.01' y2='8' />
       </svg>
     ),
   },

@@ -65,7 +65,10 @@ export async function SiteHeader() {
                 </div>
               </div>
               
-              <div className='hidden lg:flex items-center'>
+              <div className='hidden lg:flex items-center gap-4'>
+                <Link href='/about' className='text-sm font-medium text-muted-foreground hover:text-[var(--brand-orange)] transition-colors'>
+                  About
+                </Link>
                 <SignOutButton />
               </div>
               <div className='lg:hidden flex items-center'>
@@ -78,6 +81,11 @@ export async function SiteHeader() {
             </div>
           ) : (
             <div className='flex items-center gap-4'>
+              <div className='hidden lg:flex items-center'>
+                <Link href='/about' className='text-sm font-medium text-muted-foreground hover:text-[var(--brand-orange)] transition-colors mr-4'>
+                  About
+                </Link>
+              </div>
               <LoginButton />
               <div className='lg:hidden flex items-center'>
                 <MobileNav />
