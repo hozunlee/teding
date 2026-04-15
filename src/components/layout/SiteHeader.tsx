@@ -1,12 +1,16 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { MobileMenu } from './MobileMenu'
+import { TeddingLogo } from './TeddingLogo'
+import { LoginButton } from './LoginButton'
+import { SignOutButton } from './SignOutButton'
+import { MobileNav } from './MobileNav'
 import type { Database } from '@/types/database'
+import { SiteNav } from './SiteNav'
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row']
 type StreakRow = Database['public']['Tables']['streaks']['Row']
 
-export async function TopNav() {
+export async function SiteHeader() {
   const supabase = await createClient()
   const {
     data: { user },
@@ -36,56 +40,49 @@ export async function TopNav() {
   return (
     <header className='sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='container mx-auto flex h-14 items-center justify-between px-4'>
-        <div className='flex items-center gap-4'>
-          <Link
-            href={user ? '/home' : '/'}
-            className='flex items-center gap-2 font-bold text-lg'
-            style={{ color: 'var(--brand-primary)' }}
-          >
-            TED-fi
+        <div className='flex items-center gap-6'>
+          <Link href='/' className='flex items-center'>
+            <TeddingLogo className='text-lg' />
           </Link>
           
-          {user && (
-            <nav className='hidden md:flex items-center gap-6 text-sm ml-4'>
-              <Link href='/home' className='text-muted-foreground hover:text-foreground transition-colors'>홈</Link>
-              <Link href='/study' className='text-muted-foreground hover:text-foreground transition-colors'>학습</Link>
-              <Link href='/guide' className='text-muted-foreground hover:text-foreground transition-colors'>가이드</Link>
-            </nav>
-          )}
+          <SiteNav isAdmin={isAdmin} />
         </div>
 
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-4'>
           {user ? (
-            <>
-              <div className='hidden sm:flex items-center gap-4 mr-2'>
+            <div className='flex items-center gap-4'>
+              <div className='hidden sm:flex items-center gap-4'>
                 <div className='flex items-center gap-2 text-sm'>
                   {streak > 0 && (
-                    <span className='flex items-center gap-1 text-amber-600 font-medium'>
+                    <span className='flex items-center gap-1 text-[var(--brand-orange)] font-medium'>
                       <span>🔥</span>
                       <span>{streak}일</span>
                     </span>
                   )}
-                  <span className='text-muted-foreground'>
+                  <span className='font-medium'>
                     {nickname ?? user.email?.split('@')[0]}
                   </span>
                 </div>
               </div>
               
-              <MobileMenu 
-                isAdmin={isAdmin} 
-                email={user.email} 
-                nickname={nickname} 
-              />
-            </>
+              <div className='hidden lg:flex items-center'>
+                <SignOutButton />
+              </div>
+              <div className='lg:hidden flex items-center'>
+                <MobileNav 
+                  isAdmin={isAdmin} 
+                  email={user.email} 
+                  nickname={nickname} 
+                />
+              </div>
+            </div>
           ) : (
-            <nav className='flex items-center gap-4 text-sm'>
-              <Link
-                href='/guide'
-                className='text-muted-foreground hover:text-foreground transition-colors'
-              >
-                학습 가이드
-              </Link>
-            </nav>
+            <div className='flex items-center gap-4'>
+              <LoginButton />
+              <div className='lg:hidden flex items-center'>
+                <MobileNav />
+              </div>
+            </div>
           )}
         </div>
       </div>

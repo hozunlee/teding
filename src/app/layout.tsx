@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Lexend, Lora } from 'next/font/google'
 import './globals.css'
+import { AuthModal } from '@/components/auth/AuthModal'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -23,13 +24,13 @@ const lora = Lora({
 })
 
 export const metadata: Metadata = {
-  title: 'TED-fi — TED-Ed × AI 영어 학습',
-  description: 'TED-Ed 영상 한 편으로 읽기·듣기·쓰기를 한 번에. 매일 조금씩, 영어 귀가 트이는 경험.',
+  title: 'tedding — 밀도 높은 영어를 가장 심플하게 펼치다',
+  description: 'TED-Ed의 지식을 AI가 심플하게 큐레이션합니다. 매일 하나씩, 내 안의 영어가 자라나는 감각을 경험하세요.',
   openGraph: {
-    title: 'TED-fi — TED-Ed × AI 영어 학습',
-    description: 'TED-Ed 영상 한 편으로 읽기·듣기·쓰기를 한 번에.',
+    title: 'tedding — 밀도 높은 영어를 가장 심플하게 펼치다',
+    description: 'TED-Ed의 지식을 AI가 심플하게 큐레이션합니다.',
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: 'TED-fi',
+    siteName: 'tedding',
   },
 }
 
@@ -43,8 +44,12 @@ export default function RootLayout({
       lang='ko'
       className={`${geistSans.variable} ${geistMono.variable} ${lexend.variable} ${lora.variable} h-full antialiased`}
     >
-      <body className='min-h-full flex flex-col bg-background text-foreground'>
+      <body
+        className='min-h-full flex flex-col bg-background text-foreground'
+        suppressHydrationWarning
+      >
         {children}
+        <AuthModal />
       </body>
     </html>
   )

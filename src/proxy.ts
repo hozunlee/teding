@@ -19,7 +19,15 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // /admin 경로 보호 로직 추가
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+  }
+
   return supabaseResponse
 }
 

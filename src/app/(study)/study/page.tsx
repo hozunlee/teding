@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { StepProgress } from '@/components/steps/StepProgress'
 import { Step1Player } from '@/components/steps/Step1Player'
@@ -7,6 +6,7 @@ import { Step3Worksheet } from '@/components/steps/Step3Worksheet'
 import { Step4Phrases } from '@/components/steps/Step4Phrases'
 import { Step5Rewatch } from '@/components/steps/Step5Rewatch'
 import { MaterialsLoading } from '@/components/steps/MaterialsLoading'
+import { getKSTDate } from '@/lib/utils'
 import type { Worksheet, Phrase, SentenceAnalysis } from '@/types/worksheet'
 
 export default async function StudyPage({
@@ -19,9 +19,8 @@ export default async function StudyPage({
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/')
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = getKSTDate()
   const targetDate = dateParam ?? today
 
   const { data: video } = await supabase
@@ -116,6 +115,7 @@ export default async function StudyPage({
             videoId={video.video_id}
             phrases={materials.phrases_json as unknown as Phrase[]}
             sentences={materials.sentences_json as unknown as SentenceAnalysis[]}
+            isLoggedIn={!!user}
           />
         ) : (
           <div className='text-sm text-muted-foreground'>학습자료를 불러오는 중...</div>

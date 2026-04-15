@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 
 const tabs = [
   {
-    href: '/home',
+    href: '/',
     label: '홈',
     icon: (active: boolean) => (
       <svg

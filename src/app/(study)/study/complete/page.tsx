@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useAuthModal } from "@/lib/store/auth-modal";
 
 interface StreakData {
     current_streak: number;
@@ -23,12 +24,19 @@ function CompleteContent() {
     const [streak, setStreak] = useState<StreakData | null>(null);
     const [stats, setStats] = useState<StatsData | null>(null);
     const [shared, setShared] = useState(false);
+    const openModal = useAuthModal((s) => s.open);
 
     useEffect(() => {
-        // 스트릭 정보 가져오기
+        // 스트릭 정보 가져오기 (비로그인이면 null 반환)
         fetch("/api/streak")
             .then((r) => r.json())
-            .then((d: { streak: StreakData | null }) => setStreak(d.streak));
+            .then((d: { streak: StreakData | null }) => {
+                setStreak(d.streak);
+                if (!d.streak) {
+                    // 비로그인 — Aha-moment 모달
+                    openModal();
+                }
+            });
 
         // 영상 통계 정보 가져오기
         if (videoId) {
@@ -46,14 +54,14 @@ function CompleteContent() {
                     }
                 });
         }
-    }, [videoId]);
+    }, [videoId, openModal]);
 
     async function handleShare() {
         const streakDays = streak?.current_streak ?? 0;
-        const shareText = `오늘 TED-fi로 영어 공부 완주! 🦥\n${streakDays}일 연속 학습 중\n\n${process.env.NEXT_PUBLIC_APP_URL ?? "https://ted-hoho-web.vercel.app"}`;
+        const shareText = `오늘 Teding로 영어 공부 완주! 🦥\n${streakDays}일 연속 학습 중\n\n${process.env.NEXT_PUBLIC_APP_URL ?? "https://ted-hoho-web.vercel.app"}`;
 
         if (typeof navigator !== "undefined" && navigator.share) {
-            await navigator.share({ title: "TED-fi", text: shareText });
+            await navigator.share({ title: "Teding", text: shareText });
         } else {
             await navigator.clipboard.writeText(shareText);
             setShared(true);
@@ -164,7 +172,7 @@ function CompleteContent() {
                         : "카카오톡으로 자랑하기"}
                 </button>
                 <Link
-                    href="/home"
+                    href="/"
                     className={cn(
                         buttonVariants({ variant: "outline" }),
                         "h-14 rounded-xl border-border bg-white text-base font-semibold shadow-sm",

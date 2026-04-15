@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { getKSTDate } from '@/lib/utils'
 
 function formatDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-')
@@ -13,7 +14,7 @@ export default async function ArchivePage() {
   if (!user) redirect('/')
 
   const service = createServiceClient()
-  const today = new Date().toISOString().split('T')[0]
+  const today = getKSTDate()
 
   const { data: videos } = await service
     .from('daily_videos')
