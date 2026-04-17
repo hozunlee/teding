@@ -17,7 +17,7 @@ export default async function AboutPage() {
     return (
         <main className="flex-1 flex flex-col">
             {/* Hero (From Landing) */}
-            <section className="relative flex flex-col items-center justify-center min-h-[70vh] px-6 py-20 text-center overflow-hidden">
+            <section className="relative flex flex-col items-center justify-center min-h-[20vh] px-6 py-20 text-center overflow-hidden">
                 {/* Ambient blur */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-linear-to-r from-[#ef2cc1]/8 to-[#bdbbff]/15 blur-[120px] rounded-full" />
