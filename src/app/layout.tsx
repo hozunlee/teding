@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Lexend, Lora } from "next/font/google";
 import "./globals.css";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -78,6 +79,9 @@ export default function RootLayout({
                 {children}
                 <AuthModal />
             </body>
+            {process.env.NEXT_PUBLIC_GA_ID && (
+                <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+            )}
         </html>
     );
 }
