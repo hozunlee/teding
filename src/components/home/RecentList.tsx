@@ -11,9 +11,22 @@ interface HistoryItem {
   step3_completed_at: string | null
   step4_completed_at: string | null
   video_id: string
+  daily_comment: string | null
   daily_videos: {
     title: string
   }
+}
+
+function CommentToggle({ comment }: { comment: string }) {
+  const [expanded, setExpanded] = useState(false)
+  return (
+    <p
+      onClick={(e) => { e.preventDefault(); setExpanded(!expanded) }}
+      className={`mt-1 text-xs text-muted-foreground cursor-pointer ${expanded ? '' : 'line-clamp-1'}`}
+    >
+      💬 {comment}
+    </p>
+  )
 }
 
 export function RecentList() {
@@ -115,6 +128,7 @@ export function RecentList() {
                   <div className='flex flex-col min-w-0'>
                     <p className='truncate text-sm font-medium text-[var(--dark-blue)]'>{item.daily_videos.title}</p>
                     <p className='text-[10px] text-muted-foreground'>{item.date.replace(/-/g, '.')}</p>
+                    {item.daily_comment && <CommentToggle comment={item.daily_comment} />}
                   </div>
                 </div>
                 <div className='shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground'>
