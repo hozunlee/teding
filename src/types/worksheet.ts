@@ -50,6 +50,7 @@ export interface ParseChunk {
 
 export interface SentenceAnalysis {
   text: string
+  koreanTranslation?: string
   structureLabel: string
   parse: ParseChunk[]
   tip: string

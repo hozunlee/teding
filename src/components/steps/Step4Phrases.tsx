@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useAuthModal } from '@/lib/store/auth-modal'
+import { useSpeech } from '@/lib/hooks/use-speech'
+import { Volume1 } from 'lucide-react'
 import type { Phrase, SentenceAnalysis } from '@/types/worksheet'
 
 interface Props {
@@ -26,6 +28,7 @@ const CSS_CLASS_COLORS: Record<string, string> = {
 // 핵심 표현 카드 컴포넌트
 function PhraseCard({ phrase }: { phrase: Phrase }) {
   const [showKorean, setShowKorean] = useState(false)
+  const { speak, speakingText } = useSpeech()
   const parts = phrase.explanation.split(' / ')
   const englishExp = parts[0]
   const koreanExp = parts[1] || ''
@@ -33,11 +36,11 @@ function PhraseCard({ phrase }: { phrase: Phrase }) {
   return (
     <Card className='group overflow-hidden border-border/50 shadow-sm transition-all hover:border-[var(--brand-orange)]/30'>
       <CardContent className='p-5'>
-        <div className='mb-3 flex items-start justify-between gap-4'>
-          <div className='space-y-1'>
+        <div className='mb-3 flex items-start justify-between gap-3'>
+          <div className='min-w-0 flex-1 space-y-1'>
             <p className='text-lg font-bold tracking-tight text-[var(--brand-orange)]'>{phrase.pattern}</p>
             <div className='relative'>
-              <p 
+              <p
                 onClick={() => setShowKorean(!showKorean)}
                 className={cn(
                   'text-sm font-medium text-muted-foreground transition-all cursor-pointer',
@@ -49,12 +52,21 @@ function PhraseCard({ phrase }: { phrase: Phrase }) {
               {!showKorean && <span className='absolute inset-0 flex items-center text-[10px] uppercase font-bold text-orange-500/40 pointer-events-none'>Tap to reveal</span>}
             </div>
           </div>
-          <div className='flex gap-1 flex-wrap justify-end'>
-            {phrase.tags.map(tag => (
-              <Badge key={tag} variant='secondary' className='rounded-[4px] bg-black/5 text-[10px] uppercase font-mono'>
-                {tag}
-              </Badge>
-            ))}
+          <div className='flex shrink-0 flex-col items-end gap-1.5'>
+            <button
+              onClick={() => speak(phrase.pattern)}
+              className={`rounded p-1 text-base leading-none transition-colors ${speakingText === phrase.pattern ? 'text-[var(--brand-orange)]' : 'text-muted-foreground hover:text-foreground'}`}
+              aria-label="발음 듣기"
+            >
+              <Volume1 size={18} />
+            </button>
+            <div className='flex flex-wrap justify-end gap-1'>
+              {phrase.tags.map(tag => (
+                <Badge key={tag} variant='secondary' className='rounded-[4px] bg-black/5 text-[10px] uppercase font-mono'>
+                  {tag}
+                </Badge>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -92,15 +104,15 @@ function PhraseCard({ phrase }: { phrase: Phrase }) {
 }
 
 // 구문 분석 카드 컴포넌트
-function SentenceCard({ 
-  sentence, 
-  index, 
-  isKnown, 
-  onToggleKnown, 
-  isActive, 
-  onToggleActive 
-}: { 
-  sentence: SentenceAnalysis, 
+function SentenceCard({
+  sentence,
+  index,
+  isKnown,
+  onToggleKnown,
+  isActive,
+  onToggleActive
+}: {
+  sentence: SentenceAnalysis,
   index: number,
   isKnown: boolean,
   onToggleKnown: (i: number) => void,
@@ -108,6 +120,7 @@ function SentenceCard({
   onToggleActive: (i: number | null) => void
 }) {
   const [showKorean, setShowKorean] = useState(false)
+  const { speak, speakingText } = useSpeech()
   const parts = sentence.tip.split(' / ')
   const englishTip = parts[0]
   const koreanTip = parts[1] || ''
@@ -124,19 +137,32 @@ function SentenceCard({
           <Badge variant='outline' className='rounded-[4px] border-border bg-muted/20 px-2 py-0.5 text-[10px] font-mono uppercase'>
             {sentence.structureLabel}
           </Badge>
-          <label
-            className='flex cursor-pointer items-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground'
-            onClick={e => e.stopPropagation()}
-          >
-            <input
-              type='checkbox'
-              checked={isKnown}
-              onChange={() => onToggleKnown(index)}
-              className='h-4 w-4 rounded-[4px] border-border accent-[var(--brand-orange)]'
-            />
-            I got it!
-          </label>
+          <div className='flex items-center gap-2'>
+            <button
+              onClick={(e) => { e.stopPropagation(); speak(sentence.text) }}
+              className={`rounded p-1 text-base leading-none transition-colors ${speakingText === sentence.text ? 'text-[var(--brand-orange)]' : 'text-muted-foreground hover:text-foreground'}`}
+              aria-label="발음 듣기"
+            >
+              <Volume1 size={18} />
+            </button>
+            <label
+              className='flex cursor-pointer items-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground'
+              onClick={e => e.stopPropagation()}
+            >
+              <input
+                type='checkbox'
+                checked={isKnown}
+                onChange={() => onToggleKnown(index)}
+                className='h-4 w-4 rounded-[4px] border-border accent-[var(--brand-orange)]'
+              />
+              I got it!
+            </label>
+          </div>
         </div>
+
+        {sentence.koreanTranslation && (
+          <p className='mb-3 text-xs text-muted-foreground'>{sentence.koreanTranslation}</p>
+        )}
 
         <div className='flex flex-wrap gap-1.5 mb-4'>
           {sentence.parse.map((chunk, j) => (

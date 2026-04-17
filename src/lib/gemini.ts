@@ -53,7 +53,8 @@ Return a single JSON object with this exact structure:
       "example": "string (ENGLISH)", "dailyUse": "string (KOREAN)", "tags": ["string (ENGLISH)"] }
   ],
   "sentences": [
-    { "text": "string (MUST BE VERBATIM FROM PASSAGE)", "structureLabel": "string (ENGLISH)",
+    { "text": "string (MUST BE VERBATIM FROM PASSAGE)", "koreanTranslation": "string (KOREAN - natural translation of the full sentence)",
+      "structureLabel": "string (ENGLISH)",
       "parse": [{ "role": "string (ENGLISH)", "chunk": "string (ENGLISH)", "cssClass": "subj|verb|obj|mod" }],
       "tip": "string ([English] / [Korean])", "vocab": ["string (ENGLISH)"] }
   ]
