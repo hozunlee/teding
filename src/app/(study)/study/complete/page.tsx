@@ -12,19 +12,16 @@ interface StreakData {
     longest_streak: number;
 }
 
-interface StatsData {
-    sentences: number;
-    phrases: number;
-    vocabulary: number;
-}
-
 function CompleteContent() {
     const searchParams = useSearchParams();
     const videoId = searchParams.get("videoId");
     const [streak, setStreak] = useState<StreakData | null>(null);
-    const [stats, setStats] = useState<StatsData | null>(null);
     const [shared, setShared] = useState(false);
     const openModal = useAuthModal((s) => s.open);
+    const [selectedDifficulty, setSelectedDifficulty] = useState<1 | 3 | 5 | null>(null);
+    const [comment, setComment] = useState('');
+    const [feedbackSaved, setFeedbackSaved] = useState(false);
+    const [feedbackSaving, setFeedbackSaving] = useState(false);
 
     useEffect(() => {
         // 스트릭 정보 가져오기 (비로그인이면 null 반환)
@@ -37,24 +34,23 @@ function CompleteContent() {
                     openModal();
                 }
             });
+    }, [openModal]);
 
-        // 영상 통계 정보 가져오기
-        if (videoId) {
-            fetch(`/api/materials/${videoId}`)
-                .then((r) => r.json())
-                .then((d) => {
-                    if (d.materials) {
-                        setStats({
-                            sentences: d.materials.sentences_json?.length || 0,
-                            phrases: d.materials.phrases_json?.length || 0,
-                            vocabulary:
-                                d.materials.worksheet_json?.vocabulary
-                                    ?.length || 0,
-                        });
-                    }
-                });
-        }
-    }, [videoId, openModal]);
+    async function handleSaveFeedback() {
+        if (!videoId || feedbackSaved) return;
+        setFeedbackSaving(true);
+        await fetch('/api/progress', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                videoId,
+                ...(selectedDifficulty !== null && { difficulty_rating: selectedDifficulty }),
+                daily_comment: comment.trim() || null,
+            }),
+        });
+        setFeedbackSaved(true);
+        setFeedbackSaving(false);
+    }
 
     async function handleShare() {
         const streakDays = streak?.current_streak ?? 0;
@@ -97,39 +93,6 @@ function CompleteContent() {
                 오늘의 학습을 무사히 마쳤습니다.
             </p>
 
-            {/* Stats Row */}
-            <div className="my-10 grid w-full grid-cols-3 gap-4">
-                {[
-                    {
-                        label: "Sentences",
-                        value: stats?.sentences || "-",
-                        color: "text-blue-600",
-                    },
-                    {
-                        label: "Phrases",
-                        value: stats?.phrases || "-",
-                        color: "text-orange-600",
-                    },
-                    {
-                        label: "Words",
-                        value: stats?.vocabulary || "-",
-                        color: "text-magenta-600",
-                    },
-                ].map((stat) => (
-                    <div
-                        key={stat.label}
-                        className="flex flex-col items-center rounded-xl border border-border bg-card p-4 shadow-sm"
-                    >
-                        <p className="text-[1.5rem] font-bold tracking-tight">
-                            {stat.value}
-                        </p>
-                        <p className="text-mono-micro mt-1 text-muted-foreground uppercase">
-                            {stat.label}
-                        </p>
-                    </div>
-                ))}
-            </div>
-
             {/* Streak Info Card */}
             {streak && (
                 <div className="mb-10 flex w-full flex-col items-center justify-center rounded-2xl border border-border bg-[var(--dark-blue)] p-8 text-white shadow-xl">
@@ -150,6 +113,64 @@ function CompleteContent() {
                             style={{ width: "100%" }}
                         />
                     </div>
+                </div>
+            )}
+
+            {/* Feedback Form — 로그인 사용자만 */}
+            {streak && (
+                <div className="mb-4 w-full rounded-2xl border border-border bg-card p-6 text-left shadow-sm">
+                    <p className="mb-4 text-sm font-semibold text-[var(--dark-blue)]">오늘 학습 어땠나요?</p>
+
+                    {/* 난이도 칩 */}
+                    <div className="mb-5 flex gap-2">
+                        {([
+                            { label: '쉬워요', value: 1 as const },
+                            { label: '할만해요', value: 3 as const },
+                            { label: '어려워요', value: 5 as const },
+                        ] as const).map(({ label, value }) => (
+                            <button
+                                key={value}
+                                onClick={() => setSelectedDifficulty(selectedDifficulty === value ? null : value)}
+                                disabled={feedbackSaved}
+                                className={cn(
+                                    'flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-all',
+                                    selectedDifficulty === value
+                                        ? 'border-[var(--brand-orange)] bg-[var(--brand-orange)]/10 text-[var(--brand-orange)]'
+                                        : 'border-border bg-background text-muted-foreground hover:border-border/80 hover:text-foreground',
+                                    feedbackSaved && 'opacity-60 cursor-not-allowed'
+                                )}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* 한 줄 평 */}
+                    <div className="mb-4 space-y-1.5">
+                        <p className="text-xs font-medium text-muted-foreground">한 줄 평 <span className="font-normal">(선택)</span></p>
+                        <textarea
+                            value={comment}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value.slice(0, 100))}
+                            placeholder="오늘 배운 내용을 한 줄로 남겨보세요"
+                            rows={2}
+                            disabled={feedbackSaved}
+                            className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-60"
+                        />
+                        <p className="text-right text-[10px] text-muted-foreground">{comment.length}/100</p>
+                    </div>
+
+                    <button
+                        onClick={handleSaveFeedback}
+                        disabled={feedbackSaved || feedbackSaving || (selectedDifficulty === null && !comment.trim())}
+                        className={cn(
+                            'w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-all',
+                            feedbackSaved
+                                ? 'bg-green-500/10 text-green-600 cursor-default'
+                                : 'bg-[var(--dark-blue)] text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed'
+                        )}
+                    >
+                        {feedbackSaved ? '저장됨 ✓' : feedbackSaving ? '저장 중...' : '저장하기'}
+                    </button>
                 </div>
             )}
 
