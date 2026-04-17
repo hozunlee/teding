@@ -179,7 +179,7 @@ SUPADATA_API_KEY=            # 스크립트 추출 (Vercel 배포 시)
 ADMIN_SECRET=                # /api/admin/daily 인증
 
 NEXT_PUBLIC_KAKAO_JS_KEY=
-NEXT_PUBLIC_APP_URL=https://tedfi.app
+NEXT_PUBLIC_APP_URL=https://eng.hololog.dev
 ```
 
 ---

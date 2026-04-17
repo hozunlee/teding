@@ -41,7 +41,7 @@ NEXT_PUBLIC_KAKAO_JS_KEY=
 
 # 앱
 NEXT_PUBLIC_LOCAL_APP_URL=http://localhost:4000
-NEXT_PUBLIC_APP_URL=https://Teding-web.vercel.app
+NEXT_PUBLIC_APP_URL=https://eng.hololog.dev
 ```
 
 ---

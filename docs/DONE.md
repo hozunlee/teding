@@ -2,6 +2,19 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-04-17 TASK_030: 브랜드 에셋 및 스토리 적용 — `public/favi` 파일 루트 이동 및 메타데이터(favicon, manifest, apple-icon) 연동, `nail.png` 공용 OG 이미지 지정, `docs/INTEND.md` 기반 `/about` 브랜드 스토리 개편
+- 2026-04-17 TASK_029: Step 3 학습지 인터랙티브 퀴즈 — 객관식(MCQ) 즉각 피드백(정오답 색상/아이콘) 및 해설 노출, 단답형(SA) 클릭 시 모범 답안 reveal, 인쇄 시 정적 레이아웃 유지 처리
+- 2026-04-17 TASK_028: Archive 고도화 — 난이도 통계(평균 기반 라벨+평가인원), RollingComment 클라이언트 컴포넌트(4초 fade), 내 학습지 링크(user_uploads 조회)
+- 2026-04-17 TASK_027: 대시보드 한 줄 평 노출 — history API daily_comment 포함, RecentList CommentToggle(line-clamp-1 클릭펼침)
+- 2026-04-17 TASK_026: 완료 화면 난이도+한줄평 폼 — 쉬워요/할만해요/어려워요 칩 버튼, textarea 100자 제한, PATCH /api/progress, 로그인 사용자만 노출
+- 2026-04-17 TASK_025: DB difficulty_rating 컬럼 추가 — 마이그레이션 SQL 생성, database.ts 타입 업데이트(daily_comment 포함), progress API PATCH 핸들러 추가
+- 2026-04-17 TASK_024: 구문분석 koreanTranslation — SentenceAnalysis 타입 옵셔널 필드 추가, Gemini·Claude 프롬프트 갱신, SentenceCard 카드에 한국어 번역 표시
+- 2026-04-17 TASK_023: Web Speech API — useSpeech 훅 생성, WorksheetRenderer 문단별 🔊 버튼, Step4 PhraseCard·SentenceCard 🔊 버튼 추가
+- 2026-04-17 TASK_022: StepProgress 클릭 네비게이션 — 완료 스텝 클릭 시 router.push, useSearchParams로 date 파라미터 보존
+- 2026-04-17 TASK_021: 메인 UI 조정 — 타이틀 text-2xl sm:text-[2.5rem] 반응형, 마이크로 카피 "5분짜리 TED-Ed 영상으로 가볍게 시작하는 영어 루틴" 추가
+- 2026-04-17 TASK_020: GA4 연동 — @next/third-parties/google GoogleAnalytics 컴포넌트 layout.tsx 주입, NEXT_PUBLIC_GA_ID 환경변수 조건부 렌더링
+- 2026-04-17 TASK_019: robots.txt — app/robots.ts 생성, /admin·/auth/callback Disallow, sitemap URL 명시
+- 2026-04-17 TASK_018: 사이트맵 자동 생성 — app/sitemap.ts 생성, daily_videos 최근 30개 동적 URL 포함 (/study?date=YYYY-MM-DD)
 - 2026-04-17 TASK_017: teding 리브랜딩(ted:ing 로고) + PLG 비로그인 전체 개방 + 전역 AuthModal(zustand) + StreakCard SVG Ring·픽셀식물 5단계 + 강화 랜딩·/about 신설 + DB raw_json·daily_comment 컬럼 추가
 
 - 2026-04-16 Bug Fix: 비로그인 시 영상 미노출 해결 (By Gemini) — `createServiceClient`를 활용해 서버 컴포넌트(Home/Study)에서 RLS를 우회하여 공개 데이터(`daily_videos` 등) 패치 완료

@@ -89,9 +89,12 @@ export default async function AboutPage() {
                         </p>
                         <div className="rounded-xl border border-border bg-card p-6 flex flex-col gap-6">
                             <div className="flex flex-col gap-2">
-                                <h3 className="font-semibold text-foreground text-sm">
+                                <h3 className="font-semibold text-sm text-[var(--brand-orange)]">
                                     &quot;아내가 영어 앱 결제 버튼을 누르기
-                                    직전, 직접 만든 AI 영어학습 서비스&quot;
+                                    직전, <br />
+                                    <span className="text-right">
+                                        직접 만든 AI 영어학습 서비스&quot;
+                                    </span>
                                 </h3>
                                 <p className="text-sm leading-relaxed text-muted-foreground">
                                     매번 굳게 다짐하는 영어 공부, 하지만 어느새

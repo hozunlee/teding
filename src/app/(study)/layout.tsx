@@ -29,7 +29,7 @@ export default function StudyLayout({
                             <polyline points="12 19 5 12 12 5" />
                         </svg>
                         <span className="text-sm font-medium">
-                            학습 일지 나가기
+                            {/* 학습 일지 나가기 */}
                         </span>
                     </Link>
                     <div className="absolute left-1/2 -translate-x-1/2">
