@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-04-17: 프로덕트 v2 스키마 확장 (TASK_017)
+
+### learning_materials — raw_json 컬럼 추가
+- `raw_json jsonb nullable` — Gemini 원본 응답 보존용
+- Public Read RLS 정책 추가 (`public_read_learning_materials`)
+- 마이그레이션: `docs/migrations/001_product_v2.sql`
+
+### user_progress — daily_comment 컬럼 추가
+- `daily_comment text nullable` — 학습 완료 후 한 줄 코멘트 저장
+- 별도 코멘트 테이블 생성 금지. user_progress 단일 row에 병합.
+
+### 타입 재생성
+```bash
+npx supabase gen types typescript --project-id pavarzhfncjxokvgsmka > src/types/database.ts
+```
+
+---
+
+## 2026-04-17: 인증 아키텍처 변경 (TASK_017 PLG)
+
+### 미들웨어 생성 (`src/middleware.ts`)
+- `/admin` 경로만 인증 보호. 나머지(`/home`, `/study`, `/guide`, `/about`) 통과.
+- 기존: 각 페이지 서버 컴포넌트에서 `if (!user) redirect('/')` 패턴
+- 변경: 미들웨어에서 `/admin`만 차단, 페이지 레벨에서 user null 처리
+
+### 전역 AuthModal (zustand)
+- `src/lib/store/auth-modal.ts` — `useAuthModal()` 훅, open/close/message
+- `src/components/auth/AuthModal.tsx` — root layout에 단일 마운트
+- 로그인 유도 시점: Step4 완료 버튼(비로그인), /study/complete 진입(비로그인), RecentList 클릭(비로그인)
+
+### API 변경
+- `GET /api/history` — 비로그인 시 401 대신 `{ history: [], loggedIn: false }` 반환
+
+---
+
 ## 초기 스키마 (v0.1 MVP)
 
 테이블 목록:

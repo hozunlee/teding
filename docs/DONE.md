@@ -2,6 +2,8 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-04-17 TASK_017: teding 리브랜딩(ted:ing 로고) + PLG 비로그인 전체 개방 + 전역 AuthModal(zustand) + StreakCard SVG Ring·픽셀식물 5단계 + 강화 랜딩·/about 신설 + DB raw_json·daily_comment 컬럼 추가
+
 - 2026-04-16 Bug Fix: 비로그인 시 영상 미노출 해결 (By Gemini) — `createServiceClient`를 활용해 서버 컴포넌트(Home/Study)에서 RLS를 우회하여 공개 데이터(`daily_videos` 등) 패치 완료
 - 2026-04-16 TASK_015: 헤더네비 및 About 추가 (By Gemini) — 상단/모바일 메뉴 순서 최적화 및 `About` 라우트(데스크톱/모바일) 연동 완료
 - 2026-04-16 Bug Fix: `legacyBehavior` 지원 중단 경고 해결 (By Gemini) — `SiteNav.tsx`의 `NavigationMenuLink`를 Base UI `render` Prop 방식으로 리팩토링하여 Next.js 15+ 경고 제거 완료
