@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, ReactNode } from "react";
+import { useSpeech } from "@/lib/hooks/use-speech";
 import { cn } from "@/lib/utils";
 import type { Worksheet, Phrase, SentenceAnalysis } from "@/types/worksheet";
 import {
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
-
+import { CheckCircle2, XCircle, Volume1 } from "lucide-react";
 interface Props {
     worksheet: Worksheet;
     phrases: Phrase[];
@@ -36,6 +37,10 @@ const CSS_CLASS_COLORS: Record<string, string> = {
 export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
     const [showAnswer, setShowAnswer] = useState(false);
     const [revealedVocab, setRevealedVocab] = useState<Set<number>>(new Set());
+    const [selectedMCQs, setSelectedMCQs] = useState<Record<number, string>>(
+        {},
+    );
+    const [revealedSAs, setRevealedSAs] = useState<Set<number>>(new Set());
     const isDesktop = useMediaQuery("(min-width: 768px)");
 
     const toggleVocab = (idx: number) => {
@@ -43,6 +48,20 @@ export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
             const next = new Set(prev);
             if (next.has(idx)) next.delete(idx);
             else next.add(idx);
+            return next;
+        });
+    };
+
+    const handleMCQSelect = (qIndex: number, selectedPrefix: string) => {
+        if (selectedMCQs[qIndex]) return; // Prevent changing answer
+        setSelectedMCQs((prev) => ({ ...prev, [qIndex]: selectedPrefix }));
+    };
+
+    const toggleSA = (qIndex: number) => {
+        setRevealedSAs((prev) => {
+            const next = new Set(prev);
+            if (next.has(qIndex)) next.delete(qIndex);
+            else next.add(qIndex);
             return next;
         });
     };
@@ -116,7 +135,7 @@ export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
                     ☯
                 </span>
                 <div className="font-mono text-[0.7rem] uppercase tracking-[0.15em] text-[var(--ws-faded)]">
-                    English Reading Worksheet · Grade 6
+                    English Reading Worksheet · basic
                 </div>
                 <h1 className="mt-3 text-[2.6rem] font-bold leading-tight text-[var(--ws-deep)]">
                     Teding <span className="text-[var(--ws-gold)]">Lounge</span>
@@ -157,11 +176,23 @@ export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
                     {worksheet.readingPassage.paragraphs.map((para, i) => (
                         <div key={i} className="mb-3 last:mb-0">
                             {para.heading && (
-                                <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--ws-gold)]">
-                                    {para.heading}
-                                </p>
+                                <div className="mb-1 flex items-center justify-between">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-[var(--ws-gold)]">
+                                        {para.heading}
+                                    </p>
+                                    <SpeakButton text={para.body} />
+                                </div>
                             )}
-                            <p>{renderHighlightedText(para.body)}</p>
+                            <div className="flex items-start gap-1">
+                                {!para.heading && (
+                                    <span className="print:hidden">
+                                        <SpeakButton text={para.body} />
+                                    </span>
+                                )}
+                                <p className="flex-1">
+                                    {renderHighlightedText(para.body)}
+                                </p>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -226,47 +257,149 @@ export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
 
                 {/* MCQ */}
                 <div className="space-y-7">
-                    {worksheet.multipleChoice.map((q, i) => (
-                        <div key={i} className="break-inside-avoid">
-                            <div className="font-mono text-[0.75rem] text-[var(--ws-gold)]">
-                                Question 0{i + 1} — Multiple Choice
-                            </div>
-                            <p className="mb-3 text-[1.05rem] font-semibold leading-normal text-[var(--ws-deep)]">
-                                {q.question}
-                            </p>
-                            <div className="flex flex-col gap-2">
-                                {q.choices.map((choice, j) => (
-                                    <div
-                                        key={j}
-                                        className="flex cursor-pointer items-start gap-2.5 border border-[var(--ws-gold)]/30 bg-[#f5edd8] px-3.5 py-2 text-[0.97rem] transition-colors hover:bg-[#f0e4c8] print:bg-transparent"
-                                    >
-                                        <span className="mt-0.5 font-mono text-[0.85rem] font-bold text-[var(--ws-gold)]">
-                                            {String.fromCharCode(65 + j)})
-                                        </span>
-                                        <span>{choice}</span>
+                    {worksheet.multipleChoice.map((q, i) => {
+                        const selected = selectedMCQs[i];
+                        const isAnswered = !!selected;
+
+                        return (
+                            <div key={i} className="break-inside-avoid">
+                                <div className="font-mono text-[0.75rem] text-[var(--ws-gold)]">
+                                    Question 0{i + 1} — Multiple Choice
+                                </div>
+                                <p className="mb-3 text-[1.05rem] font-semibold leading-normal text-[var(--ws-deep)]">
+                                    {q.question}
+                                </p>
+                                <div className="flex flex-col gap-2">
+                                    {q.choices.map((choice, j) => {
+                                        const prefix = String.fromCharCode(
+                                            65 + j,
+                                        );
+                                        const isThisSelected =
+                                            selected === prefix;
+                                        const isThisCorrect =
+                                            prefix === q.answer;
+
+                                        let bgClass =
+                                            "bg-[#f5edd8] border-[var(--ws-gold)]/30 hover:bg-[#f0e4c8]";
+                                        if (isAnswered) {
+                                            if (
+                                                isThisSelected &&
+                                                isThisCorrect
+                                            ) {
+                                                bgClass =
+                                                    "bg-green-100 border-green-500 text-green-900";
+                                            } else if (
+                                                isThisSelected &&
+                                                !isThisCorrect
+                                            ) {
+                                                bgClass =
+                                                    "bg-red-100 border-red-500 text-red-900";
+                                            } else if (isThisCorrect) {
+                                                bgClass =
+                                                    "bg-green-50/50 border-green-500/50 text-green-900/70";
+                                            } else {
+                                                bgClass =
+                                                    "bg-[#f5edd8]/50 border-[var(--ws-gold)]/10 opacity-50";
+                                            }
+                                        }
+
+                                        return (
+                                            <div
+                                                key={j}
+                                                onClick={() =>
+                                                    handleMCQSelect(i, prefix)
+                                                }
+                                                className={cn(
+                                                    "flex items-start justify-between gap-2.5 border px-3.5 py-2 text-[0.97rem] transition-all print:!bg-transparent print:!border-[var(--ws-gold)]/30 print:!opacity-100 print:!text-inherit",
+                                                    bgClass,
+                                                    !isAnswered &&
+                                                        "cursor-pointer",
+                                                )}
+                                            >
+                                                <div className="flex gap-2.5">
+                                                    <span className="mt-0.5 font-mono text-[0.85rem] font-bold text-[var(--ws-gold)] print:!text-[var(--ws-gold)]">
+                                                        {prefix})
+                                                    </span>
+                                                    <span>{choice}</span>
+                                                </div>
+                                                {isAnswered &&
+                                                    isThisSelected && (
+                                                        <span className="mt-0.5 shrink-0 print:hidden">
+                                                            {isThisCorrect ? (
+                                                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                                            ) : (
+                                                                <XCircle className="h-4 w-4 text-red-500" />
+                                                            )}
+                                                        </span>
+                                                    )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                {isAnswered && (
+                                    <div className="mt-3 animate-in fade-in slide-in-from-top-1 rounded border border-[var(--ws-gold)]/20 bg-[var(--ws-gold)]/5 p-3 text-[0.9rem] print:hidden">
+                                        <p className="mb-1 font-bold text-[var(--ws-red)]">
+                                            Explanation:
+                                        </p>
+                                        <p className="italic leading-relaxed text-[var(--ws-ink)]/90">
+                                            {q.explanation}
+                                        </p>
                                     </div>
-                                ))}
+                                )}
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
 
                     {/* Short Answer */}
-                    {worksheet.shortAnswer.map((q, i) => (
-                        <div key={i} className="break-inside-avoid">
-                            <div className="font-mono text-[0.75rem] text-[var(--ws-gold)]">
-                                Question 0
-                                {worksheet.multipleChoice.length + i + 1} —
-                                Short Answer
+                    {worksheet.shortAnswer.map((q, i) => {
+                        const isRevealed = revealedSAs.has(i);
+                        return (
+                            <div key={i} className="break-inside-avoid">
+                                <div className="font-mono text-[0.75rem] text-[var(--ws-gold)]">
+                                    Question 0
+                                    {worksheet.multipleChoice.length + i + 1} —
+                                    Short Answer
+                                </div>
+                                <p className="mb-3 text-[1.05rem] font-semibold leading-normal text-[var(--ws-deep)]">
+                                    {q.question}
+                                </p>
+                                <div
+                                    onClick={() => toggleSA(i)}
+                                    className="group relative cursor-pointer print:cursor-default"
+                                >
+                                    <div
+                                        className={cn(
+                                            "space-y-2.5 transition-opacity",
+                                            isRevealed
+                                                ? "hidden print:block"
+                                                : "block",
+                                        )}
+                                    >
+                                        <div className="relative min-h-[28px] border-b border-[var(--ws-ink)] transition-colors group-hover:border-[var(--brand-orange)]">
+                                            <span className="absolute inset-0 flex items-center justify-center bg-[#f5edd8]/80 text-xs font-medium text-[var(--brand-orange)] opacity-0 transition-opacity group-hover:opacity-100 print:hidden">
+                                                Tap to reveal model answer
+                                            </span>
+                                        </div>
+                                        <div className="min-h-[28px] border-b border-[var(--ws-ink)] transition-colors group-hover:border-[var(--brand-orange)]" />
+                                    </div>
+
+                                    {isRevealed && (
+                                        <div className="animate-in fade-in rounded border-l-2 border-[var(--brand-orange)] bg-[var(--brand-orange)]/5 p-3.5 print:hidden">
+                                            <p className="mb-1 text-[0.9rem] font-bold text-[var(--ws-deep)]">
+                                                Model Answer:
+                                            </p>
+                                            <p className="mb-2 text-[0.95rem] font-medium">
+                                                {q.modelAnswer}
+                                            </p>
+                                            <p className="text-[0.85rem] italic text-[var(--ws-faded)]">
+                                                {q.explanation}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <p className="mb-3 text-[1.05rem] font-semibold leading-normal text-[var(--ws-deep)]">
-                                {q.question}
-                            </p>
-                            <div className="space-y-2.5">
-                                <div className="min-h-[28px] border-b border-[var(--ws-ink)]" />
-                                <div className="min-h-[28px] border-b border-[var(--ws-ink)]" />
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </section>
 
@@ -469,6 +602,26 @@ function StudyContextContent({
                 </div>
             )}
         </div>
+    );
+}
+
+function SpeakButton({ text }: { text: string }) {
+    const { speak, speakingText } = useSpeech();
+    return (
+        <button
+            onClick={(e) => {
+                e.stopPropagation();
+                speak(text);
+            }}
+            className={`rounded p-1 text-xs transition-colors ${
+                speakingText === text
+                    ? "text-[var(--brand-orange)]"
+                    : "text-[var(--ws-faded)] hover:text-[var(--ws-ink)]"
+            }`}
+            aria-label="발음 듣기"
+        >
+            <Volume1 size={18} />
+        </button>
     );
 }
 
