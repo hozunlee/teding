@@ -46,7 +46,7 @@ export const metadata: Metadata = {
         siteName: "teding",
         images: [
             {
-                url: "/nail.png",
+                url: "/og.png",
                 width: 1200,
                 height: 630,
                 alt: "teding",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
         title: "teding — 영어 앱 결제 버튼을 누르기 직전,",
         description:
             "헐레벌떡 직접 만든 AI 영어학습 서비스. TED-Ed의 지식을 AI가 심플하게 큐레이션합니다. 매일 하나씩, 내 안의 영어가 자라나는 감각을 경험하세요.",
-        images: ["/nail.png"],
+        images: ["/og.png"],
     },
 };
 
