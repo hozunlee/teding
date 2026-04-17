@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Lexend, Lora } from "next/font/google";
 import "./globals.css";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { KakaoExternalBrowser } from "@/components/common/KakaoExternalBrowser";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
@@ -76,8 +77,10 @@ export default function RootLayout({
                 className="min-h-full flex flex-col bg-background text-foreground"
                 suppressHydrationWarning
             >
-                {children}
-                <AuthModal />
+                <KakaoExternalBrowser>
+                    {children}
+                    <AuthModal />
+                </KakaoExternalBrowser>
             </body>
             {process.env.NEXT_PUBLIC_GA_ID && (
                 <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />

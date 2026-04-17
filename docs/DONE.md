@@ -2,6 +2,8 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-04-17 TASK_032: 카카오 인앱 브라우저 외부 오픈 — KakaoExternalBrowser 컴포넌트 신규 생성, layout.tsx body 래핑, kakaotalk://web/openExternal 딥링크로 Google OAuth 차단 우회
+- 2026-04-17 TASK_031: 모바일 헤더 About·로그인 버튼 노출 — SiteHeader lg:hidden 래퍼 제거, 로그인/비로그인 모두 모바일 헤더에서 직접 노출
 - 2026-04-17 TASK_030: 브랜드 에셋 및 스토리 적용 — `public/favi` 파일 루트 이동 및 메타데이터(favicon, manifest, apple-icon) 연동, `nail.png` 공용 OG 이미지 지정, `docs/INTEND.md` 기반 `/about` 브랜드 스토리 개편
 - 2026-04-17 TASK_029: Step 3 학습지 인터랙티브 퀴즈 — 객관식(MCQ) 즉각 피드백(정오답 색상/아이콘) 및 해설 노출, 단답형(SA) 클릭 시 모범 답안 reveal, 인쇄 시 정적 레이아웃 유지 처리
 - 2026-04-17 TASK_028: Archive 고도화 — 난이도 통계(평균 기반 라벨+평가인원), RollingComment 클라이언트 컴포넌트(4초 fade), 내 학습지 링크(user_uploads 조회)
