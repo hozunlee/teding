@@ -11,6 +11,12 @@ interface ProgressBody {
   quizResults?: Record<string, string>
 }
 
+interface FeedbackBody {
+  videoId: string
+  difficulty_rating?: 1 | 3 | 5
+  daily_comment?: string | null
+}
+
 export async function POST(req: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -38,5 +44,25 @@ export async function POST(req: Request) {
   })
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
+  return Response.json({ ok: true })
+}
+
+export async function PATCH(req: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { videoId, difficulty_rating, daily_comment } = await req.json() as FeedbackBody
+
+  const { error } = await supabase
+    .from('user_progress')
+    .update({
+      ...(difficulty_rating !== undefined && { difficulty_rating }),
+      ...(daily_comment !== undefined && { daily_comment: daily_comment ?? null }),
+    })
+    .eq('user_id', user.id)
+    .eq('video_id', videoId)
+
+  if (error) return Response.json({ error: error.message }, { status: 500 })
   return Response.json({ ok: true })
 }

@@ -14,7 +14,8 @@ export async function GET() {
       step2_completed_at,
       step3_completed_at,
       step4_completed_at,
-      video_id
+      video_id,
+      daily_comment
     `)
     .eq('user_id', user.id)
     .not('step1_completed_at', 'is', null)

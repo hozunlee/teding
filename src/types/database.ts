@@ -111,6 +111,8 @@ export interface Database {
           completed_at: string | null
           known_sentences: Json
           quiz_results: Json
+          daily_comment: string | null
+          difficulty_rating: number | null
           created_at: string
         }
         Insert: {
@@ -125,6 +127,8 @@ export interface Database {
           completed_at?: string | null
           known_sentences?: Json
           quiz_results?: Json
+          daily_comment?: string | null
+          difficulty_rating?: number | null
           created_at?: string
         }
         Update: {
@@ -139,6 +143,8 @@ export interface Database {
           completed_at?: string | null
           known_sentences?: Json
           quiz_results?: Json
+          daily_comment?: string | null
+          difficulty_rating?: number | null
           created_at?: string
         }
         Relationships: []
