@@ -45,14 +45,22 @@ function parseVideoId(input: string): string {
   return trimmed
 }
 
+function getKSTDateStr(offset = 0): string {
+  const d = new Date()
+  d.setTime(d.getTime() + (9 * 60 + offset * 24 * 60) * 60 * 1000)
+  return d.toISOString().slice(0, 10)
+}
+
 export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [today, setToday] = useState<TodayData | null>(null)
+  const [tomorrow, setTomorrow] = useState<TodayData | null>(null)
   const [videoInput, setVideoInput] = useState('')
   const [title, setTitle] = useState('')
   const [duration, setDuration] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [force, setForce] = useState(false)
+  const [targetDate, setTargetDate] = useState<'today' | 'tomorrow'>('today')
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null)
   const playerRef = useRef<YTPlayer | null>(null)
 
@@ -119,10 +127,14 @@ export default function AdminPage() {
       .then((d: { isAdmin: boolean }) => setIsAdmin(d.isAdmin))
       .catch(() => setIsAdmin(false))
 
-    // 오늘 영상 상태 확인
+    // 오늘/내일 영상 상태 확인
     fetch('/api/today')
       .then(r => r.json())
       .then((d: TodayData) => setToday(d))
+      .catch(() => {})
+    fetch(`/api/today?date=${getKSTDateStr(1)}`)
+      .then(r => r.json())
+      .then((d: TodayData) => setTomorrow(d))
       .catch(() => {})
   }, [])
 
@@ -136,7 +148,7 @@ export default function AdminPage() {
     const res = await fetch('/api/admin/daily', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, title, duration, force }),
+      body: JSON.stringify({ videoId, title, duration, force, date: getKSTDateStr(targetDate === 'tomorrow' ? 1 : 0) }),
     })
 
     const data = await res.json() as { ok?: boolean; error?: string; transcriptCached?: boolean; materialsCached?: boolean }
@@ -147,10 +159,11 @@ export default function AdminPage() {
     } else {
       setResult({
         ok: true,
-        message: `등록 완료 · 스크립트 ${data.transcriptCached ? '캐시' : '신규'} · 학습자료 ${data.materialsCached ? '캐시' : '신규 생성'}`,
+        message: `${targetDate === 'tomorrow' ? '내일' : '오늘'} 등록 완료 · 스크립트 ${data.transcriptCached ? '캐시' : '신규'} · 학습자료 ${data.materialsCached ? '캐시' : '신규 생성'}`,
       })
       // 상태 갱신
       fetch('/api/today').then(r => r.json()).then((d: TodayData) => setToday(d))
+      fetch(`/api/today?date=${getKSTDateStr(1)}`).then(r => r.json()).then((d: TodayData) => setTomorrow(d))
     }
   }
 
@@ -198,10 +211,18 @@ export default function AdminPage() {
       <div className='mb-6 flex items-center gap-2'>
         <h1 className='text-xl font-bold'>어드민</h1>
         <Badge variant='secondary'>ho2yahh@gmail.com</Badge>
+        <a
+          href='https://www.youtube.com/@TEDEd/playlists'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='ml-auto text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors'
+        >
+          TED-Ed 플레이리스트
+        </a>
       </div>
 
       {/* 오늘 영상 현황 */}
-      <div className='mb-6 rounded-lg border p-4'>
+      <div className='mb-3 rounded-lg border p-4'>
         <p className='text-mono-label mb-2 text-muted-foreground'>오늘의 영상 현황</p>
         {today?.video ? (
           <div className='flex flex-col gap-1'>
@@ -223,8 +244,43 @@ export default function AdminPage() {
         )}
       </div>
 
+      {/* 내일 영상 현황 */}
+      <div className='mb-6 rounded-lg border border-dashed p-3 flex items-center gap-3'>
+        <p className='text-xs text-muted-foreground shrink-0'>내일 준비</p>
+        {tomorrow?.video ? (
+          <>
+            <p className='text-xs font-medium truncate flex-1'>{tomorrow.video.title}</p>
+            <Badge variant={tomorrow.cached?.materials ? 'default' : 'outline'} className='shrink-0 text-[10px] px-1.5 py-0'>
+              {tomorrow.cached?.materials ? '완료' : '자료 미생성'}
+            </Badge>
+          </>
+        ) : (
+          <p className='text-xs text-muted-foreground'>미등록</p>
+        )}
+      </div>
+
       {/* 영상 등록 폼 */}
       <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-1.5'>
+          <label className='text-mono-label text-muted-foreground'>등록 날짜</label>
+          <div className='flex gap-2'>
+            <button
+              type='button'
+              onClick={() => setTargetDate('today')}
+              className={`flex-1 rounded-[4px] border px-3 py-2 text-sm transition-colors ${targetDate === 'today' ? 'border-foreground bg-foreground text-background' : 'border-border bg-background text-muted-foreground hover:text-foreground'}`}
+            >
+              오늘 ({getKSTDateStr(0)})
+            </button>
+            <button
+              type='button'
+              onClick={() => setTargetDate('tomorrow')}
+              className={`flex-1 rounded-[4px] border px-3 py-2 text-sm transition-colors ${targetDate === 'tomorrow' ? 'border-foreground bg-foreground text-background' : 'border-border bg-background text-muted-foreground hover:text-foreground'}`}
+            >
+              내일 ({getKSTDateStr(1)})
+            </button>
+          </div>
+        </div>
+
         <div className='flex flex-col gap-1.5'>
           <label className='text-mono-label text-muted-foreground'>YouTube URL 또는 Video ID</label>
           <input

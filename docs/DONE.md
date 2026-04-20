@@ -2,6 +2,10 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-04-20 TASK_036: 스트릭 식물 시스템 고도화 및 요일 버그 수정 — 레트로 벡터 디자인(7/14/21/30일), '내 화단' 컬렉션 UI, 이중 오프셋 날짜 계산 버그 해결 완료
+- 2026-04-20 TASK_035: 어드민 내일 영상 사전 등록 — 날짜 토글(오늘/내일) 추가, /api/today?date= 파라미터 지원, 내일 준비 현황 표시줄 추가
+- 2026-04-20 TASK_034: 가이드 페이지 학습 방법론 참고 영상 embed — 하단 Reference 섹션 텍스트 링크 → YouTube iframe(16:9) 교체
+- 2026-04-20 TASK_033: 어드민 TED-Ed 플레이리스트 링크 추가
 - 2026-04-17 TASK_032: 카카오 인앱 브라우저 외부 오픈 — KakaoExternalBrowser 컴포넌트 신규 생성, layout.tsx body 래핑, kakaotalk://web/openExternal 딥링크로 Google OAuth 차단 우회
 - 2026-04-17 TASK_031: 모바일 헤더 About·로그인 버튼 노출 — SiteHeader lg:hidden 래퍼 제거, 로그인/비로그인 모두 모바일 헤더에서 직접 노출
 - 2026-04-17 TASK_030: 브랜드 에셋 및 스토리 적용 — `public/favi` 파일 루트 이동 및 메타데이터(favicon, manifest, apple-icon) 연동, `nail.png` 공용 OG 이미지 지정, `docs/INTEND.md` 기반 `/about` 브랜드 스토리 개편

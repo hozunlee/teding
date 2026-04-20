@@ -1,12 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { getKSTDate } from '@/lib/utils'
 
-export async function GET() {
+export async function GET(req: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const today = getKSTDate()
+  const { searchParams } = new URL(req.url)
+  const today = searchParams.get('date') ?? getKSTDate()
 
   const { data: video } = await supabase
     .from('daily_videos')

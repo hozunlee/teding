@@ -97,26 +97,6 @@ export default function GuidePage() {
                     <strong className="text-foreground">능동적 처리</strong>를
                     통해 표현이 자연스럽게 내재화된다.
                 </p>
-                <a
-                    href="https://www.youtube.com/watch?v=Z6NXm05VC14"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                    <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <polygon points="5 3 19 12 5 21 5 3" />
-                    </svg>
-                    학습 방법론 참고 영상
-                </a>
             </div>
 
             {/* Steps */}
@@ -251,19 +231,20 @@ export default function GuidePage() {
 
             {/* Reference */}
             <div className="rounded-xl border border-border p-4 bg-muted/40">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                    이 학습법은{" "}
-                    <a
-                        href="https://www.youtube.com/watch?v=Z6NXm05VC14"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline underline-offset-2 hover:text-foreground transition-colors"
-                    >
-                        영어 공부법 참고 영상
-                    </a>
-                    의 방법론을 바탕으로 설계되었으며, AI 생성 학습자료와 결합해
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    이 학습법은 아래 영상의 방법론을 바탕으로 설계되었으며, AI 생성 학습자료와 결합해
                     Teding에 맞게 재구성한 것이다.
                 </p>
+                <div className="overflow-hidden rounded-lg bg-black">
+                    <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+                        <iframe
+                            src="https://www.youtube.com/embed/Z6NXm05VC14?rel=0&modestbranding=1"
+                            className="absolute inset-0 h-full w-full"
+                            allowFullScreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );

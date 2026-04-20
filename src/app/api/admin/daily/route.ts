@@ -29,15 +29,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { videoId, title, duration, force = false } = await req.json() as {
+    const { videoId, title, duration, force = false, date: dateParam } = await req.json() as {
       videoId: string
       title: string
       duration: string
       force?: boolean
+      date?: string
     }
 
     const supabase = createServiceClient()
-    const today = getKSTDate()
+    const today = dateParam ?? getKSTDate()
 
     // 1. daily_videos 등록 (중복 방지)
     const { error: videoError } = await supabase.from('daily_videos').upsert(

@@ -39,25 +39,13 @@ export default async function TodayPage() {
         const dates = Array.from({ length: 7 }, (_, i) => {
             const d = new Date(monday);
             d.setDate(monday.getDate() + i);
-            // 이미 오프셋이 적용된 기준 시점이므로, 여기서는 단순히 YYYY-MM-DD 포맷만 필요함.
-            // 하지만 getKSTDate는 내부적으로 또 오프셋을 적용하므로 주의 필요.
-            // 포맷만 해주는 헬퍼가 있나? 아님 그냥 수동으로?
-            // getKSTDate에 date를 전달하면 그 date에서 3시간을 뺌.
-            // 우리가 원하는 건 이미 계산된 d의 YYYY-MM-DD임.
-            // d는 이미 3시간 빠진 시점 기준의 자정이므로, 여기서 또 빼면 전날이 될 수 있음.
-
-            // 안전하게 하기 위해 getKSTDate를 쓰되, d를 생성할 때 오프셋을 상쇄하거나
-            // 아니면 getKSTDate 로직을 분리하는 게 좋음.
-            // 여기서는 d가 이미 '논리적 날짜'의 00:00이므로 Intl.DateTimeFormat을 직접 씀.
-            return new Intl.DateTimeFormat("ko-KR", {
-                timeZone: "Asia/Seoul",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-            })
-                .format(d)
-                .replace(/\. /g, "-")
-                .replace(/\./g, "");
+            
+            // d는 이미 논리적 오늘 기준의 월요일부터 계산된 값이므로 
+            // 단순히 YYYY-MM-DD 포맷만 필요함.
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
         });
 
         const [streakRes, progressRes] = await Promise.all([
