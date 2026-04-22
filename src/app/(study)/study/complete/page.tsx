@@ -15,6 +15,7 @@ interface StreakData {
 function CompleteContent() {
     const searchParams = useSearchParams();
     const videoId = searchParams.get("videoId");
+    const videoTitle = searchParams.get("title");
     const [streak, setStreak] = useState<StreakData | null>(null);
     const [shared, setShared] = useState(false);
     const openModal = useAuthModal((s) => s.open);
@@ -54,7 +55,9 @@ function CompleteContent() {
 
     async function handleShare() {
         const streakDays = streak?.current_streak ?? 0;
-        const shareText = `오늘 Teding로 영어 공부 완주! 🦥\n${streakDays}일 연속 학습 중\n\n${process.env.NEXT_PUBLIC_APP_URL ?? "https://ted-hoho-web.vercel.app"}`;
+        const titleLine = videoTitle ? `\n📹 ${videoTitle}` : '';
+        const commentLine = comment.trim() ? `\n💬 "${comment.trim()}"` : '';
+        const shareText = `오늘 Teding로 영어 공부 완주! 🦥\n${streakDays}일 연속 학습 중${titleLine}${commentLine}\n\n${process.env.NEXT_PUBLIC_APP_URL ?? "https://ted-hoho-web.vercel.app"}`;
 
         if (typeof navigator !== "undefined" && navigator.share) {
             await navigator.share({ title: "Teding", text: shareText });

@@ -124,7 +124,7 @@ export default async function StudyPage({
       )}
 
       {/* Step 5: 재시청 — Step 1과 동일한 플레이어, 목적만 다름 */}
-      {step === 5 && <Step5Rewatch videoId={video.video_id} />}
+      {step === 5 && <Step5Rewatch videoId={video.video_id} videoTitle={video.title} />}
     </div>
   )
 }

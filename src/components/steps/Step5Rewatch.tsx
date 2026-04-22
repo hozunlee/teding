@@ -12,9 +12,10 @@ import { Button } from '@/components/ui/button'
 
 interface Props {
   videoId: string
+  videoTitle: string
 }
 
-export function Step5Rewatch({ videoId }: Props) {
+export function Step5Rewatch({ videoId, videoTitle }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [checked, setChecked] = useState(false)
@@ -59,7 +60,8 @@ export function Step5Rewatch({ videoId }: Props) {
         onClick={() => {
           const params = new URLSearchParams(searchParams.toString())
           params.set('videoId', videoId)
-          params.delete('step') // remove step parameter from URL as we are going to complete page
+          params.set('title', videoTitle)
+          params.delete('step')
           router.push(`/study/complete?${params.toString()}`)
         }}
         disabled={!checked}

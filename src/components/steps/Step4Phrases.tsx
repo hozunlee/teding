@@ -36,38 +36,40 @@ function PhraseCard({ phrase }: { phrase: Phrase }) {
   return (
     <Card className='group overflow-hidden border-border/50 shadow-sm transition-all hover:border-[var(--brand-orange)]/30'>
       <CardContent className='p-5'>
-        <div className='mb-3 flex items-start justify-between gap-3'>
-          <div className='min-w-0 flex-1 space-y-1'>
-            <p className='text-lg font-bold tracking-tight text-[var(--brand-orange)]'>{phrase.pattern}</p>
-            <div className='relative'>
-              <p
-                onClick={() => setShowKorean(!showKorean)}
-                className={cn(
-                  'text-sm font-medium text-muted-foreground transition-all cursor-pointer',
-                  !showKorean && 'blur-[4px] select-none'
-                )}
-              >
-                {phrase.korean}
-              </p>
-              {!showKorean && <span className='absolute inset-0 flex items-center text-[10px] uppercase font-bold text-orange-500/40 pointer-events-none'>Tap to reveal</span>}
+        <div className='mb-3 flex flex-col gap-2'>
+          <div className='flex items-start gap-2'>
+            <div className='min-w-0 flex-1 space-y-1'>
+              <p className='text-lg font-bold tracking-tight text-[var(--brand-orange)]'>{phrase.pattern}</p>
+              <div className='relative'>
+                <p
+                  onClick={() => setShowKorean(!showKorean)}
+                  className={cn(
+                    'text-sm font-medium text-muted-foreground transition-all cursor-pointer',
+                    !showKorean && 'blur-[4px] select-none'
+                  )}
+                >
+                  {phrase.korean}
+                </p>
+                {!showKorean && <span className='absolute inset-0 flex items-center text-[10px] uppercase font-bold text-orange-500/40 pointer-events-none'>Tap to reveal</span>}
+              </div>
             </div>
-          </div>
-          <div className='flex shrink-0 flex-col items-end gap-1.5'>
             <button
               onClick={() => speak(phrase.pattern)}
-              className={`rounded p-1 text-base leading-none transition-colors ${speakingText === phrase.pattern ? 'text-[var(--brand-orange)]' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`shrink-0 rounded p-1 text-base leading-none transition-colors ${speakingText === phrase.pattern ? 'text-[var(--brand-orange)]' : 'text-muted-foreground hover:text-foreground'}`}
               aria-label="발음 듣기"
             >
               <Volume1 size={18} />
             </button>
-            <div className='flex flex-wrap justify-end gap-1'>
+          </div>
+          {phrase.tags.length > 0 && (
+            <div className='flex flex-wrap gap-1'>
               {phrase.tags.map(tag => (
                 <Badge key={tag} variant='secondary' className='rounded-[4px] bg-black/5 text-[10px] uppercase font-mono'>
                   {tag}
                 </Badge>
               ))}
             </div>
-          </div>
+          )}
         </div>
 
         <div className='space-y-3 rounded-lg bg-muted/30 p-4'>
@@ -133,7 +135,7 @@ function SentenceCard({
       )}
     >
       <CardContent className='p-5' onClick={() => onToggleActive(isActive ? null : index)}>
-        <div className='mb-3 flex items-start justify-between gap-4'>
+        <div className='mb-3 flex flex-wrap items-center justify-between gap-2'>
           <Badge variant='outline' className='rounded-[4px] border-border bg-muted/20 px-2 py-0.5 text-[10px] font-mono uppercase'>
             {sentence.structureLabel}
           </Badge>
@@ -306,9 +308,18 @@ export function Step4Phrases({ videoId, phrases, sentences, isLoggedIn = true }:
         </div>
       )}
 
-      <Button 
-        onClick={handleComplete} 
-        disabled={loading} 
+      {tab === 'phrases' && (
+        <Button
+          onClick={() => { setTab('sentences'); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+          variant='outline'
+          className='h-12 w-full rounded-lg border-[var(--dark-blue)] text-base font-semibold transition-transform active:scale-[0.98]'
+        >
+          구문 분석 추가학습 →
+        </Button>
+      )}
+      <Button
+        onClick={handleComplete}
+        disabled={loading}
         className='h-12 w-full rounded-lg bg-[var(--dark-blue)] text-base font-semibold shadow-[var(--shadow-elegant)] transition-transform active:scale-[0.98]'
       >
         {loading ? '저장 중...' : '학습 완료 🎉'}

@@ -110,7 +110,7 @@ export function RecentList() {
             return (
               <Link
                 key={item.video_id}
-                href={`/study?date=${item.date}&step=${step}`}
+                href={`/study?date=${item.date}&step=${step === 4 ? 1 : step + 1}`}
                 className='flex items-center justify-between p-4 transition-colors hover:bg-muted/5'
               >
                 <div className='flex min-w-0 items-center gap-3'>
