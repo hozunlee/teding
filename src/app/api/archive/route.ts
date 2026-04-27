@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic'
 import { getAuthedClient } from '@/lib/supabase/api-auth'
+import { createServiceClient } from '@/lib/supabase/server'
 import { getKSTDate } from '@/lib/utils'
 
 export async function GET(req: Request) {
   const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const supabaseService = createServiceClient()
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get('page') ?? '0')
   const category = searchParams.get('category') ?? 'latest'
@@ -14,7 +16,9 @@ export async function GET(req: Request) {
   const from = page * limit
   const to = from + limit - 1
 
-  let query = supabase
+  // 아카이브 뷰는 타인의 진행률 합계(completion_count)를 포함하므로 
+  // RLS 우회를 위해 supabaseService를 사용합니다.
+  let query = supabaseService
     .from('archive_videos_view')
     .select('*', { count: 'exact' })
     .lte('date', today) // 내일 영상 노출 방지
@@ -51,21 +55,21 @@ export async function GET(req: Request) {
 
   const videoIds = videos.map((v) => v.video_id)
 
-  // 상세 데이터 병렬 페치 (10개 비디오 대상)
+  // 상세 데이터 병렬 페치 (Service Role 사용으로 RLS 우회)
   const [
     { data: completions },
     { data: comments },
     { data: myUploads },
   ] = await Promise.all([
-    supabase.from('user_progress').select('video_id, user_id').in('video_id', videoIds).not('completed_at', 'is', null),
-    supabase.from('user_progress').select('video_id, daily_comment, user_id').in('video_id', videoIds).not('daily_comment', 'is', null),
+    supabaseService.from('user_progress').select('video_id, user_id').in('video_id', videoIds).not('completed_at', 'is', null),
+    supabaseService.from('user_progress').select('video_id, daily_comment, user_id').in('video_id', videoIds).not('daily_comment', 'is', null),
     supabase.from('user_uploads').select('video_id, file_url').in('video_id', videoIds).eq('user_id', user.id),
   ])
 
-  // 완료자 닉네임을 위한 프로필 페치
+  // 완료자 닉네임을 위한 프로필 페치 (Service Role 사용)
   const completerUserIds = [...new Set((completions ?? []).map((c) => c.user_id))]
   const { data: profiles } = completerUserIds.length > 0
-    ? await supabase.from('profiles').select('id, nickname').in('id', completerUserIds)
+    ? await supabaseService.from('profiles').select('id, nickname').in('id', completerUserIds)
     : { data: [] }
   const profileMap = new Map((profiles ?? []).map((p) => [p.id, p.nickname]))
 

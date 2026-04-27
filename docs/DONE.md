@@ -2,6 +2,10 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-04-27 Archive 버그 수정 및 UI 조정:
+  - 타인 코멘트 미노출 해결: `user_progress` 조회 시 Supabase RLS 우회를 위해 `createServiceClient`(Service Role) 적용
+  - 본인 코멘트 UI 변경: 색상 강조 제거 및 아이콘 차별화 (본인 코멘트는 👤, 타인 코멘트는 💬 표시)
+
 - 2026-04-27 Archive 확장 및 Urban Botanical UI 적용:
   - `archive_videos_view` 생성: `daily_videos`와 `user_progress`를 조인하여 완료 인원 및 평균 난이도를 집계하는 DB 뷰 도입
   - `/api/archive`: 10개 단위 페이지네이션, 카테고리 필터링, 그리고 미래 날짜 영상 노출 방지(`lte` 필터) 로직 구현

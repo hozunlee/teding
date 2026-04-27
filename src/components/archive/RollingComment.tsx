@@ -23,9 +23,7 @@ export function RollingComment({ comments }: { comments: CommentItem[] }) {
   return (
     <p
       key={index}
-      className={`text-xs italic line-clamp-1 animate-in fade-in duration-700 ${
-        current.isMine ? 'text-[var(--brand-orange)] font-medium' : 'text-muted-foreground'
-      }`}
+      className="text-xs italic line-clamp-1 animate-in fade-in duration-700 text-muted-foreground"
     >
       {current.isMine ? '👤' : '💬'} {current.text}
     </p>
