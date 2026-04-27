@@ -10,18 +10,17 @@ export function cn(...inputs: ClassValue[]) {
  * Includes a 3-hour offset to handle the "daily reset" at 03:00 AM.
  */
 export function getKSTDate(date: Date = new Date()): string {
-  // 새벽 3시 기준 초기화를 위해 3시간을 뺍니다.
-  // (예: 1월 16일 02:00 -> 1월 15일 23:00으로 취급되어 15일 영상이 유지됨)
-  const offsetTime = date.getTime() - (3 * 60 * 60 * 1000)
-  const offsetDate = new Date(offsetTime)
+  // 1. KST 시간으로 변환 (서버가 UTC인 경우 대비)
+  const kstTime = date.getTime() + (9 * 60 * 60 * 1000)
+  
+  // 2. 새벽 3시 오프셋 적용 (3시간을 뺌)
+  const logicalTime = kstTime - (3 * 60 * 60 * 1000)
+  const d = new Date(logicalTime)
 
-  return new Intl.DateTimeFormat('ko-KR', {
-    timeZone: 'Asia/Seoul',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
-    .format(offsetDate)
-    .replace(/\. /g, '-')
-    .replace(/\./g, '')
+  // 3. UTC 메서드를 사용하여 포맷팅 (이미 kstTime을 더했으므로 UTC 메서드가 KST 값을 반환함)
+  const year = d.getUTCFullYear()
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(d.getUTCDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }

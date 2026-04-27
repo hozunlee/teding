@@ -23,28 +23,26 @@ export default async function TodayPage() {
     let weeklyProgress: string[] = [];
 
     if (user) {
-        // 새벽 3시 오프셋을 적용한 '논리적 오늘'의 자정 시각 구하기
+        // 새벽 3시 오프셋을 적용한 '논리적 현재 시각' 구하기
         const now = new Date();
         const logicalNow = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-        const kstLogicalNow = new Date(
-            logicalNow.toLocaleString("en-US", { timeZone: "Asia/Seoul" }),
-        );
+        
+        // KST 기준 요일 구하기 (0: 일, 1: 월, ..., 6: 토)
+        // Intl.DateTimeFormat으로 요일을 가져오거나, 9시간 더한 후 getDay() 사용
+        const kstTime = logicalNow.getTime() + (9 * 60 * 60 * 1000);
+        const kstDate = new Date(kstTime);
+        const dayOfWeek = (kstDate.getUTCDay() + 6) % 7; // 0: 월, 1: 화, ..., 6: 일
 
-        // 해당 주의 월요일 구하기
-        const dayOfWeek = (kstLogicalNow.getDay() + 6) % 7;
-        const monday = new Date(kstLogicalNow);
-        monday.setDate(kstLogicalNow.getDate() - dayOfWeek);
-        monday.setHours(0, 0, 0, 0);
+        // 이번 주 월요일 구하기
+        const monday = new Date(kstTime);
+        monday.setUTCDate(kstDate.getUTCDate() - dayOfWeek);
+        monday.setUTCHours(0, 0, 0, 0);
 
         const dates = Array.from({ length: 7 }, (_, i) => {
-            const d = new Date(monday);
-            d.setDate(monday.getDate() + i);
-            
-            // d는 이미 논리적 오늘 기준의 월요일부터 계산된 값이므로 
-            // 단순히 YYYY-MM-DD 포맷만 필요함.
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, "0");
-            const day = String(d.getDate()).padStart(2, "0");
+            const d = new Date(monday.getTime() + i * 24 * 60 * 60 * 1000);
+            const year = d.getUTCFullYear();
+            const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+            const day = String(d.getUTCDate()).padStart(2, "0");
             return `${year}-${month}-${day}`;
         });
 
@@ -68,6 +66,7 @@ export default async function TodayPage() {
 
     let cached = { transcript: false, materials: false };
     let startStep = 1;
+    let isCompleted = false;
 
     if (video) {
         const cacheChecks = await Promise.all([
@@ -104,6 +103,8 @@ export default async function TodayPage() {
                 else if (!progress.step4_completed_at) startStep = 4;
                 else startStep = 1;
             }
+            
+            isCompleted = !!progress?.step4_completed_at;
         }
     }
 
@@ -112,10 +113,12 @@ export default async function TodayPage() {
             <div className="mb-4 flex items-start justify-between gap-4">
                 <div>
                     <p className="mb-1 text-xs text-muted-foreground">
-                        5분짜리 TED-Ed 영상으로 가볍게 시작하는 영어 루틴
+                        {isCompleted 
+                            ? "오늘의 학습을 완료하셨네요! 혹시 복습 한번 할까요?" 
+                            : "5분짜리 TED-Ed 영상으로 가볍게 시작하는 영어 루틴"}
                     </p>
                     <h1 className="text-3xl sm:text-[2.5rem] font-medium leading-[1.2] tracking-[-0.03em]">
-                        오늘의 AI 큐레이션
+                        {isCompleted ? "학습 완료 🎉" : "오늘의 AI 큐레이션"}
                     </h1>
                 </div>
             </div>

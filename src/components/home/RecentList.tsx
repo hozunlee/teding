@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useAuthModal } from '@/lib/store/auth-modal'
 import Link from 'next/link'
+import { apiFetch } from '@/lib/api-client'
 
 interface HistoryItem {
   date: string
@@ -36,7 +37,7 @@ export function RecentList() {
   const openModal = useAuthModal((s) => s.open)
 
   useEffect(() => {
-    fetch('/api/history')
+    apiFetch('/api/history')
       .then(r => r.json())
       .then(d => {
         setHistory(d.history || [])
@@ -106,23 +107,25 @@ export function RecentList() {
       <div className='overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-elegant)]'>
         <div className='divide-y divide-border/50'>
           {history.map((item) => {
-            const step = getLatestStep(item)
+            const lastCompletedStep = getLatestStep(item)
+            const currentStep = lastCompletedStep === 4 ? 4 : lastCompletedStep + 1
+            
             return (
               <Link
                 key={item.video_id}
-                href={`/study?date=${item.date}&step=${step === 4 ? 1 : step + 1}`}
+                href={`/study?date=${item.date}&step=${lastCompletedStep === 4 ? 1 : lastCompletedStep + 1}`}
                 className='flex items-center justify-between p-4 transition-colors hover:bg-muted/5'
               >
                 <div className='flex min-w-0 items-center gap-3'>
                   <div 
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white text-[10px] font-bold ${step === 4 ? 'bg-green-500' : 'bg-orange-400'}`}
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white text-[10px] font-bold ${lastCompletedStep === 4 ? 'bg-green-500' : 'bg-orange-400'}`}
                   >
-                    {step === 4 ? (
+                    {lastCompletedStep === 4 ? (
                       <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='3' strokeLinecap='round' strokeLinejoin='round'>
                         <polyline points='20 6 9 17 4 12' />
                       </svg>
                     ) : (
-                      `S${step}`
+                      `S${currentStep}`
                     )}
                   </div>
                   <div className='flex flex-col min-w-0'>
@@ -132,7 +135,7 @@ export function RecentList() {
                   </div>
                 </div>
                 <div className='shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground'>
-                  {step === 4 ? '완료' : `Step ${step} 진행 중`}
+                  {lastCompletedStep === 4 ? '완료' : `Step ${currentStep} 진행 중`}
                 </div>
               </Link>
             )

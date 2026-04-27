@@ -8,10 +8,9 @@ interface Props {
 
 const STEPS = [
   { n: 1, label: '시청' },
-  { n: 2, label: '스크립트' },
-  { n: 3, label: '학습지' },
-  { n: 4, label: '핵심표현' },
-  { n: 5, label: '재시청' },
+  { n: 2, label: '학습지' },
+  { n: 3, label: '핵심표현' },
+  { n: 4, label: '재시청' },
 ]
 
 export function StepProgress({ currentStep }: Props) {

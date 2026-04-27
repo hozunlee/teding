@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useAuthModal } from "@/lib/store/auth-modal";
+import { apiFetch } from "@/lib/api-client";
 
 interface StreakData {
     current_streak: number;
@@ -16,6 +17,7 @@ function CompleteContent() {
     const searchParams = useSearchParams();
     const videoId = searchParams.get("videoId");
     const videoTitle = searchParams.get("title");
+    const date = searchParams.get("date");
     const [streak, setStreak] = useState<StreakData | null>(null);
     const [shared, setShared] = useState(false);
     const openModal = useAuthModal((s) => s.open);
@@ -26,7 +28,7 @@ function CompleteContent() {
 
     useEffect(() => {
         // 스트릭 정보 가져오기 (비로그인이면 null 반환)
-        fetch("/api/streak")
+        apiFetch("/api/streak")
             .then((r) => r.json())
             .then((d: { streak: StreakData | null }) => {
                 setStreak(d.streak);
@@ -40,7 +42,7 @@ function CompleteContent() {
     async function handleSaveFeedback() {
         if (!videoId || feedbackSaved) return;
         setFeedbackSaving(true);
-        await fetch('/api/progress', {
+        await apiFetch('/api/progress', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -178,7 +180,16 @@ function CompleteContent() {
             )}
 
             {/* Share & Actions */}
-            <div className="flex w-full flex-col gap-4">
+            <div className="flex w-full flex-col gap-3">
+                <Link
+                    href={`/study?step=5${date ? '&date=' + date : ''}`}
+                    className={cn(
+                        buttonVariants({ variant: "outline" }),
+                        "h-14 rounded-xl border-border text-base font-semibold shadow-sm",
+                    )}
+                >
+                    스크립트 추가학습
+                </Link>
                 <button
                     onClick={handleShare}
                     className="flex h-14 items-center justify-center gap-3 rounded-xl bg-[#FEE500] px-6 text-sm font-bold text-[#3C1E1E] shadow-sm transition-transform active:scale-95"

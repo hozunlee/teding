@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { apiFetch } from '@/lib/api-client'
 
 interface Props {
   videoId: string
@@ -22,12 +23,12 @@ export function Step1Player({ videoId }: Props) {
     setLoading(true)
     try {
       await Promise.all([
-        fetch('/api/progress', {
+        apiFetch('/api/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ videoId, step: 1 }),
         }),
-        fetch('/api/streak', { method: 'POST' })
+        apiFetch('/api/streak', { method: 'POST' })
       ])
       const params = new URLSearchParams(searchParams.toString())
       params.set('step', '2')

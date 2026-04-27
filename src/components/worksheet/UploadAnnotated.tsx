@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { apiFetch } from '@/lib/api-client'
 
 interface Props {
   videoId: string
@@ -24,7 +25,7 @@ export function UploadAnnotated({ videoId }: Props) {
     form.append('file', file)
     form.append('videoId', videoId)
 
-    const res = await fetch('/api/upload', { method: 'POST', body: form })
+    const res = await apiFetch('/api/upload', { method: 'POST', body: form })
     setUploading(false)
 
     if (!res.ok) {

@@ -1,11 +1,10 @@
-import { createClient } from '@/lib/supabase/server'
+export const dynamic = 'force-dynamic'
+import { getAuthedClient } from '@/lib/supabase/api-auth'
 
-export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function GET(req: Request) {
+  const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ history: [], loggedIn: false })
 
-  // 1. 최근 학습 진행 기록 가져오기 (Step 1 이상 진행한 것)
   const { data: progressData, error: progressError } = await supabase
     .from('user_progress')
     .select(`
@@ -31,27 +30,28 @@ export async function GET() {
     return Response.json({ history: [], loggedIn: true })
   }
 
-  // 2. 해당 비디오들의 제목 정보 가져오기 (별도 쿼리)
   const videoIds = progressData.map(p => p.video_id)
   const { data: videosData, error: videosError } = await supabase
     .from('daily_videos')
-    .select('video_id, title')
+    .select('video_id, title, date')
     .in('video_id', videoIds)
 
   if (videosError) {
     console.error('[api/history] videos error:', videosError)
-    // 비디오 정보를 못 가져와도 일단 진행은 할 수 있게 빈 배열 처리하거나 에러 반환
     return Response.json({ error: videosError.message }, { status: 500 })
   }
 
-  // 3. 데이터 결합
-  const videoMap = new Map(videosData?.map(v => [v.video_id, v.title]))
-  const history = progressData.map(p => ({
-    ...p,
-    daily_videos: {
-      title: videoMap.get(p.video_id) || '제목 없음'
+  const videoMap = new Map(videosData?.map(v => [v.video_id, { title: v.title, date: v.date }]))
+  const history = progressData.map(p => {
+    const videoInfo = videoMap.get(p.video_id)
+    return {
+      ...p,
+      date: videoInfo?.date || p.date, // Use the actual video date for linking
+      daily_videos: {
+        title: videoInfo?.title || '제목 없음'
+      }
     }
-  }))
+  })
 
   return Response.json({ history, loggedIn: true })
 }

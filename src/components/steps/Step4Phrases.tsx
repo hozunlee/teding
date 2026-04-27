@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useAuthModal } from '@/lib/store/auth-modal'
 import { useSpeech } from '@/lib/hooks/use-speech'
+import { apiFetch } from '@/lib/api-client'
 import { Volume1 } from 'lucide-react'
 import type { Phrase, SentenceAnalysis } from '@/types/worksheet'
 
@@ -245,14 +246,14 @@ export function Step4Phrases({ videoId, phrases, sentences, isLoggedIn = true }:
     }
     setLoading(true)
     const knownSentences = [...known].map(i => sentences[i]?.text ?? '')
-    await fetch('/api/progress', {
+    await apiFetch('/api/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, step: 4, knownSentences }),
+      body: JSON.stringify({ videoId, step: 3, knownSentences }),
     })
-    await fetch('/api/streak', { method: 'POST' })
+    await apiFetch('/api/streak', { method: 'POST' })
     const params = new URLSearchParams(searchParams.toString())
-    params.set('step', '5')
+    params.set('step', '4')
     router.push(`/study?${params.toString()}`)
   }
 

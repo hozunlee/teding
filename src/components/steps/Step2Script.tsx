@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
+import { apiFetch } from '@/lib/api-client'
 
 interface TranscriptData {
   video_id: string
@@ -16,9 +18,10 @@ interface Props {
   videoId: string
   transcript: TranscriptData
   materialsReady: boolean
+  isReviewMode?: boolean
 }
 
-export function Step2Script({ videoId, transcript, materialsReady }: Props) {
+export function Step2Script({ videoId, transcript, materialsReady, isReviewMode = false }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [expanded, setExpanded] = useState(false)
@@ -26,11 +29,11 @@ export function Step2Script({ videoId, transcript, materialsReady }: Props) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (materialsReady) return
+    if (isReviewMode || materialsReady) return
 
     async function triggerGenerate() {
       try {
-        await fetch('/api/generate', {
+        await apiFetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ videoId, transcript: transcript.raw_text }),
@@ -42,18 +45,18 @@ export function Step2Script({ videoId, transcript, materialsReady }: Props) {
     }
 
     triggerGenerate()
-  }, [materialsReady, videoId, transcript.raw_text])
+  }, [isReviewMode, materialsReady, videoId, transcript.raw_text])
 
   async function handleComplete() {
     setLoading(true)
     try {
       await Promise.all([
-        fetch('/api/progress', {
+        apiFetch('/api/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ videoId, step: 2 }),
         }),
-        fetch('/api/streak', { method: 'POST' })
+        apiFetch('/api/streak', { method: 'POST' })
       ])
       const params = new URLSearchParams(searchParams.toString())
       params.set('step', '3')
@@ -67,7 +70,6 @@ export function Step2Script({ videoId, transcript, materialsReady }: Props) {
 
   const preview = transcript.raw_text.slice(0, 500)
 
-  // 문단 나누기 로직 (3-4문장 단위)
   const paragraphs = transcript.raw_text
     .match(/[^.!?]+[.!?]\s*/g)
     ?.reduce((acc: string[][], sentence, i) => {
@@ -80,6 +82,12 @@ export function Step2Script({ videoId, transcript, materialsReady }: Props) {
 
   return (
     <div className='flex flex-col gap-5'>
+      {isReviewMode && (
+        <div className='rounded-lg bg-muted/50 px-4 py-3 text-sm leading-relaxed text-muted-foreground'>
+          핵심 표현을 익혔으니, 스크립트를 읽으며 전체 내용을 다시 한번 확인해 보세요.
+        </div>
+      )}
+
       <div className='flex flex-wrap gap-2'>
         <Badge variant='secondary'>{transcript.word_count.toLocaleString()} 단어</Badge>
         <Badge variant='secondary'>{transcript.sentence_count} 문장</Badge>
@@ -87,7 +95,7 @@ export function Step2Script({ videoId, transcript, materialsReady }: Props) {
       </div>
 
       <div className='rounded-lg border bg-muted/30 p-4'>
-        <p className='mb-2 text-xs font-semibold text-muted-foreground'>스크립트 미리보기</p>
+        <p className='mb-2 text-xs font-semibold text-muted-foreground'>스크립트</p>
         <div className='space-y-4 text-sm leading-relaxed'>
           {expanded
             ? paragraphs.map((p, i) => <p key={i}>{p}</p>)
@@ -103,20 +111,29 @@ export function Step2Script({ videoId, transcript, materialsReady }: Props) {
         )}
       </div>
 
-      {generating && (
+      {!isReviewMode && generating && (
         <div className='flex items-center gap-2 rounded-lg border border-dashed p-3 text-sm text-muted-foreground'>
           <span className='inline-block h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent' />
           학습자료 생성 중... (Step 3 진입 시 준비 완료)
         </div>
       )}
 
-      <Button
-        onClick={handleComplete}
-        disabled={loading}
-        className='w-full'
-      >
-        {loading ? '저장 중...' : '스크립트 확인 완료 → Step 3'}
-      </Button>
+      {isReviewMode ? (
+        <Link
+          href='/'
+          className='flex h-10 w-full items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground'
+        >
+          홈으로
+        </Link>
+      ) : (
+        <Button
+          onClick={handleComplete}
+          disabled={loading}
+          className='w-full'
+        >
+          {loading ? '저장 중...' : '스크립트 확인 완료 → Step 3'}
+        </Button>
+      )}
     </div>
   )
 }
