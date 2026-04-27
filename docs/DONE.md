@@ -2,6 +2,49 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-04-27 Archive 확장 및 Urban Botanical UI 적용:
+  - `archive_videos_view` 생성: `daily_videos`와 `user_progress`를 조인하여 완료 인원 및 평균 난이도를 집계하는 DB 뷰 도입
+  - `/api/archive`: 10개 단위 페이지네이션, 카테고리 필터링, 그리고 미래 날짜 영상 노출 방지(`lte` 필터) 로직 구현
+  - `ArchiveClient.tsx`: `IntersectionObserver` 기반 네이티브 무한 스크롤 및 `Urban Botanical` 컨셉의 UI 전면 개편
+  - 디자인 고도화: `Growth Green` 계열 색상 적용, YouTube 썸네일(16:9) 및 호버 애니메이션 도입, `next/image` 성능 최적화(`sizes` 적용)
+  - `next.config.ts`: `img.youtube.com` 외부 이미지 허용 설정 추가
+
+- 2026-04-27 학습 경험 및 데이터 무결성 고도화:
+  - `getKSTDate` 리팩토링: 서버 환경(UTC)에 관계없이 새벽 3시 오프셋이 적용된 KST 날짜를 수동 포맷팅 방식으로 정확히 생성하도록 수정 (자정 이후 학습 시 날짜 어긋남 방지)
+  - `api/progress` & `api/history`: 학습 기록 저장 시 영상 날짜가 아닌 '학습 시점의 논리적 날짜'를 사용하고, 링크 생성 시에는 '영상의 실제 날짜'를 사용하여 과거 영상 복습 시 링크 깨짐 현상 해결
+  - `RecentList.tsx`: 학습 기록 라벨 표시 로직 수정 (마지막 완료 단계 -> 현재 진행 단계)으로 사용자 혼선 해결 및 Step 4 완료 저장 로직(`Step5Rewatch.tsx`) 추가
+  - 홈 화면(`page.tsx`): 오늘의 학습 완료 시 맞춤형 환영 메시지("오늘의 학습을 완료하셨네요!") 및 복습 제안 문구 추가
+  - 보고또보고(`ArchivePage`): 롤링 한 줄 평에 내 코멘트도 포함(👤 아이콘 구분)하여 노출되도록 개선
+
+- 2026-04-27 학습 단계 네비게이션 및 Step 4 저장 버그 수정:
+  - `RecentList.tsx`: 학습 기록 라벨 표시 로직 수정 (마지막 완료 단계 -> 현재 진행 단계)으로 사용자 혼선 해결
+  - `Step5Rewatch.tsx`: Step 4(재시청) 완료 시 DB 진행 상황(`step: 4`) 저장 로직 추가
+  - `RecentList.tsx`: 스텝 재배치에 따른 1단계 오프셋 및 링크 불일치 현상 수정
+
+- 2026-04-27 앱 전환 작업 최소 롤백 및 웹 개발 환경 정상화:
+  - `next.config.ts`: 개발 환경(`process.env.NODE_ENV !== 'production'`)에서 Serwist(PWA) 비활성화 및 `--webpack` 모드 수동 전환 설정으로 Turbopack 충돌 해결
+  - `package.json`: `dev` 스크립트에 `--webpack` 플래그 추가
+  - `src/lib/api-client.ts` & `src/lib/supabase/client.ts`: SSR 단계에서 크래시를 유발하는 Capacitor 및 Preferences 의존성 제거, 순수 웹 로직으로 복구
+  - `src/lib/offline-queue.ts` & `src/lib/notifications.ts`: 네이티브 전용 Capacitor 모듈 참조 제거 및 웹 환경 대응 더미/간소화 로직 적용
+  - 앱 전용 컴포넌트(`NetworkSync`, `DeepLinkHandler`, `NotificationOnboarding`) 및 `AdminNativeGuard` 무효화로 런타임 오류 차단
+
+- 2026-04-27 앱 패키징 build:app 빌드 수정 작업 (중단 및 롤백):
+  - TASK 11 완료: `capacitor-assets generate --android` sharp 바이너리 문제 해결 → 87개 아이콘/스플래시 에셋 생성
+    - 원인: pnpm v10 기본값이 install scripts 실행 안 함
+    - 조치: `package.json`에 `pnpm.onlyBuiltDependencies: ["sharp"]`, `pnpm.overrides: {"sharp": "0.33.0"}` 추가 (0.33.x는 @img/sharp-darwin-arm64 prebuilt 사용)
+  - `next.config.ts` 수정: serwist 래퍼를 앱 빌드 시 완전 우회 (`isAppBuild ? nextConfig : withSerwist(nextConfig)`)
+    - 원인: `disable: isAppBuild` 옵션만으로는 Turbopack과 webpack 플러그인 충돌 미해결
+  - `admin/layout.tsx` 수정: 서버 컴포넌트로 전환 + `AdminNativeGuard` 클라이언트 컴포넌트 분리
+    - 원인: `'use client'` 레이아웃이 `next/headers`를 사용하는 `SiteHeader`를 import해 서버/클라이언트 경계 위반
+  - API Route 12개 전체에 `export const dynamic = 'force-dynamic'` 추가
+  - `robots.ts`, `sitemap.ts`에 `export const dynamic = 'force-static'` 추가, sitemap DB 호출 try-catch 감싸기
+  - **현재 블로커**: Next.js 16.2.2 기본 번들러가 Turbopack으로 변경됨
+    - Turbopack은 `output: 'export'` + `force-dynamic` 조합을 하드 에러로 거부 (webpack은 API Route 자동 제외)
+    - `NEXT_TURBOPACK=0`, `--no-turbo` 플래그 모두 미작동 확인
+    - 해결 방향 결정 필요: (A) Turbopack 비활성화 방법 탐색 vs (B) Capacitor Remote URL 모드 전환 (`output: 'export'` 제거)
+
+- 2026-04-26 앱 패키징 Phase1 (TASK 1~10, 12, 14): Supabase 인증 이원화(api-auth.ts + 8개 API Route), Capacitor 네이티브 분기(client.ts), apiFetch 래퍼(21개 호출 치환), CORS 이중 방어(next.config.ts headers + proxy.ts Preflight), Admin 네이티브 차단, 빌드 스크립트(build:app/sync:app), Capacitor 초기화 + Android 플랫폼 추가, Local Notifications(notifications.ts + NotificationSettings + NotificationOnboarding), Offline Queue(offline-queue.ts + NetworkSync), OAuth 딥링크(DeepLinkHandler), 개인정보처리방침(/privacy), 동적 라우트 규약 + CI 검사 스크립트 완료
+
 - 2026-04-23 Bug Fix: RecentList step 이동 오류·Step4 구문분석 모바일 UI 겹침·카카오톡 공유 한줄평+영상제목 포함·Step4 핵심표현 탭 하단 "구문 분석 추가학습 →" 버튼 추가(구문분석 탭에선 학습완료만 노출) 완료
 - 2026-04-20 TASK_036: 스트릭 식물 시스템 고도화 및 요일 버그 수정 — 레트로 벡터 디자인(7/14/21/30일), '내 화단' 컬렉션 UI, 이중 오프셋 날짜 계산 버그 해결 완료
 - 2026-04-20 TASK_035: 어드민 내일 영상 사전 등록 — 날짜 토글(오늘/내일) 추가, /api/today?date= 파라미터 지원, 내일 준비 현황 표시줄 추가

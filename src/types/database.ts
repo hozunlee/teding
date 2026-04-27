@@ -228,7 +228,21 @@ export interface Database {
         Relationships: []
       }
     }
-    Views: Record<string, never>
+    Views: {
+      archive_videos_view: {
+        Row: {
+          id: string
+          date: string
+          video_id: string
+          title: string
+          duration: string
+          created_at: string
+          completion_count: number
+          avg_difficulty: number | null
+        }
+        Relationships: []
+      }
+    }
     Functions: Record<string, never>
     Enums: Record<string, never>
   }

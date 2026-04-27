@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from 'react'
 
-export function RollingComment({ comments }: { comments: string[] }) {
+interface CommentItem {
+  text: string
+  isMine?: boolean
+}
+
+export function RollingComment({ comments }: { comments: CommentItem[] }) {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
@@ -13,12 +18,16 @@ export function RollingComment({ comments }: { comments: string[] }) {
 
   if (comments.length === 0) return null
 
+  const current = comments[index]
+
   return (
     <p
       key={index}
-      className='text-xs text-muted-foreground italic line-clamp-1 animate-in fade-in duration-700'
+      className={`text-xs italic line-clamp-1 animate-in fade-in duration-700 ${
+        current.isMine ? 'text-[var(--brand-orange)] font-medium' : 'text-muted-foreground'
+      }`}
     >
-      💬 {comments[index]}
+      {current.isMine ? '👤' : '💬'} {current.text}
     </p>
   )
 }
