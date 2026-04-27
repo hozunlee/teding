@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+export const dynamic = 'force-dynamic'
+import { getAuthedClient } from '@/lib/supabase/api-auth'
 import type { Database } from '@/types/database'
 import { getKSTDate } from '@/lib/utils'
 
@@ -18,19 +19,18 @@ interface FeedbackBody {
 }
 
 export async function POST(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json() as ProgressBody
   const { videoId, step, knownSentences, quizResults } = body
-  const today = getKSTDate()
   const now = new Date().toISOString()
+  const targetDate = getKSTDate()
 
   const update: ProgressInsert = {
     user_id: user.id,
     video_id: videoId,
-    date: today,
+    date: targetDate,
     ...(step === 1 && { step1_completed_at: now }),
     ...(step === 2 && { step2_completed_at: now }),
     ...(step === 3 && { step3_completed_at: now }),
@@ -48,8 +48,7 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { videoId, difficulty_rating, daily_comment } = await req.json() as FeedbackBody

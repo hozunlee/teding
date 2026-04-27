@@ -1,5 +1,8 @@
 {
- "name": "App",
+ "name": "테딩 teding — AI 영어 학습지 X ted-ed",
+ "short_name": "teding",
+ "display": "standalone",
+ "start_url": "/",
  "icons": [
   {
    "src": "\/android-icon-36x36.png",

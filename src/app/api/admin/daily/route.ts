@@ -5,6 +5,7 @@ import { getKSTDate } from '@/lib/utils'
 import type { Json } from '@/types/database'
 
 export const maxDuration = 60
+export const dynamic = 'force-dynamic'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL
 

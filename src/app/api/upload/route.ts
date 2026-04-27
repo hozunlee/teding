@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+export const dynamic = 'force-dynamic'
+import { getAuthedClient } from '@/lib/supabase/api-auth'
 
 export async function POST(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const form = await req.formData()

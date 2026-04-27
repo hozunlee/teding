@@ -1,9 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
+export const dynamic = 'force-dynamic'
+import { getAuthedClient } from '@/lib/supabase/api-auth'
 import { getKSTDate } from '@/lib/utils'
 
-export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function GET(req: Request) {
+  const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { data } = await supabase
@@ -15,9 +15,8 @@ export async function GET() {
   return Response.json({ streak: data ?? null })
 }
 
-export async function POST() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export async function POST(req: Request) {
+  const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const today = getKSTDate()

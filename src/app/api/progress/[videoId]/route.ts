@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
+export const dynamic = 'force-dynamic'
+import { getAuthedClient } from '@/lib/supabase/api-auth'
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ videoId: string }> }
 ) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { videoId } = await params

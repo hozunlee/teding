@@ -1,17 +1,20 @@
-import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { getAuthedClient } from '@/lib/supabase/api-auth'
+import { createServiceClient } from '@/lib/supabase/server'
 import { generateWithFallback } from '@/lib/gemini'
 import type { Json } from '@/types/database'
 
 export const maxDuration = 60
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { videoId, transcript } = await req.json() as { videoId: string; transcript: string }
 
-  const { data: existing } = await supabase
+  const serviceClient = createServiceClient()
+
+  const { data: existing } = await serviceClient
     .from('learning_materials')
     .select('id')
     .eq('video_id', videoId)
@@ -27,8 +30,6 @@ export async function POST(req: Request) {
     console.error('[generate] generateWithFallback failed:', msg)
     return Response.json({ error: msg }, { status: 500 })
   }
-
-  const serviceClient = createServiceClient()
   const { error } = await serviceClient.from('learning_materials').upsert(
     {
       video_id: videoId,
