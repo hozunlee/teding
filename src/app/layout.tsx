@@ -3,6 +3,9 @@ import { Geist, Geist_Mono, Lexend, Lora } from "next/font/google";
 import "./globals.css";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { KakaoExternalBrowser } from "@/components/common/KakaoExternalBrowser";
+import { NotificationOnboarding } from "@/components/NotificationOnboarding";
+import { NetworkSync } from "@/components/NetworkSync";
+import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 const geistSans = Geist({
@@ -26,9 +29,9 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-    title: "teding — 영어 앱 결제 버튼을 누르기 직전,",
+    title: "테딩 teding — AI 영어 학습지 X ted-ed",
     description:
-        "헐레벌떡 직접 만든 AI 영어학습 서비스. TED-Ed의 지식을 AI가 심플하게 큐레이션합니다. 매일 하나씩, 내 안의 영어가 자라나는 감각을 경험하세요.",
+        "TED-Ed의 지식을 AI가 쉽게 큐레이션하여 학습지를 제공합니다. 매일 하나씩, 내 안의 영어가 자라나는 감각을 경험하세요.",
     icons: {
         icon: [
             { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
@@ -40,9 +43,9 @@ export const metadata: Metadata = {
     },
     manifest: "/manifest.json",
     openGraph: {
-        title: "teding — 영어 앱 결제 버튼을 누르기 직전,",
+        title: "테딩 teding — AI 영어 학습지 X ted-ed",
         description:
-            "헐레벌떡 직접 만든 AI 영어학습 서비스. TED-Ed의 지식을 AI가 심플하게 큐레이션합니다. 매일 하나씩, 내 안의 영어가 자라나는 감각을 경험하세요.",
+            "TED-Ed의 지식을 AI가 쉽게 큐레이션하여 학습지를 제공합니다. 매일 하나씩, 내 안의 영어가 자라나는 감각을 경험하세요.",
         url: process.env.NEXT_PUBLIC_APP_URL,
         siteName: "teding",
         images: [
@@ -56,9 +59,9 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "teding — 영어 앱 결제 버튼을 누르기 직전,",
+        title: "테딩 teding — AI 영어 학습지 X ted-ed",
         description:
-            "헐레벌떡 직접 만든 AI 영어학습 서비스. TED-Ed의 지식을 AI가 심플하게 큐레이션합니다. 매일 하나씩, 내 안의 영어가 자라나는 감각을 경험하세요.",
+            "TED-Ed의 지식을 AI가 쉽게 큐레이션하여 학습지를 제공합니다. 매일 하나씩, 내 안의 영어가 자라나는 감각을 경험하세요.",
         images: ["/og.png"],
     },
 };
@@ -80,6 +83,9 @@ export default function RootLayout({
                 <KakaoExternalBrowser>
                     {children}
                     <AuthModal />
+                    <NotificationOnboarding />
+                    <NetworkSync />
+                    <DeepLinkHandler />
                 </KakaoExternalBrowser>
             </body>
             {process.env.NEXT_PUBLIC_GA_ID && (

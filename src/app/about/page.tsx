@@ -182,21 +182,21 @@ export default async function AboutPage() {
                             },
                             {
                                 step: "STEP 2",
-                                label: "스크립트 확인",
-                                desc: "AI가 추출한 영어 원문으로 독해. 소리와 문자를 연결합니다.",
-                                color: "#ef2cc1",
-                            },
-                            {
-                                step: "STEP 3",
                                 label: "학습지",
                                 desc: "AI가 생성한 빈칸채우기·독해·작문 문제. PDF 다운로드 가능.",
                                 color: "#7c3aed",
                             },
                             {
-                                step: "STEP 4",
+                                step: "STEP 3",
                                 label: "핵심 표현",
                                 desc: "영상의 핵심 패턴과 구문 분석. 일상 영어 표현을 내재화합니다.",
                                 color: "#010120",
+                            },
+                            {
+                                step: "STEP 4",
+                                label: "재시청",
+                                desc: "AI 스크립트와 함께 시청. 소리와 문자를 완벽히 연결합니다.",
+                                color: "#ef2cc1",
                             },
                         ].map((item) => (
                             <div

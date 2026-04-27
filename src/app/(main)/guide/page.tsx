@@ -9,7 +9,6 @@ export const metadata = {
     title: "학습 가이드 — Teding",
     description: "TED-Ed 영상으로 영어를 배우는 4단계 학습법",
 };
-
 const STEPS = [
     {
         n: 1,
@@ -24,20 +23,9 @@ const STEPS = [
     },
     {
         n: 2,
-        emoji: "📄",
-        label: "스크립트 확인",
-        time: "10분",
-        color: "#ef2cc1",
-        bg: "#fdf0fb",
-        description:
-            "AI가 추출한 스크립트 전문을 읽는다. 1단계에서 놓쳤던 부분을 확인하고, 소리와 문자를 연결한다. 단어 하나하나를 사전에서 찾기보다 문장 전체의 흐름을 먼저 파악한다.",
-        tip: '읽으면서 "아, 그 소리가 이 단어였구나!" 하는 순간이 핵심이다. 이 연결이 실력을 끌어올린다.',
-    },
-    {
-        n: 3,
         emoji: "✏️",
         label: "학습지",
-        time: "15–20분",
+        time: "15분",
         color: "#7c3aed",
         bg: "#f5f3ff",
         description:
@@ -45,17 +33,29 @@ const STEPS = [
         tip: "손으로 직접 쓰는 것이 기억 정착에 더 효과적이다. 가능하면 프린트해서 풀어보자.",
     },
     {
-        n: 4,
+        n: 3,
         emoji: "💡",
         label: "핵심표현",
-        time: "15분",
+        time: "5분",
         color: "#010120",
         bg: "#f0f0f8",
         description:
             '영상에서 자주 쓰이는 핵심 표현 패턴과 구문 분석을 학습한다. 각 문장의 역할(주어·동사·목적어)을 색깔로 구분해서 보여준다. "알았어요" 버튼으로 확실히 익힌 문장을 체크한다.',
         tip: '패턴을 외우는 것보다 "왜 이 구조인지"를 이해하는 것이 중요하다. 구문 분석 팁 박스를 꼼꼼히 읽자.',
     },
+    {
+        n: 4,
+        emoji: "🔄",
+        label: "재시청",
+        time: "5분",
+        color: "#ef2cc1",
+        bg: "#fdf0fb",
+        description:
+            "AI가 추출한 스크립트 전문을 읽으며 영상을 다시 시청한다. 앞선 단계에서 학습한 내용과 소리를 연결한다. 단어 하나하나를 사전에서 찾기보다 문장 전체의 흐름을 먼저 파악한다.",
+        tip: '읽으면서 "아, 그 소리가 이 단어였구나!" 하는 순간이 핵심이다. 이 연결이 실력을 끌어올린다.',
+    },
 ];
+
 
 const FAQS = [
     {
@@ -205,7 +205,7 @@ export default function GuidePage() {
                     ))}
                 </div>
                 <p className="text-xs text-muted-foreground mt-4 text-center">
-                    총 소요시간: 약 50–60분 / 일
+                    총 소요시간: 약 30분 / 일
                 </p>
             </div>
 

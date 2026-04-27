@@ -1280,10 +1280,14 @@ export function StreakCard({
         if (!isLoggedIn) return false;
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
+        
+        // KST 기준 YYYY-MM-DD 생성 (이미 monday가 오프셋 적용된 상태임)
         const y = d.getFullYear();
         const m = String(d.getMonth() + 1).padStart(2, "0");
         const date = String(d.getDate()).padStart(2, "0");
-        return weeklyProgress.includes(`${y}-${m}-${date}`);
+        const dateStr = `${y}-${m}-${date}`;
+        
+        return weeklyProgress.includes(dateStr);
     });
 
     return (
