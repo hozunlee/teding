@@ -2,6 +2,9 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-05-04 StreakCard UI 컴포넌트 리팩토링:
+  - 1000줄이 넘는 monolithic StreakCard.tsx 컴포넌트를 utils.ts, Icons.tsx, TreeIcons.tsx, RingGauge.tsx 로 분할 및 모듈화 완료.
+
 - 2026-05-04 영상 조르기 기능 추가:
   - `longest_streak >= 5` 달성 유저에게만 `/request-study` 페이지 접근 허용. 미달성 시 잠금 화면 + 진행 바 표시.
   - SiteNav(데스크톱), MobileNav(모바일 햄버거) 에 "영상 조르기" 메뉴 추가. 잠금 상태일 때 `opacity-50` + hover 툴팁 "5일 이상이면 열려요!" 표시.
