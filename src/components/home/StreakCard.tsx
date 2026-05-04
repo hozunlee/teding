@@ -144,7 +144,9 @@ export function StreakCard({
                             const info = dayInfos[i];
                             const isRed = !!info.holidayName;
                             const isWeekend = info.isSaturday || info.isSunday;
-                            const hasTooltip = !!(info.holidayName || isWeekend);
+                            const hasTooltip = !!(
+                                info.holidayName || isWeekend
+                            );
 
                             return (
                                 <div
@@ -203,7 +205,7 @@ export function StreakCard({
                                                 <p className="font-semibold">
                                                     {info.holidayName
                                                         ? info.holidayName
-                                                        : "주말은 1회만 해도 스트릭이 유지 되요"}
+                                                        : "주말은 1회만 해도 스트릭 유지"}
                                                 </p>
                                                 {info.date && (
                                                     <p className="text-[10px] opacity-80">
