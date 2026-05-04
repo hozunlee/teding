@@ -24,3 +24,23 @@ export function getKSTDate(date: Date = new Date()): string {
 
   return `${year}-${month}-${day}`
 }
+
+/**
+ * YYYY-MM-DD 형식의 날짜 문자열에서 요일을 추출합니다 (0: 일, 6: 토).
+ * 타임존 영향을 받지 않도록 Date.UTC를 사용합니다.
+ */
+export function getDayOfWeekKST(dateStr: string): number {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay()
+}
+
+/**
+ * 두 날짜 문자열(YYYY-MM-DD) 사이의 일수 차이를 계산합니다.
+ */
+export function getDiffDays(startDate: string, endDate: string): number {
+  const [y1, m1, d1] = startDate.split('-').map(Number)
+  const [y2, m2, d2] = endDate.split('-').map(Number)
+  const utc1 = Date.UTC(y1, m1 - 1, d1)
+  const utc2 = Date.UTC(y2, m2 - 1, d2)
+  return Math.round((utc2 - utc1) / (1000 * 60 * 60 * 24))
+}

@@ -20,14 +20,21 @@ interface Props {
   video: DailyVideo
   cached: CacheStatus
   startStep: number
+  requesterNickname?: string | null
 }
 
-export function DailyVideoBanner({ video, cached, startStep }: Props) {
+export function DailyVideoBanner({ video, cached, startStep, requesterNickname }: Props) {
   const thumbnailUrl = `https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg`
   const isReady = cached.transcript && cached.materials
 
   return (
     <div className='group relative overflow-hidden rounded-lg border border-border bg-card p-4 shadow-[var(--shadow-elegant)] transition-all hover:shadow-lg md:p-6'>
+      {requesterNickname && (
+        <div className='mb-3 flex items-center gap-1.5 text-xs font-medium text-[var(--brand-orange)]'>
+          <span>🎉</span>
+          <span>{requesterNickname}님이 추천한 오늘의 영상입니다. 같이 공부해봐요!</span>
+        </div>
+      )}
       <div className='flex flex-col gap-5 md:flex-row md:items-center'>
         {/* Thumbnail Area */}
         <div className='relative shrink-0 overflow-hidden rounded-[4px] shadow-sm md:w-[240px]'>

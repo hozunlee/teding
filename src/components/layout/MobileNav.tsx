@@ -24,6 +24,7 @@ const navItems = [
         <polyline points='9 22 9 12 15 12 15 22' />
       </svg>
     ),
+    requireLogin: false,
   },
   {
     href: '/guide',
@@ -35,6 +36,7 @@ const navItems = [
         <path d='M12 8h.01' />
       </svg>
     ),
+    requireLogin: false,
   },
   {
     href: '/study',
@@ -44,6 +46,7 @@ const navItems = [
         <polygon points='5 3 19 12 5 21 5 3' />
       </svg>
     ),
+    requireLogin: false,
   },
   {
     href: '/archive',
@@ -54,6 +57,19 @@ const navItems = [
         <path d='M3.51 15a9 9 0 1 0 .49-4.5' />
       </svg>
     ),
+    requireLogin: true,
+  },
+  {
+    href: '/request-study',
+    label: '영상 조르기',
+    icon: (
+      <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+        <path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' />
+        <path d='m9 12 2 2 4-4' />
+      </svg>
+    ),
+    requireLogin: true,
+    requireStreak: true,
   },
   {
     href: '/about',
@@ -65,10 +81,11 @@ const navItems = [
         <line x1='12' y1='8' x2='12.01' y2='8' />
       </svg>
     ),
+    requireLogin: false,
   },
 ]
 
-export function MobileNav({ isAdmin, email, nickname }: { isAdmin?: boolean; email?: string; nickname?: string | null }) {
+export function MobileNav({ isAdmin, email, nickname, longestStreak = 0 }: { isAdmin?: boolean; email?: string; nickname?: string | null; longestStreak?: number }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
@@ -119,8 +136,13 @@ export function MobileNav({ isAdmin, email, nickname }: { isAdmin?: boolean; ema
           <nav className='flex flex-col gap-2 p-4 flex-1 overflow-y-auto'>
             {navItems.map((item) => {
               const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
-              const isArchive = item.href === '/archive'
-              const disabled = !isLoggedIn && isArchive
+              const needsLogin = item.requireLogin && !isLoggedIn
+              const needsStreak = item.requireStreak && isLoggedIn && longestStreak < 5
+              const disabled = needsLogin || needsStreak
+
+              const label = item.requireStreak && !needsLogin && needsStreak
+                ? `${item.label} 🔒`
+                : item.label
 
               const content = (
                 <div
@@ -137,18 +159,33 @@ export function MobileNav({ isAdmin, email, nickname }: { isAdmin?: boolean; ema
                   }
                 >
                   <span className={active ? '' : disabled ? 'opacity-40' : 'text-muted-foreground'}>{item.icon}</span>
-                  <span className={active ? 'flex-1' : disabled ? 'flex-1 opacity-40' : 'flex-1'}>{item.label}</span>
+                  <span className={active ? 'flex-1' : disabled ? 'flex-1 opacity-40' : 'flex-1'}>{label}</span>
                   {active && <span className='h-1.5 w-1.5 rounded-full bg-white' />}
                 </div>
               )
 
-              if (disabled) {
+              if (needsLogin) {
                 return (
                   <button
                     key={item.href}
                     onClick={() => {
                       setOpen(false)
                       openAuth('지난 학습을 다시 하고 싶다면 먼저 로그인하세요!')
+                    }}
+                    className='w-full text-left'
+                  >
+                    {content}
+                  </button>
+                )
+              }
+
+              if (needsStreak) {
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => {
+                      setOpen(false)
+                      openAuth('5일 이상 스트릭을 달성하면 영상 조르기가 열려요!')
                     }}
                     className='w-full text-left'
                   >

@@ -2,7 +2,8 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { DailyVideoBanner } from "@/components/home/DailyVideoBanner";
 import { StreakCard } from "@/components/home/StreakCard";
 import { RecentList } from "@/components/home/RecentList";
-import { getKSTDate } from "@/lib/utils";
+import { getKSTDate, getDayOfWeekKST } from "@/lib/utils";
+import { getHolidayName } from "@/lib/utills/holiday";
 
 export default async function TodayPage() {
     const supabase = await createClient();
@@ -21,25 +22,20 @@ export default async function TodayPage() {
 
     let streak = null;
     let weeklyProgress: string[] = [];
+    let weeklyCoins: string[] = [];
+    let weeklyHolidayMap: Record<string, string> = {};
 
     if (user) {
-        // 새벽 3시 오프셋을 적용한 '논리적 현재 시각' 구하기
-        const now = new Date();
-        const logicalNow = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-        
-        // KST 기준 요일 구하기 (0: 일, 1: 월, ..., 6: 토)
-        // Intl.DateTimeFormat으로 요일을 가져오거나, 9시간 더한 후 getDay() 사용
-        const kstTime = logicalNow.getTime() + (9 * 60 * 60 * 1000);
-        const kstDate = new Date(kstTime);
-        const dayOfWeek = (kstDate.getUTCDay() + 6) % 7; // 0: 월, 1: 화, ..., 6: 일
+        // 이번 주 월요일 찾기 (KST 기준)
+        const [ty, tm, td] = today.split('-').map(Number);
+        const todayUTC = Date.UTC(ty, tm - 1, td);
+        const dayOfWeek = getDayOfWeekKST(today);
+        const dayOffset = (dayOfWeek + 6) % 7; // 0: 월, 6: 일
 
-        // 이번 주 월요일 구하기
-        const monday = new Date(kstTime);
-        monday.setUTCDate(kstDate.getUTCDate() - dayOfWeek);
-        monday.setUTCHours(0, 0, 0, 0);
+        const mondayUTC = todayUTC - (dayOffset * 24 * 60 * 60 * 1000);
 
         const dates = Array.from({ length: 7 }, (_, i) => {
-            const d = new Date(monday.getTime() + i * 24 * 60 * 60 * 1000);
+            const d = new Date(mondayUTC + i * 24 * 60 * 60 * 1000);
             const year = d.getUTCFullYear();
             const month = String(d.getUTCMonth() + 1).padStart(2, "0");
             const day = String(d.getUTCDate()).padStart(2, "0");
@@ -62,6 +58,59 @@ export default async function TodayPage() {
 
         streak = streakRes.data;
         weeklyProgress = (progressRes.data ?? []).map((p) => p.date);
+
+        // 이번 주 공휴일 및 보너스 코인 날짜 계산
+        const dateInfoResults = await Promise.all(dates.map(async (dateStr, idx) => {
+            const holName = await getHolidayName(dateStr);
+            const dow = getDayOfWeekKST(dateStr); // 0: 일, 6: 토
+
+            let coin = null;
+            // 학습하지 않은 날 중 보너스 코인 지급 대상
+            if (!weeklyProgress.includes(dateStr)) {
+                // 1. 공휴일 (과거/오늘/미래 무관하게 코인 표시)
+                if (holName) {
+                    coin = dateStr;
+                }
+                // 2. 일요일인 경우 (학습 여부와 상관없이 휴식일 코인 표시)
+                else if (dow === 0 && dateStr <= today) {
+                    coin = dateStr;
+                }
+                // 3. 토요일인 경우 (일요일에 학습했거나, 오늘이 일요일이고 현재 학습 중인 경우)
+                else if (dow === 6 && dateStr < today) {
+                    const sundayStr = dates[idx + 1];
+                    // 일요일에 학습 기록이 있거나, 오늘이 일요일인데 아직 기록이 없는 경우(보너스 예고)
+                    if (weeklyProgress.includes(sundayStr) || sundayStr === today) {
+                        coin = dateStr;
+                    }
+                }
+            }
+
+            return { dateStr, holName, coin };
+        }));
+
+        dateInfoResults.forEach(r => {
+            if (r.holName) weeklyHolidayMap[r.dateStr] = r.holName;
+        });
+        weeklyCoins = dateInfoResults.map(r => r.coin).filter((d): d is string => d !== null);
+    }
+
+    let requesterNickname: string | null = null;
+    if (video) {
+        const { data: requestData } = await adminSupabase
+            .from("video_requests")
+            .select("user_id")
+            .eq("scheduled_date", today)
+            .eq("status", "scheduled")
+            .maybeSingle();
+
+        if (requestData?.user_id) {
+            const { data: profileData } = await adminSupabase
+                .from("profiles")
+                .select("nickname")
+                .eq("id", requestData.user_id)
+                .single();
+            requesterNickname = profileData?.nickname ?? null;
+        }
     }
 
     let cached = { transcript: false, materials: false };
@@ -89,9 +138,7 @@ export default async function TodayPage() {
         if (user) {
             const { data: progress } = await supabase
                 .from("user_progress")
-                .select(
-                    "step1_completed_at,step2_completed_at,step3_completed_at,step4_completed_at",
-                )
+                .select("step1_completed_at,step2_completed_at,step3_completed_at,step4_completed_at")
                 .eq("user_id", user.id)
                 .eq("video_id", video.video_id)
                 .single();
@@ -103,7 +150,6 @@ export default async function TodayPage() {
                 else if (!progress.step4_completed_at) startStep = 4;
                 else startStep = 1;
             }
-            
             isCompleted = !!progress?.step4_completed_at;
         }
     }
@@ -131,6 +177,7 @@ export default async function TodayPage() {
                         video={video}
                         cached={cached}
                         startStep={startStep}
+                        requesterNickname={requesterNickname}
                     />
                 ) : (
                     <div className="flex min-h-[200px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-8 text-center text-muted-foreground">
@@ -149,6 +196,8 @@ export default async function TodayPage() {
                     longestStreak={streak?.longest_streak ?? 0}
                     lastStudyDate={streak?.last_study_date ?? null}
                     weeklyProgress={weeklyProgress}
+                    weeklyCoins={weeklyCoins}
+                    weeklyHolidayMap={weeklyHolidayMap}
                     isLoggedIn={!!user}
                 />
 

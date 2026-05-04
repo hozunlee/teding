@@ -211,11 +211,16 @@ export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
                         <div
                             key={i}
                             onClick={() => toggleVocab(i)}
-                            className="group relative cursor-pointer border border-[var(--ws-gold)]/30 bg-[#f5edd8] p-3.5 transition-colors hover:border-[var(--ws-gold)] print:bg-transparent"
+                            className="group relative cursor-pointer border border-[var(--ws-gold)]/30 bg-[#f5edd8] p-3 transition-colors hover:border-[var(--ws-gold)] print:bg-transparent"
                         >
-                            <div className="flex items-baseline justify-between">
-                                <div className="text-[1.05rem] font-bold text-[var(--ws-red)]">
-                                    {item.word}
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                    <div className="text-[1.05rem] font-bold text-[var(--ws-red)]">
+                                        {item.word}
+                                    </div>
+                                    <span className="print:hidden">
+                                        <SpeakButton text={item.word} />
+                                    </span>
                                 </div>
                                 <span className="font-mono text-[0.65rem] text-[var(--ws-faded)] uppercase">
                                     {item.pos}
@@ -264,7 +269,7 @@ export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
                         return (
                             <div key={i} className="break-inside-avoid">
                                 <div className="font-mono text-[0.75rem] text-[var(--ws-gold)]">
-                                    Question 0{i + 1} — Multiple Choice
+                                    Question 0{i + 1} — Choice
                                 </div>
                                 <p className="mb-3 text-[1.05rem] font-semibold leading-normal text-[var(--ws-deep)]">
                                     {q.question}
@@ -620,7 +625,7 @@ function SpeakButton({ text }: { text: string }) {
             }`}
             aria-label="발음 듣기"
         >
-            <Volume1 size={18} />
+            <Volume1 size={16} />
         </button>
     );
 }

@@ -46,12 +46,12 @@ export async function GET(req: Request) {
     const videoInfo = videoMap.get(p.video_id)
     return {
       ...p,
-      date: videoInfo?.date || p.date, // Use the actual video date for linking
+      date: videoInfo?.date || p.date,
       daily_videos: {
         title: videoInfo?.title || '제목 없음'
       }
     }
-  })
+  }).sort((a, b) => b.date.localeCompare(a.date))
 
   return Response.json({ history, loggedIn: true })
 }

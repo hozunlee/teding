@@ -227,6 +227,51 @@ export interface Database {
         }
         Relationships: []
       }
+      video_requests: {
+        Row: {
+          id: string
+          user_id: string
+          video_id: string
+          video_url: string
+          video_title: string | null
+          video_duration: string | null
+          thumbnail_url: string | null
+          user_message: string | null
+          ai_reason: string | null
+          status: 'pending' | 'scheduled' | 'rejected'
+          scheduled_date: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          video_id: string
+          video_url: string
+          video_title?: string | null
+          video_duration?: string | null
+          thumbnail_url?: string | null
+          user_message?: string | null
+          ai_reason?: string | null
+          status?: 'pending' | 'scheduled' | 'rejected'
+          scheduled_date?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          video_id?: string
+          video_url?: string
+          video_title?: string | null
+          video_duration?: string | null
+          thumbnail_url?: string | null
+          user_message?: string | null
+          ai_reason?: string | null
+          status?: 'pending' | 'scheduled' | 'rejected'
+          scheduled_date?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       archive_videos_view: {

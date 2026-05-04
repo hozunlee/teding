@@ -18,6 +18,7 @@ export async function SiteHeader() {
 
     let nickname: string | null = null;
     let streak = 0;
+    let longestStreak = 0;
     const isAdmin = user?.email === process.env.ADMIN_EMAIL;
 
     if (user) {
@@ -29,12 +30,13 @@ export async function SiteHeader() {
 
         const { data: streakData } = (await supabase
             .from("streaks")
-            .select("current_streak")
+            .select("current_streak, longest_streak")
             .eq("user_id", user.id)
-            .single()) as { data: Pick<StreakRow, "current_streak"> | null };
+            .single()) as { data: Pick<StreakRow, "current_streak" | "longest_streak"> | null };
 
         nickname = profileData?.nickname ?? null;
         streak = streakData?.current_streak ?? 0;
+        longestStreak = streakData?.longest_streak ?? 0;
     }
 
     return (
@@ -45,7 +47,7 @@ export async function SiteHeader() {
                         <TedingLogo className="text-lg" />
                     </Link>
 
-                    <SiteNav isAdmin={isAdmin} isLoggedIn={!!user} />
+                    <SiteNav isAdmin={isAdmin} isLoggedIn={!!user} longestStreak={longestStreak} />
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -79,6 +81,7 @@ export async function SiteHeader() {
                                     isAdmin={isAdmin}
                                     email={user.email}
                                     nickname={nickname}
+                                    longestStreak={longestStreak}
                                 />
                             </div>
                         </div>

@@ -56,7 +56,6 @@ const STEPS = [
     },
 ];
 
-
 const FAQS = [
     {
         q: "매일 꼭 해야 하나요?",
@@ -229,14 +228,63 @@ export default function GuidePage() {
                 </Accordion>
             </div>
 
+            {/* Streak Rules */}
+            <div className="border-t border-border mb-10" />
+            <div className="mb-10">
+                <h2 className="text-base font-semibold mb-1">
+                    스트릭 유지 조건
+                </h2>
+                <p className="text-xs text-muted-foreground mb-4">
+                    완료 기준: Step 1(무자막 시청) 이상 진행
+                </p>
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+                        <span className="text-lg shrink-0">📅</span>
+                        <div>
+                            <p className="text-sm font-semibold">
+                                평일 (월–금)
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                매일 1회 완료 시 스트릭 +1
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+                        <span className="text-lg shrink-0">🪙</span>
+                        <div>
+                            <p className="text-sm font-semibold">
+                                주말 (토·일)
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                토·일 중 1회만 완료해도 스트릭 유지. 둘 다
+                                쉬어도 괜찮다.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+                        <span className="text-lg shrink-0">🏆</span>
+                        <div>
+                            <p className="text-sm font-semibold">공휴일</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                공부 여부와 관계없이 스트릭 자동 유지. 더 넓은
+                                세상을 보세요.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Reference */}
             <div className="rounded-xl border border-border p-4 bg-muted/40">
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                    이 학습법은 아래 영상의 방법론을 바탕으로 설계되었으며, AI 생성 학습자료와 결합해
-                    Teding에 맞게 재구성한 것이다.
+                    이 학습법은 아래 영상의 방법론을 바탕으로 설계되었으며, AI
+                    생성 학습자료와 결합해 Teding에 맞게 재구성한 것이다.
                 </p>
                 <div className="overflow-hidden rounded-lg bg-black">
-                    <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+                    <div
+                        className="relative w-full"
+                        style={{ paddingBottom: "56.25%" }}
+                    >
                         <iframe
                             src="https://www.youtube.com/embed/Z6NXm05VC14?rel=0&modestbranding=1"
                             className="absolute inset-0 h-full w-full"

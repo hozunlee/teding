@@ -22,27 +22,36 @@ export async function POST(req: Request) {
   const { supabase, user } = await getAuthedClient(req)
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body = await req.json() as ProgressBody
-  const { videoId, step, knownSentences, quizResults } = body
+  const { videoId, step, knownSentences, quizResults } = await req.json() as ProgressBody
   const now = new Date().toISOString()
-  const targetDate = getKSTDate()
 
-  const update: ProgressInsert = {
-    user_id: user.id,
-    video_id: videoId,
-    date: targetDate,
-    ...(step === 1 && { step1_completed_at: now }),
-    ...(step === 2 && { step2_completed_at: now }),
-    ...(step === 3 && { step3_completed_at: now }),
-    ...(step === 4 && { step4_completed_at: now, completed_at: now }),
-    ...(knownSentences !== undefined && { known_sentences: knownSentences }),
-    ...(quizResults !== undefined && { quiz_results: quizResults }),
+  if (step === 1) {
+    const { error } = await supabase.from('user_progress').upsert({
+      user_id: user.id,
+      video_id: videoId,
+      date: getKSTDate(),
+      step1_completed_at: now,
+      ...(knownSentences !== undefined && { known_sentences: knownSentences }),
+      ...(quizResults !== undefined && { quiz_results: quizResults }),
+    } as ProgressInsert, { onConflict: 'user_id,video_id' })
+    if (error) return Response.json({ error: error.message }, { status: 500 })
+  } else {
+    const stepField =
+      step === 2 ? { step2_completed_at: now } :
+      step === 3 ? { step3_completed_at: now } :
+      { step4_completed_at: now, completed_at: now }
+
+    const { error } = await supabase
+      .from('user_progress')
+      .update({
+        ...stepField,
+        ...(knownSentences !== undefined && { known_sentences: knownSentences }),
+        ...(quizResults !== undefined && { quiz_results: quizResults }),
+      })
+      .eq('user_id', user.id)
+      .eq('video_id', videoId)
+    if (error) return Response.json({ error: error.message }, { status: 500 })
   }
-
-  const { error } = await supabase.from('user_progress').upsert(update, {
-    onConflict: 'user_id,video_id',
-  })
-  if (error) return Response.json({ error: error.message }, { status: 500 })
 
   return Response.json({ ok: true })
 }

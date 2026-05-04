@@ -2,6 +2,33 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-05-04 영상 조르기 기능 추가:
+  - `longest_streak >= 5` 달성 유저에게만 `/request-study` 페이지 접근 허용. 미달성 시 잠금 화면 + 진행 바 표시.
+  - SiteNav(데스크톱), MobileNav(모바일 햄버거) 에 "영상 조르기" 메뉴 추가. 잠금 상태일 때 `opacity-50` + hover 툴팁 "5일 이상이면 열려요!" 표시.
+  - 요청 폼: YouTube URL 입력 → 썸네일·제목·재생시간 자동 완성(oEmbed + YT IFrame API). 추천 이유(선택) textarea. 유저당 pending 요청 1개 제한(DB unique index).
+  - 신규 API: `POST /api/request-study`, `GET /api/admin/requests`, `PATCH /api/admin/requests/[id]`, `GET /api/admin/schedule-map`.
+  - `src/lib/admin-daily.ts` 추출: daily 등록 핵심 로직(daily_videos upsert + transcript + learning_materials) 분리하여 `/api/admin/daily`·`/api/admin/requests/[id]` 양쪽에서 재사용.
+  - 어드민 페이지 `requests` 탭 추가: date-fns 기반 인라인 달력(등록된 날 주황 dot), 요청 카드(썸네일·닉네임·메시지), 날짜 선택 후 "등록" 또는 "거절" 처리.
+  - 메인 화면 배너: 오늘 날짜가 scheduled 요청과 일치하면 "OO님이 추천한 오늘의 영상입니다. 같이 공부해봐요!" 배너 표시.
+  - DB: `video_requests` 테이블 신규 생성 (Supabase SQL Editor에서 수동 마이그레이션 필요).
+
+- 2026-05-02 어드민 페이지 리팩토링: 단일 파일 700줄 코드를 `_components`, `_hooks`, `_lib` 디렉토리로 관심사 분리 및 모듈화 완료.
+
+- 2026-05-02 어드민 페이지 개선:
+  - 영상/공휴일 카테고리 탭 분리.
+  - 영상 탭: 오늘·내일 현황 카드에 등록 여부에 따라 변경 버튼 조건부 노출. 둘 다 등록 시 폼 숨김, 미등록 날짜 있을 때만 폼 노출. 변경 모드 취소 기능 추가.
+  - 공휴일 탭: 한국천문연구원 API 연동 (`/api/admin/holidays`), `revalidate: 86400` 캐싱, 연·월 선택 후 공휴일 목록 조회.
+
+- 2026-05-02 TASK_029: 스트릭 휴일/주말 보너스 정책 도입:
+  - 공휴일 미학습 시 스트릭 유지 로직 적용.
+  - 주말 2일 중 1일만 학습해도 스트릭 유지 유동성 부여.
+  - 보너스일(공휴일/유효한 주말 결석)에 주간 학습 현황에 레트로 마리오 코인 아이콘 노출.
+  - `src/lib/utills/holiday.ts` 개편 및 API 최적화.
+
+- 2026-05-02 Bug Fix: 이번주 학습현황 및 최근 학습 기록 정렬 버그 수정:
+  - `progress/route.ts`: step=1은 upsert(date 설정), step=2/3/4는 `.update()`로 분리하여 날짜 덮어쓰기 방지. step1 완료 시점의 날짜가 이후 스텝 완료 시 변경되지 않음.
+  - `history/route.ts`: map 후 실제 영상 날짜(`daily_videos.date`) 기준으로 JS re-sort 추가하여 정렬 안정화.
+
 - 2026-04-27 Archive 버그 수정 및 UI 조정:
   - 타인 코멘트 미노출 해결: `user_progress` 조회 시 Supabase RLS 우회를 위해 `createServiceClient`(Service Role) 적용
   - 본인 코멘트 UI 변경: 색상 강조 제거 및 아이콘 차별화 (본인 코멘트는 👤, 타인 코멘트는 💬 표시)
