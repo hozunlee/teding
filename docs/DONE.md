@@ -2,8 +2,28 @@
 
 <!-- - YYYY-MM-DD TASK_XXX: [한 줄 요약] -->
 
+- 2026-05-11 어드민 요청 탭 등록 버튼 수정 + LLM 로직 리팩토링:
+  - `useVideoRegister` 훅 신규 생성 (`src/hooks/useVideoRegister.ts`): `POST /api/admin/daily` wrapping, 영상 탭과 동일한 엔드포인트 재사용.
+  - `AdminRequestsTab.tsx`: 등록 흐름을 `POST /api/admin/daily` (LLM) → `PATCH /api/admin/requests/{id}` (상태 업데이트) 2단계로 분리. 결과 피드백에 스크립트/학습자료 캐시 여부 표시.
+  - `api/admin/requests/[id]/route.ts`: `schedule` action에서 `registerDailyVideo()` 및 oEmbed fetch 제거, 상태 업데이트만 수행.
+
+- 2026-05-11 Supabase 마이그레이션 완료: `feedback`, `feedback_comments` 테이블 생성 및 RLS 정책 적용.
+
+- 2026-05-11 의견 보내기 게시판 + FSD-lite 구조 도입:
+  - `feedback`, `feedback_comments` 테이블 스키마 정의 (database.ts 수동 추가, Supabase 마이그레이션 별도 필요).
+  - FSD-lite 폴더 구조 신설: `src/features/`, `src/widgets/`, `src/hooks/`.
+  - 신규 API: `POST /api/feedback` (사용자 제출), `GET /api/admin/feedback` (목록), `GET /api/admin/feedback/[id]` (상세), `POST /api/admin/feedback/[id]/comment` (어드민 댓글).
+  - 사용자 페이지: `/(main)/feedback` — 제목+본문 제출 폼, 제출 후 인라인 성공 메시지.
+  - 어드민 페이지: `/admin` 피드백 탭 추가 (번호+제목+날짜 테이블), `/admin/feedback/[id]` 상세 (작성자 닉네임+이메일, 본문, 반영 결과 댓글 입력).
+  - SiteNav(데스크톱) + MobileNav(햄버거) 에 "의견 보내기" 링크 추가 (로그인 필요).
+
 - 2026-05-04 StreakCard UI 컴포넌트 리팩토링:
   - 1000줄이 넘는 monolithic StreakCard.tsx 컴포넌트를 utils.ts, Icons.tsx, TreeIcons.tsx, RingGauge.tsx 로 분할 및 모듈화 완료.
+
+- 2026-05-11 영상 조르기 프로세스 개선:
+  - 사용자 브라우저에서 외부 API 호출(YouTube oEmbed, iframe_api) 제거. URL + 메시지만 제출, title/duration은 DB에 저장하지 않음.
+  - 어드민 schedule 시 서버에서 YouTube oEmbed로 타이틀 가져온 후 `registerDailyVideo` 호출하도록 변경.
+  - 역할 분리 완료: 사용자 = URL 전달, 어드민 = 스크립트 추출 + LLM 생성 트리거.
 
 - 2026-05-04 영상 조르기 기능 추가:
   - `longest_streak >= 5` 달성 유저에게만 `/request-study` 페이지 접근 허용. 미달성 시 잠금 화면 + 진행 바 표시.
