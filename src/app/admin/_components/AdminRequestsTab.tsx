@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useVideoRegister } from "@/hooks/useVideoRegister";
 import {
     startOfMonth,
     endOfMonth,
@@ -98,8 +99,9 @@ export function AdminRequestsTab() {
     const [registeredDates, setRegisteredDates] = useState<Set<string>>(new Set());
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
-    const [actionLoading, setActionLoading] = useState<string | null>(null);
-    const [actionResult, setActionResult] = useState<{ ok: boolean; message: string } | null>(null);
+    const [rejectLoading, setRejectLoading] = useState<string | null>(null);
+
+    const { register, isRegistering, result: registerResult, setResult: setRegisterResult } = useVideoRegister();
 
     const currentMonth = format(calendarDate, "yyyy-MM");
 
@@ -134,40 +136,49 @@ export function AdminRequestsTab() {
         fetchRegisteredDates(currentMonth);
     }, [currentMonth, fetchRegisteredDates]);
 
-    async function handleSchedule(requestId: string) {
-        if (!selectedDate) {
-            setActionResult({ ok: false, message: "달력에서 날짜를 먼저 선택해주세요." });
-            return;
-        }
+    async function handleSchedule(req: RequestItem) {
+        if (!selectedDate) return;
 
-        setActionLoading(requestId);
-        setActionResult(null);
+        setSelectedRequestId(req.id);
+        setRegisterResult(null);
 
-        const res = await fetch(`/api/admin/requests/${requestId}`, {
+        const registerRes = await register({
+            videoId: req.video_id,
+            title: req.video_title ?? req.video_id,
+            duration: req.video_duration ?? '',
+            date: selectedDate,
+        });
+
+        if (!registerRes.ok) return;
+
+        const patchRes = await fetch(`/api/admin/requests/${req.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ action: "schedule", scheduledDate: selectedDate }),
         });
 
-        const data = (await res.json()) as { ok?: boolean; error?: string };
-        setActionLoading(null);
-
-        if (!res.ok) {
-            setActionResult({ ok: false, message: data.error ?? "등록 실패" });
-        } else {
-            setActionResult({ ok: true, message: `${selectedDate}에 등록되었습니다.` });
-            setSelectedDate(null);
-            setSelectedRequestId(null);
-            await fetchRequests();
-            await fetchRegisteredDates(currentMonth);
+        if (!patchRes.ok) {
+            const data = (await patchRes.json()) as { error?: string };
+            setRegisterResult({ ok: false, error: data.error ?? "상태 업데이트 실패" });
+            return;
         }
+
+        setRegisterResult({
+            ok: true,
+            transcriptCached: registerRes.transcriptCached,
+            materialsCached: registerRes.materialsCached,
+        });
+        setSelectedDate(null);
+        setSelectedRequestId(null);
+        await fetchRequests();
+        await fetchRegisteredDates(currentMonth);
     }
 
     async function handleReject(requestId: string) {
         if (!confirm("이 요청을 거절하시겠습니까?")) return;
 
-        setActionLoading(requestId);
-        setActionResult(null);
+        setRejectLoading(requestId);
+        setRegisterResult(null);
 
         const res = await fetch(`/api/admin/requests/${requestId}`, {
             method: "PATCH",
@@ -176,12 +187,12 @@ export function AdminRequestsTab() {
         });
 
         const data = (await res.json()) as { ok?: boolean; error?: string };
-        setActionLoading(null);
+        setRejectLoading(null);
 
         if (!res.ok) {
-            setActionResult({ ok: false, message: data.error ?? "거절 실패" });
+            setRegisterResult({ ok: false, error: data.error ?? "거절 실패" });
         } else {
-            setActionResult({ ok: true, message: "거절되었습니다." });
+            setRegisterResult(null);
             if (selectedRequestId === requestId) setSelectedRequestId(null);
             await fetchRequests();
         }
@@ -234,15 +245,17 @@ export function AdminRequestsTab() {
             </div>
 
             {/* 피드백 */}
-            {actionResult && (
+            {registerResult && (
                 <div
                     className={`rounded-lg border p-3 text-sm ${
-                        actionResult.ok
+                        registerResult.ok
                             ? "border-green-300 bg-green-50 text-green-800"
                             : "border-destructive/30 bg-destructive/10 text-destructive"
                     }`}
                 >
-                    {actionResult.message}
+                    {registerResult.ok
+                        ? `등록 완료 · 스크립트 ${registerResult.transcriptCached ? "캐시" : "신규"} · 학습자료 ${registerResult.materialsCached ? "캐시" : "신규 생성"}`
+                        : registerResult.error}
                 </div>
             )}
 
@@ -254,7 +267,9 @@ export function AdminRequestsTab() {
             ) : (
                 <div className="flex flex-col gap-3">
                     {requests.map((req) => {
-                        const isProcessing = actionLoading === req.id;
+                        const isScheduling = isRegistering && selectedRequestId === req.id;
+                        const isRejecting = rejectLoading === req.id;
+                        const isProcessing = isScheduling || isRejecting;
                         const isSelected = selectedRequestId === req.id;
 
                         return (
@@ -305,19 +320,16 @@ export function AdminRequestsTab() {
                                         onClick={() => handleReject(req.id)}
                                         className="text-xs border-destructive/40 text-destructive hover:bg-destructive/10"
                                     >
-                                        거절
+                                        {isRejecting ? "처리 중..." : "거절"}
                                     </Button>
                                     <Button
                                         type="button"
                                         size="sm"
                                         disabled={isProcessing || !selectedDate}
-                                        onClick={() => {
-                                            setSelectedRequestId(req.id);
-                                            handleSchedule(req.id);
-                                        }}
+                                        onClick={() => handleSchedule(req)}
                                         className="flex-1 text-xs"
                                     >
-                                        {isProcessing
+                                        {isScheduling
                                             ? "처리 중..."
                                             : selectedDate
                                               ? `${selectedDate}에 등록`

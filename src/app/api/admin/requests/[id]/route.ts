@@ -1,7 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { registerDailyVideo } from '@/lib/admin-daily'
 
-export const maxDuration = 60
 export const dynamic = 'force-dynamic'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL
@@ -46,36 +44,13 @@ export async function PATCH(
   if (action === 'schedule') {
     if (!scheduledDate) return Response.json({ error: 'scheduledDate required' }, { status: 400 })
 
-    const { data: request, error: fetchError } = await serviceClient
-      .from('video_requests')
-      .select('video_id, video_title, video_duration')
-      .eq('id', id)
-      .single()
-
-    if (fetchError || !request) return Response.json({ error: 'Request not found' }, { status: 404 })
-
-    try {
-      await registerDailyVideo({
-        videoId: request.video_id,
-        title: request.video_title ?? request.video_id,
-        duration: request.video_duration ?? '5:00',
-        date: scheduledDate,
-        force: false,
-      })
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err)
-      console.error('[admin/requests/schedule]', message)
-      return Response.json({ error: message }, { status: 500 })
-    }
-
-    const { error: updateError } = await serviceClient
+    const { error } = await serviceClient
       .from('video_requests')
       .update({ status: 'scheduled', scheduled_date: scheduledDate })
       .eq('id', id)
 
-    if (updateError) return Response.json({ error: updateError.message }, { status: 500 })
-
-    return Response.json({ ok: true, scheduledDate })
+    if (error) return Response.json({ error: error.message }, { status: 500 })
+    return Response.json({ ok: true })
   }
 
   return Response.json({ error: 'Invalid action' }, { status: 400 })
