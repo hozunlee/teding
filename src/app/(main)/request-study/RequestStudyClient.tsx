@@ -1,26 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-
-interface YTPlayerEvent {
-  target: { getDuration: () => number; destroy: () => void }
-}
-interface YTPlayer {
-  destroy: () => void
-}
-interface YTStatic {
-  Player: new (
-    el: string,
-    opts: { videoId: string; events: { onReady: (e: YTPlayerEvent) => void } }
-  ) => YTPlayer
-}
-declare global {
-  interface Window {
-    YT: YTStatic
-    onYouTubeIframeAPIReady: () => void
-  }
-}
 
 function parseVideoId(input: string): string {
   const trimmed = input.trim()
@@ -37,85 +18,14 @@ function parseVideoId(input: string): string {
   return ''
 }
 
-function formatDuration(seconds: number): string {
-  const m = Math.floor(seconds / 60)
-  const s = Math.floor(seconds % 60)
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
-
-interface Props {
-  longestStreak: number
-}
-
-export function RequestStudyClient({ longestStreak }: Props) {
+export function RequestStudyClient() {
   const [urlInput, setUrlInput] = useState('')
-  const [videoId, setVideoId] = useState('')
-  const [videoTitle, setVideoTitle] = useState('')
-  const [videoDuration, setVideoDuration] = useState('')
   const [userMessage, setUserMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null)
-  const playerRef = useRef<YTPlayer | null>(null)
 
-  useEffect(() => {
-    const id = parseVideoId(urlInput)
-    setVideoId(id)
-    setVideoTitle('')
-    setVideoDuration('')
-
-    if (id.length !== 11) return
-
-    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
-      .then(r => (r.ok ? r.json() : null))
-      .then((data: { title?: string } | null) => {
-        if (data?.title) setVideoTitle(data.title)
-      })
-      .catch(() => {})
-
-    const createPlayer = () => {
-      if (playerRef.current) {
-        playerRef.current.destroy()
-        playerRef.current = null
-      }
-      const div = document.createElement('div')
-      div.id = 'yt-req-player'
-      div.style.display = 'none'
-      document.body.appendChild(div)
-
-      playerRef.current = new window.YT.Player('yt-req-player', {
-        videoId: id,
-        events: {
-          onReady: (e: YTPlayerEvent) => {
-            const secs = e.target.getDuration()
-            if (secs > 0) setVideoDuration(formatDuration(secs))
-            e.target.destroy()
-            playerRef.current = null
-            div.remove()
-          },
-        },
-      })
-    }
-
-    if (window.YT?.Player) {
-      createPlayer()
-    } else {
-      window.onYouTubeIframeAPIReady = createPlayer
-      if (!document.getElementById('yt-iframe-api')) {
-        const script = document.createElement('script')
-        script.id = 'yt-iframe-api'
-        script.src = 'https://www.youtube.com/iframe_api'
-        document.head.appendChild(script)
-      }
-    }
-
-    return () => {
-      if (playerRef.current) {
-        playerRef.current.destroy()
-        playerRef.current = null
-      }
-      document.getElementById('yt-req-player')?.remove()
-    }
-  }, [urlInput])
+  const videoId = parseVideoId(urlInput)
+  const thumbnailUrl = videoId.length === 11 ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -129,9 +39,7 @@ export function RequestStudyClient({ longestStreak }: Props) {
       body: JSON.stringify({
         videoId,
         videoUrl: urlInput.trim(),
-        videoTitle: videoTitle || null,
-        videoDuration: videoDuration || null,
-        thumbnailUrl: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+        thumbnailUrl,
         userMessage: userMessage.trim() || null,
       }),
     })
@@ -152,13 +60,11 @@ export function RequestStudyClient({ longestStreak }: Props) {
     }
   }
 
-  const thumbnailUrl = videoId.length === 11 ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null
-
   return (
     <div className='mx-auto max-w-lg'>
       <div className='mb-6'>
         <div className='mb-3 flex items-center justify-between'>
-          <p className='text-xs text-muted-foreground'>최장 스트릭 {longestStreak}일 달성 해금</p>
+          <p className='text-xs text-muted-foreground'>최장 스트릭 5일 달성 해금</p>
           <a
             href='https://www.youtube.com/@TEDEd/playlists'
             target='_blank'
@@ -194,14 +100,6 @@ export function RequestStudyClient({ longestStreak }: Props) {
           <div className='overflow-hidden rounded-[4px] border bg-card'>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={thumbnailUrl} alt='영상 썸네일' className='aspect-video w-full object-cover' />
-            {(videoTitle || videoDuration) && (
-              <div className='px-3 py-2'>
-                {videoTitle && <p className='text-sm font-medium line-clamp-2'>{videoTitle}</p>}
-                {videoDuration && (
-                  <p className='mt-0.5 text-xs text-muted-foreground'>{videoDuration}</p>
-                )}
-              </div>
-            )}
           </div>
         )}
 

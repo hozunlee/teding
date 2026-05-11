@@ -59,5 +59,5 @@ export default async function RequestStudyPage() {
     )
   }
 
-  return <RequestStudyClient longestStreak={longestStreak} />
+  return <RequestStudyClient />
 }

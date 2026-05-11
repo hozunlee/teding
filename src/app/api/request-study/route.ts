@@ -15,11 +15,9 @@ export async function POST(req: Request) {
     return Response.json({ error: 'streak_too_short', longestStreak: streakData?.longest_streak ?? 0 }, { status: 403 })
   }
 
-  const { videoId, videoUrl, videoTitle, videoDuration, thumbnailUrl, userMessage } = await req.json() as {
+  const { videoId, videoUrl, thumbnailUrl, userMessage } = await req.json() as {
     videoId: string
     videoUrl: string
-    videoTitle?: string
-    videoDuration?: string
     thumbnailUrl?: string
     userMessage?: string
   }
@@ -31,8 +29,6 @@ export async function POST(req: Request) {
       user_id: user.id,
       video_id: videoId,
       video_url: videoUrl,
-      video_title: videoTitle ?? null,
-      video_duration: videoDuration ?? null,
       thumbnail_url: thumbnailUrl ?? null,
       user_message: userMessage ?? null,
     })
