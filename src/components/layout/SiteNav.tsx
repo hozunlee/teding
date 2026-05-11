@@ -93,6 +93,16 @@ export function SiteNav({
               </div>
             )}
           </NavigationMenuItem>
+          {isLoggedIn && (
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                render={<Link href='/feedback' />}
+              >
+                의견 보내기
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          )}
           {isAdmin && (
             <NavigationMenuItem>
               <NavigationMenuLink

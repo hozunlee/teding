@@ -6,13 +6,15 @@ import { useAdminCheck } from "./_hooks/useAdminCheck";
 import { AdminVideoTab } from "./_components/AdminVideoTab";
 import { AdminHolidayTab } from "./_components/AdminHolidayTab";
 import { AdminRequestsTab } from "./_components/AdminRequestsTab";
+import { AdminFeedbackList } from "@/widgets/AdminFeedbackList";
 
-type AdminTab = "video" | "holiday" | "requests";
+type AdminTab = "video" | "holiday" | "requests" | "feedback";
 
 const TAB_LABELS: Record<AdminTab, string> = {
     video: "영상",
     holiday: "공휴일",
     requests: "요청",
+    feedback: "피드백",
 };
 
 export default function AdminPage() {
@@ -55,7 +57,7 @@ export default function AdminPage() {
 
             {/* 탭 */}
             <div className="mb-6 flex gap-1 rounded-[6px] border bg-muted/40 p-1">
-                {(["video", "holiday", "requests"] as const).map((tab) => (
+                {(["video", "holiday", "requests", "feedback"] as const).map((tab) => (
                     <button
                         key={tab}
                         type="button"
@@ -70,6 +72,7 @@ export default function AdminPage() {
             {activeTab === "video" && <AdminVideoTab />}
             {activeTab === "holiday" && <AdminHolidayTab />}
             {activeTab === "requests" && <AdminRequestsTab />}
+            {activeTab === "feedback" && <AdminFeedbackList />}
         </div>
     );
 }

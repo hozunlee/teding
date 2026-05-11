@@ -227,6 +227,51 @@ export interface Database {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          body: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          body: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          body?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      feedback_comments: {
+        Row: {
+          id: string
+          feedback_id: string
+          body: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          feedback_id: string
+          body: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          feedback_id?: string
+          body?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
       video_requests: {
         Row: {
           id: string
