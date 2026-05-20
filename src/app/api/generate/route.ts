@@ -22,9 +22,23 @@ export async function POST(req: Request) {
 
   if (existing) return Response.json({ cached: true })
 
+  // 1. 비디오 정보 조회
+  const { data: video, error: videoError } = await serviceClient
+    .from('daily_videos')
+    .select('title')
+    .eq('video_id', videoId)
+    .single()
+
+  if (videoError || !video) {
+    console.error('[generate] Failed to fetch video title:', videoError?.message)
+    return Response.json({ error: 'Video not found or failed to fetch title' }, { status: 404 })
+  }
+
+  const title = video.title
+
   let materials
   try {
-    materials = await generateWithFallback(transcript)
+    materials = await generateWithFallback(transcript, title)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[generate] generateWithFallback failed:', msg)

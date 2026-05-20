@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/accordion";
 
 export const metadata = {
-    title: "학습 가이드 — Teding",
+    title: "학습 가이드 — teding",
     description: "TED-Ed 영상으로 영어를 배우는 4단계 학습법",
 };
 const STEPS = [
@@ -88,7 +88,7 @@ export default function GuidePage() {
                     LEARNING METHOD
                 </p>
                 <h1 className="text-[2rem] font-semibold leading-tight tracking-tight mb-3">
-                    Teding 4단계 학습법
+                    teding 4단계 학습법
                 </h1>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                     매일 TED-Ed 영상 한 편을 4단계로 깊이 학습한다. 단순 반복이
@@ -235,17 +235,44 @@ export default function GuidePage() {
                     스트릭 유지 조건
                 </h2>
                 <p className="text-xs text-muted-foreground mb-4">
-                    완료 기준: Step 1(무자막 시청) 이상 진행
+                    teding은 꾸준한 영어 습관 형성을 돕기 위해 귀여운 스트릭
+                    제도를 운영합니다.
                 </p>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+                        <span className="text-lg shrink-0">🎯</span>
+                        <div>
+                            <p className="text-sm font-semibold">완료 기준</p>
+                            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                4단계 학습 중{" "}
+                                <strong>어떤 단계든 1개 이상 완료</strong>하면
+                                인정됩니다. 오늘의 영상뿐만 아니라 과거 영상을
+                                복습해도 스트릭이 유지됩니다.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+                        <span className="text-lg shrink-0">🕒</span>
+                        <div>
+                            <p className="text-sm font-semibold">
+                                하루의 기준 (새벽 3시 리셋)
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                teding의 하루 기준점은 <strong>오전 3시</strong>
+                                입니다. 자정부터 새벽 3시 사이에 학습한 기록은
+                                전날 완료한 것으로 계산됩니다.
+                            </p>
+                        </div>
+                    </div>
                     <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
                         <span className="text-lg shrink-0">📅</span>
                         <div>
                             <p className="text-sm font-semibold">
                                 평일 (월–금)
                             </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                                매일 1회 완료 시 스트릭 +1
+                            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                매일 1회 완료 시 스트릭이 증가합니다. 공휴일이
+                                아닌 평일에 결석 시 스트릭이 초기화됩니다.
                             </p>
                         </div>
                     </div>
@@ -253,21 +280,28 @@ export default function GuidePage() {
                         <span className="text-lg shrink-0">🪙</span>
                         <div>
                             <p className="text-sm font-semibold">
-                                주말 (토·일)
+                                주말 유동성 (토–일)
                             </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                                토·일 중 1회만 완료해도 스트릭 유지. 둘 다
-                                쉬어도 괜찮다.
+                            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                주말은 <strong>토·일 중 하루만 완료해도</strong>{" "}
+                                스트릭이 유지됩니다. 토요일에 쉬었더라도
+                                일요일에 학습하면 토요일 결석은 보너스로 자동
+                                보정됩니다.
                             </p>
                         </div>
                     </div>
                     <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
-                        <span className="text-lg shrink-0">🏆</span>
+                        <span className="text-lg shrink-0">🌴</span>
                         <div>
-                            <p className="text-sm font-semibold">공휴일</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                                공부 여부와 관계없이 스트릭 자동 유지. 더 넓은
-                                세상을 보세요.
+                            <p className="text-sm font-semibold">
+                                공휴일 프리패스
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                법정 공휴일(대체공휴일 포함)은{" "}
+                                <strong>
+                                    공부하지 않아도 스트릭이 자동 유지
+                                </strong>
+                                되며, 주간 현황판에 보너스 코인이 표시됩니다.
                             </p>
                         </div>
                     </div>
@@ -278,7 +312,7 @@ export default function GuidePage() {
             <div className="rounded-xl border border-border p-4 bg-muted/40">
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                     이 학습법은 아래 영상의 방법론을 바탕으로 설계되었으며, AI
-                    생성 학습자료와 결합해 Teding에 맞게 재구성한 것이다.
+                    생성 학습자료와 결합해 teding에 맞게 재구성한 것이다.
                 </p>
                 <div className="overflow-hidden rounded-lg bg-black">
                     <div
