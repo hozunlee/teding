@@ -17,7 +17,7 @@ export function getSeasonLabel(streak: number): string {
 }
 
 export function getDayInSeason(streak: number): number {
-    if (streak >= 22) return Math.min(streak - 22, 7);
+    if (streak >= 22) return streak - 22;
     if (streak >= 15) return streak - 15;
     if (streak >= 8) return streak - 8;
     if (streak >= 1) return streak - 1;

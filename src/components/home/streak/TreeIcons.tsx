@@ -1,3 +1,5 @@
+import { getSeason, getDayInSeason } from "./utils";
+
 export const BareTree = ({ color = "#7b4f2e" }: { color?: string }) => (
     <>
         <rect x="88" y="105" width="6" height="42" fill={color} />
@@ -492,7 +494,7 @@ export function AutumnTree({ d }: { d: number }) {
 }
 
 export function WinterTree({ d }: { d: number }) {
-    const snowDepth = d <= 1 ? 4 : d <= 3 ? 8 : d <= 5 ? 12 : 16;
+    const snowDepth = Math.min(4 + Math.floor(d * 0.4), 32);
     return (
         <>
             <BareTree color="#334155" />
@@ -562,10 +564,144 @@ export function WinterTree({ d }: { d: number }) {
                     />
                 </>
             )}
+            {d >= 6 && (
+                <>
+                    <rect
+                        x="55"
+                        y="68"
+                        width="14"
+                        height="6"
+                        rx="2"
+                        fill="#f1f5f9"
+                    />
+                    <rect
+                        x="107"
+                        y="63"
+                        width="14"
+                        height="6"
+                        rx="2"
+                        fill="#f1f5f9"
+                    />
+                    <rect
+                        x="84"
+                        y="64"
+                        width="14"
+                        height="6"
+                        rx="2"
+                        fill="#f1f5f9"
+                    />
+                    <rect
+                        x="59"
+                        y="90"
+                        width="24"
+                        height="5"
+                        rx="2"
+                        fill="#f1f5f9"
+                    />
+                    <rect
+                        x="91"
+                        y="85"
+                        width="22"
+                        height="5"
+                        rx="2"
+                        fill="#f1f5f9"
+                    />
+                </>
+            )}
+            {d >= 8 && (
+                <>
+                    <rect x="86" y="104" width="10" height="3" rx="1" fill="#f8fafc" />
+                    <rect x="53" y="67" width="18" height="8" rx="3" fill="#ffffff" />
+                    <rect x="105" y="62" width="18" height="8" rx="3" fill="#ffffff" />
+                </>
+            )}
+            {d >= 15 && (
+                <>
+                    <rect x="82" y="63" width="18" height="8" rx="3" fill="#ffffff" />
+                    <rect x="57" y="89" width="28" height="7" rx="3" fill="#ffffff" />
+                    <rect x="89" y="84" width="26" height="7" rx="3" fill="#ffffff" />
+                </>
+            )}
+            {d >= 30 && (
+                <>
+                    <rect x="71" y="48" width="38" height="10" rx="4" fill="#ffffff" />
+                    <rect x="48" y="65" width="28" height="10" rx="4" fill="#ffffff" />
+                    <rect x="100" y="60" width="28" height="10" rx="4" fill="#ffffff" />
+                </>
+            )}
             <rect x="28" y="22" width="2" height="2" fill="#cbd5e1" />
             <rect x="56" y="18" width="2" height="2" fill="#e2e8f0" />
             <rect x="98" y="28" width="2" height="2" fill="#f1f5f9" />
             <rect x="134" y="20" width="2" height="2" fill="#cbd5e1" />
+            {d >= 3 && <rect x="40" y="45" width="2" height="2" fill="#f8fafc" />}
+            {d >= 10 && <rect x="120" y="35" width="2" height="2" fill="#f8fafc" />}
+            {d >= 20 && <rect x="75" y="15" width="2" height="2" fill="#f8fafc" />}
+            {d >= 35 && <rect x="150" y="50" width="2" height="2" fill="#ffffff" />}
+            {d >= 50 && (
+                <>
+                    <rect x="10" y="30" width="2" height="2" fill="#ffffff" />
+                    <rect x="85" y="60" width="2" height="2" fill="#ffffff" />
+                    <rect x="145" y="90" width="2" height="2" fill="#ffffff" />
+                </>
+            )}
         </>
     );
 }
+
+
+export const TreeRenderer = ({ streak }: { streak: number }) => {
+    const season = getSeason(streak);
+    const d = getDayInSeason(streak);
+
+    return (
+        <svg
+            viewBox="0 0 180 180"
+            className="w-full h-full"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <defs>
+                <linearGradient id="spring-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#fff0f6" />
+                    <stop offset="100%" stopColor="#ffdeeb" />
+                </linearGradient>
+                <linearGradient id="summer-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ebfbee" />
+                    <stop offset="100%" stopColor="#c3fae8" />
+                </linearGradient>
+                <linearGradient id="autumn-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#fff9db" />
+                    <stop offset="100%" stopColor="#ffe8cc" />
+                </linearGradient>
+                <linearGradient id="winter-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#1e293b" />
+                    <stop offset="100%" stopColor="#0f172a" />
+                </linearGradient>
+                <linearGradient id="none-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#f8f9fa" />
+                    <stop offset="100%" stopColor="#e9ecef" />
+                </linearGradient>
+                <clipPath id="circle-clip">
+                    <circle cx="90" cy="90" r="75" />
+                </clipPath>
+            </defs>
+
+            {/* 원형 배경판 (시각적 대비 극대화) */}
+            <circle
+                cx="90"
+                cy="90"
+                r="75"
+                fill={`url(#${season}-bg)`}
+                className="transition-colors duration-500"
+            />
+
+            {/* 원형 클리핑 영역 내에 렌더링되는 나무 */}
+            <g clipPath="url(#circle-clip)" transform="translate(0, 5)">
+                {season === "spring" && <SpringTree d={d} />}
+                {season === "summer" && <SummerTree d={d} />}
+                {season === "autumn" && <AutumnTree d={d} />}
+                {season === "winter" && <WinterTree d={d} />}
+                {season === "none" && <BareTree />}
+            </g>
+        </svg>
+    );
+};

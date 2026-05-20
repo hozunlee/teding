@@ -178,12 +178,18 @@ export function StreakCard({
                                         }
                                     >
                                         {info.type === "stamp" && (
-                                            <div className="w-7 h-7 animate-in fade-in zoom-in duration-700">
+                                            <div
+                                                style={{ width: `${18 + i * 2}px`, height: `${18 + i * 2}px` }}
+                                                className="animate-in fade-in zoom-in duration-700"
+                                            >
                                                 <SeasonIcon season={season} />
                                             </div>
                                         )}
                                         {info.type === "coin" && (
-                                            <div className="w-7 h-7 animate-in fade-in zoom-in slide-in-from-bottom-2 duration-500">
+                                            <div
+                                                style={{ width: `${18 + i * 2}px`, height: `${18 + i * 2}px` }}
+                                                className="animate-in fade-in zoom-in slide-in-from-bottom-2 duration-500"
+                                            >
                                                 <CoinIcon />
                                             </div>
                                         )}

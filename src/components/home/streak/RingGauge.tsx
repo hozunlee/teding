@@ -1,4 +1,4 @@
-import { SeasonIcon } from "./Icons";
+import { TreeRenderer } from "./TreeIcons";
 import { getSeason } from "./utils";
 
 export function RingGauge({ streak }: { streak: number }) {
@@ -34,7 +34,9 @@ export function RingGauge({ streak }: { streak: number }) {
     const season = getSeason(streak);
     const fillColor =
         season === "winter"
-            ? "#bdbbff"
+            ? streak >= 30
+                ? "#6366f1"
+                : "#bdbbff"
             : season === "autumn"
               ? "#f59e0b"
               : season === "summer"
@@ -90,8 +92,8 @@ export function RingGauge({ streak }: { streak: number }) {
                     filter={isComplete ? "url(#ring-glow)" : undefined}
                 />
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center p-8">
-                <SeasonIcon season={season} />
+            <div className="absolute inset-0 flex items-center justify-center p-[14px]">
+                <TreeRenderer streak={streak} />
             </div>
         </div>
     );

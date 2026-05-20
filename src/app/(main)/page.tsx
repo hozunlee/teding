@@ -23,16 +23,16 @@ export default async function TodayPage() {
     let streak = null;
     let weeklyProgress: string[] = [];
     let weeklyCoins: string[] = [];
-    let weeklyHolidayMap: Record<string, string> = {};
+    const weeklyHolidayMap: Record<string, string> = {};
 
     if (user) {
         // 이번 주 월요일 찾기 (KST 기준)
-        const [ty, tm, td] = today.split('-').map(Number);
+        const [ty, tm, td] = today.split("-").map(Number);
         const todayUTC = Date.UTC(ty, tm - 1, td);
         const dayOfWeek = getDayOfWeekKST(today);
         const dayOffset = (dayOfWeek + 6) % 7; // 0: 월, 6: 일
 
-        const mondayUTC = todayUTC - (dayOffset * 24 * 60 * 60 * 1000);
+        const mondayUTC = todayUTC - dayOffset * 24 * 60 * 60 * 1000;
 
         const dates = Array.from({ length: 7 }, (_, i) => {
             const d = new Date(mondayUTC + i * 24 * 60 * 60 * 1000);
@@ -42,6 +42,14 @@ export default async function TodayPage() {
             return `${year}-${month}-${day}`;
         });
 
+        // 성능 최적화: 전체 조회를 피하고 최근 2주일(지난주 월요일부터 이번주 일요일까지) 데이터로 스캔 제한
+        const lastMondayUTC = mondayUTC - 7 * 24 * 60 * 60 * 1000;
+        const lmDate = new Date(lastMondayUTC);
+        const lmY = lmDate.getUTCFullYear();
+        const lmM = String(lmDate.getUTCMonth() + 1).padStart(2, "0");
+        const lmD = String(lmDate.getUTCDate()).padStart(2, "0");
+        const lastMondayStr = `${lmY}-${lmM}-${lmD}`;
+
         const [streakRes, progressRes] = await Promise.all([
             supabase
                 .from("streaks")
@@ -50,48 +58,85 @@ export default async function TodayPage() {
                 .single(),
             supabase
                 .from("user_progress")
-                .select("date")
+                .select(
+                    "date, step1_completed_at, step2_completed_at, step3_completed_at, step4_completed_at",
+                )
                 .eq("user_id", user.id)
-                .in("date", dates)
-                .not("step1_completed_at", "is", null),
+                .gte("date", lastMondayStr),
         ]);
 
         streak = streakRes.data;
-        weeklyProgress = (progressRes.data ?? []).map((p) => p.date);
+
+        // 타임스탬프를 새벽 3시 오프셋 기준 KST 날짜 문자열(YYYY-MM-DD)로 변환
+        const getLogicalKSTDate = (isoString: string | null): string | null => {
+            if (!isoString) return null;
+            const date = new Date(isoString);
+            const kstTime = date.getTime() + 9 * 60 * 60 * 1000; // KST(UTC+9) 보정
+            const logicalTime = kstTime - 3 * 60 * 60 * 1000; // 새벽 3시 기준 소급
+            const d = new Date(logicalTime);
+            const year = d.getUTCFullYear();
+            const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+            const day = String(d.getUTCDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
+
+        const progressSet = new Set<string>();
+        (progressRes.data ?? []).forEach((p) => {
+            // 각 스텝 완료 타임스탬프에서 날짜를 파싱하여 이번 주 학습일 목록에 추가
+            [
+                p.step1_completed_at,
+                p.step2_completed_at,
+                p.step3_completed_at,
+                p.step4_completed_at,
+            ].forEach((ts) => {
+                const dateStr = getLogicalKSTDate(ts);
+                if (dateStr && dates.includes(dateStr)) {
+                    progressSet.add(dateStr);
+                }
+            });
+        });
+        weeklyProgress = Array.from(progressSet);
 
         // 이번 주 공휴일 및 보너스 코인 날짜 계산
-        const dateInfoResults = await Promise.all(dates.map(async (dateStr, idx) => {
-            const holName = await getHolidayName(dateStr);
-            const dow = getDayOfWeekKST(dateStr); // 0: 일, 6: 토
+        const dateInfoResults = await Promise.all(
+            dates.map(async (dateStr, idx) => {
+                const holName = await getHolidayName(dateStr);
+                const dow = getDayOfWeekKST(dateStr); // 0: 일, 6: 토
 
-            let coin = null;
-            // 학습하지 않은 날 중 보너스 코인 지급 대상
-            if (!weeklyProgress.includes(dateStr)) {
-                // 1. 공휴일 (과거/오늘/미래 무관하게 코인 표시)
-                if (holName) {
-                    coin = dateStr;
-                }
-                // 2. 일요일인 경우 (학습 여부와 상관없이 휴식일 코인 표시)
-                else if (dow === 0 && dateStr <= today) {
-                    coin = dateStr;
-                }
-                // 3. 토요일인 경우 (일요일에 학습했거나, 오늘이 일요일이고 현재 학습 중인 경우)
-                else if (dow === 6 && dateStr < today) {
-                    const sundayStr = dates[idx + 1];
-                    // 일요일에 학습 기록이 있거나, 오늘이 일요일인데 아직 기록이 없는 경우(보너스 예고)
-                    if (weeklyProgress.includes(sundayStr) || sundayStr === today) {
+                let coin = null;
+                // 학습하지 않은 날 중 보너스 코인 지급 대상
+                if (!weeklyProgress.includes(dateStr)) {
+                    // 1. 공휴일 (과거/오늘/미래 무관하게 코인 표시)
+                    if (holName) {
                         coin = dateStr;
                     }
+                    // 2. 일요일인 경우 (학습 여부와 상관없이 휴식일 코인 표시)
+                    else if (dow === 0 && dateStr <= today) {
+                        coin = dateStr;
+                    }
+                    // 3. 토요일인 경우 (일요일에 학습했거나, 오늘이 일요일이고 현재 학습 중인 경우)
+                    else if (dow === 6 && dateStr < today) {
+                        const sundayStr = dates[idx + 1];
+                        // 일요일에 학습 기록이 있거나, 오늘이 일요일인데 아직 기록이 없는 경우(보너스 예고)
+                        if (
+                            weeklyProgress.includes(sundayStr) ||
+                            sundayStr === today
+                        ) {
+                            coin = dateStr;
+                        }
+                    }
                 }
-            }
 
-            return { dateStr, holName, coin };
-        }));
+                return { dateStr, holName, coin };
+            }),
+        );
 
-        dateInfoResults.forEach(r => {
+        dateInfoResults.forEach((r) => {
             if (r.holName) weeklyHolidayMap[r.dateStr] = r.holName;
         });
-        weeklyCoins = dateInfoResults.map(r => r.coin).filter((d): d is string => d !== null);
+        weeklyCoins = dateInfoResults
+            .map((r) => r.coin)
+            .filter((d): d is string => d !== null);
     }
 
     let requesterNickname: string | null = null;
@@ -138,7 +183,9 @@ export default async function TodayPage() {
         if (user) {
             const { data: progress } = await supabase
                 .from("user_progress")
-                .select("step1_completed_at,step2_completed_at,step3_completed_at,step4_completed_at")
+                .select(
+                    "step1_completed_at,step2_completed_at,step3_completed_at,step4_completed_at",
+                )
                 .eq("user_id", user.id)
                 .eq("video_id", video.video_id)
                 .single();
@@ -159,12 +206,12 @@ export default async function TodayPage() {
             <div className="mb-4 flex items-start justify-between gap-4">
                 <div>
                     <p className="mb-1 text-xs text-muted-foreground">
-                        {isCompleted 
-                            ? "오늘의 학습을 완료하셨네요! 혹시 복습 한번 할까요?" 
+                        {isCompleted
+                            ? "오늘의 학습을 완료하셨네요! 혹시 복습 한번 할까요?"
                             : "5분짜리 TED-Ed 영상으로 가볍게 시작하는 영어 루틴"}
                     </p>
                     <h1 className="text-3xl sm:text-[2.5rem] font-medium leading-[1.2] tracking-[-0.03em]">
-                        {isCompleted ? "학습 완료 🎉" : "오늘의 AI 큐레이션"}
+                        {isCompleted ? "학습 완료 🎉" : "오늘의 AI 학습지 !"}
                     </h1>
                 </div>
             </div>
