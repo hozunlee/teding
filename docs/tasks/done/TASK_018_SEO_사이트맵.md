@@ -4,7 +4,7 @@
 
 ## 목표
 
-`src/app/sitemap.ts`를 생성해 Google 등 검색엔진이 Teding의 모든 공개 페이지를 크롤할 수 있도록 동적 사이트맵 제공.
+`src/app/sitemap.ts`를 생성해 Google 등 검색엔진이 teding의 모든 공개 페이지를 크롤할 수 있도록 동적 사이트맵 제공.
 
 ## 맥락
 
@@ -23,32 +23,32 @@
 
 ```typescript
 // src/app/sitemap.ts
-import { MetadataRoute } from 'next'
-import { createServiceClient } from '@/lib/supabase/server' // 서비스 클라이언트
+import { MetadataRoute } from "next";
+import { createServiceClient } from "@/lib/supabase/server"; // 서비스 클라이언트
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createServiceClient()
-  const { data: videos } = await supabase
-    .from('daily_videos')
-    .select('date')
-    .order('date', { ascending: false })
-    .limit(30)
+    const supabase = createServiceClient();
+    const { data: videos } = await supabase
+        .from("daily_videos")
+        .select("date")
+        .order("date", { ascending: false })
+        .limit(30);
 
-  const staticPages = ['/', '/about', '/guide', '/archive'].map(path => ({
-    url: `https://tedfi.app${path}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: path === '/' ? 1 : 0.8,
-  }))
+    const staticPages = ["/", "/about", "/guide", "/archive"].map((path) => ({
+        url: `https://tedfi.app${path}`,
+        lastModified: new Date(),
+        changeFrequency: "daily" as const,
+        priority: path === "/" ? 1 : 0.8,
+    }));
 
-  const videoPages = (videos ?? []).map(v => ({
-    url: `https://tedfi.app/study?date=${v.date}`,
-    lastModified: new Date(v.date),
-    changeFrequency: 'never' as const,
-    priority: 0.6,
-  }))
+    const videoPages = (videos ?? []).map((v) => ({
+        url: `https://tedfi.app/study?date=${v.date}`,
+        lastModified: new Date(v.date),
+        changeFrequency: "never" as const,
+        priority: 0.6,
+    }));
 
-  return [...staticPages, ...videoPages]
+    return [...staticPages, ...videoPages];
 }
 ```
 

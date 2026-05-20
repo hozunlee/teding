@@ -9,7 +9,7 @@ export function LandingHero() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-linear-to-r from-[#ef2cc1]/10 to-[#bdbbff]/20 dark:from-[#ef2cc1]/10 dark:to-[#bdbbff]/15 blur-[100px] rounded-full pointer-events-none" />
 
             <div className="flex flex-col items-center gap-6 max-w-lg w-full relative z-10">
-                <h1 className="text-display text-foreground">Teding</h1>
+                <h1 className="text-display text-foreground">teding</h1>
 
                 <Badge variant="secondary" className="uppercase mb-2">
                     TED-Ed × AI 영어 학습

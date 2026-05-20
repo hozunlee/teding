@@ -32,7 +32,9 @@ export async function SiteHeader() {
             .from("streaks")
             .select("current_streak, longest_streak")
             .eq("user_id", user.id)
-            .single()) as { data: Pick<StreakRow, "current_streak" | "longest_streak"> | null };
+            .single()) as {
+            data: Pick<StreakRow, "current_streak" | "longest_streak"> | null;
+        };
 
         nickname = profileData?.nickname ?? null;
         streak = streakData?.current_streak ?? 0;
@@ -47,7 +49,11 @@ export async function SiteHeader() {
                         <TedingLogo className="text-lg" />
                     </Link>
 
-                    <SiteNav isAdmin={isAdmin} isLoggedIn={!!user} longestStreak={longestStreak} />
+                    <SiteNav
+                        isAdmin={isAdmin}
+                        isLoggedIn={!!user}
+                        longestStreak={longestStreak}
+                    />
                 </div>
 
                 <div className="flex items-center gap-4">

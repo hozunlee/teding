@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="https://eng.hololog.dev/logo.png" alt="Teding Logo" width="30" />
-  <h1>Teding</h1>
+  <img src="https://eng.hololog.dev/logo.png" alt="teding Logo" width="30" />
+  <h1>teding</h1>
   <p><strong>아내가 영어 앱 결제 버튼을 누르기 직전, 헐레벌떡 직접 만든 AI 영어학습 서비스</strong></p>
 
   <p>

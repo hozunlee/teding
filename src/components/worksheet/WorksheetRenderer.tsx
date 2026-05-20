@@ -138,7 +138,7 @@ export function WorksheetRenderer({ worksheet, phrases, sentences }: Props) {
                     English Reading Worksheet · basic
                 </div>
                 <h1 className="mt-3 text-[2.6rem] font-bold leading-tight text-[var(--ws-deep)]">
-                    Teding <span className="text-[var(--ws-gold)]">Lounge</span>
+                    teding <span className="text-[var(--ws-gold)]">Lounge</span>
                 </h1>
                 <div className="mt-1 text-base italic text-[var(--ws-faded)]">
                     Deep Learning Journey through TED-Ed

@@ -1,5 +1,5 @@
 {
-    "name": "Teding",
+    "name": "teding",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -63,7 +63,9 @@
         "typescript": "^5"
     },
     "pnpm": {
-        "onlyBuiltDependencies": ["sharp"],
+        "onlyBuiltDependencies": [
+            "sharp"
+        ],
         "overrides": {
             "sharp": "0.33.0"
         }

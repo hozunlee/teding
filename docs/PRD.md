@@ -1,4 +1,4 @@
-# Teding — Product Requirements Document
+# teding — Product Requirements Document
 
 **Version:** 0.1 MVP  
 **Stack:** Next.js (App Router) · Supabase · Gemini API (Free Tier) · youtube-transcript-api
@@ -10,7 +10,7 @@
 
 ## 1. 제품 개요
 
-Teding는 TED-Ed 영상 한 편을 4단계로 학습하는 AI 기반 영어 학습 앱이다.  
+teding는 TED-Ed 영상 한 편을 4단계로 학습하는 AI 기반 영어 학습 앱이다.  
 핵심 가치는 **"매일 부담 없이, 꾸준히"**다.
 
 ### 핵심 메커니즘
@@ -576,7 +576,7 @@ Kakao.Share.sendDefault({
 const shareText = `오늘 TED-Ed로 영어 공부 완료! 🦥\n"${videoTitle}"\n${streakDays}일 연속 학습 중\n\nhttps://tedfi.app`;
 
 if (navigator.share) {
-    navigator.share({ title: "Teding", text: shareText });
+    navigator.share({ title: "teding", text: shareText });
 } else {
     navigator.clipboard.writeText(shareText);
 }

@@ -1,4 +1,4 @@
-# Teding Workflow
+# teding Workflow
 
 > 목적: AI와의 컨텍스트 단절 방지. 모든 기능은 단일 태스크로 취급.
 

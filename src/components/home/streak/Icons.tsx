@@ -82,20 +82,18 @@ export function SeasonIcon({ season }: { season: Season }) {
                 className="w-full h-full"
                 shapeRendering="crispEdges"
             >
-                <rect x="18" y="22" width="4" height="16" fill="#334155" />
-                <rect x="8" y="16" width="12" height="3" fill="#334155" />
-                <rect x="20" y="18" width="10" height="3" fill="#334155" />
-                <rect x="9" y="10" width="4" height="4" rx="1" fill="#e11d48" />
-                <rect
-                    x="12"
-                    y="12"
-                    width="3"
-                    height="3"
-                    rx="1"
-                    fill="#fbbf24"
-                />
-                <rect x="6" y="6" width="2" height="2" fill="#e2e8f0" />
-                <rect x="26" y="8" width="2" height="2" fill="#e2e8f0" />
+                {/* 짙은 네이비-그레이 나뭇가지 몸통 */}
+                <rect x="18" y="24" width="4" height="12" fill="#475569" />
+                
+                {/* 겹겹이 소복하게 쌓인 겨울 설목(눈뭉치) 표현 */}
+                <rect x="6" y="18" width="28" height="10" rx="3" fill="#cbd5e1" />
+                <rect x="10" y="11" width="20" height="12" rx="3" fill="#e2e8f0" />
+                <rect x="14" y="5" width="12" height="10" rx="2" fill="#ffffff" />
+                
+                {/* 반짝이는 눈꽃/빛 반사 디테일 픽셀 */}
+                <rect x="8" y="14" width="2" height="2" fill="#ffffff" />
+                <rect x="28" y="10" width="2" height="2" fill="#ffffff" />
+                <rect x="22" y="7" width="2" height="2" fill="#ffffff" />
             </svg>
         );
     return (

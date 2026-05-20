@@ -21,8 +21,10 @@ function CompleteContent() {
     const [streak, setStreak] = useState<StreakData | null>(null);
     const [shared, setShared] = useState(false);
     const openModal = useAuthModal((s) => s.open);
-    const [selectedDifficulty, setSelectedDifficulty] = useState<1 | 3 | 5 | null>(null);
-    const [comment, setComment] = useState('');
+    const [selectedDifficulty, setSelectedDifficulty] = useState<
+        1 | 3 | 5 | null
+    >(null);
+    const [comment, setComment] = useState("");
     const [feedbackSaved, setFeedbackSaved] = useState(false);
     const [feedbackSaving, setFeedbackSaving] = useState(false);
 
@@ -42,12 +44,14 @@ function CompleteContent() {
     async function handleSaveFeedback() {
         if (!videoId || feedbackSaved) return;
         setFeedbackSaving(true);
-        await apiFetch('/api/progress', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+        await apiFetch("/api/progress", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 videoId,
-                ...(selectedDifficulty !== null && { difficulty_rating: selectedDifficulty }),
+                ...(selectedDifficulty !== null && {
+                    difficulty_rating: selectedDifficulty,
+                }),
                 daily_comment: comment.trim() || null,
             }),
         });
@@ -57,12 +61,12 @@ function CompleteContent() {
 
     async function handleShare() {
         const streakDays = streak?.current_streak ?? 0;
-        const titleLine = videoTitle ? `\n📹 ${videoTitle}` : '';
-        const commentLine = comment.trim() ? `\n💬 "${comment.trim()}"` : '';
-        const shareText = `오늘 Teding로 영어 공부 완주! 🦥\n${streakDays}일 연속 학습 중${titleLine}${commentLine}\n\n${process.env.NEXT_PUBLIC_APP_URL ?? "https://ted-hoho-web.vercel.app"}`;
+        const titleLine = videoTitle ? `\n📹 ${videoTitle}` : "";
+        const commentLine = comment.trim() ? `\n💬 "${comment.trim()}"` : "";
+        const shareText = `오늘 teding로 영어 공부 완주! 🦥\n${streakDays}일 연속 학습 중${titleLine}${commentLine}\n\n${process.env.NEXT_PUBLIC_APP_URL ?? "https://ted-hoho-web.vercel.app"}`;
 
         if (typeof navigator !== "undefined" && navigator.share) {
-            await navigator.share({ title: "Teding", text: shareText });
+            await navigator.share({ title: "teding", text: shareText });
         } else {
             await navigator.clipboard.writeText(shareText);
             setShared(true);
@@ -124,25 +128,36 @@ function CompleteContent() {
             {/* Feedback Form — 로그인 사용자만 */}
             {streak && (
                 <div className="mb-4 w-full rounded-2xl border border-border bg-card p-6 text-left shadow-sm">
-                    <p className="mb-4 text-sm font-semibold text-[var(--dark-blue)]">오늘 학습 어땠나요?</p>
+                    <p className="mb-4 text-sm font-semibold text-[var(--dark-blue)]">
+                        오늘 학습 어땠나요?
+                    </p>
 
                     {/* 난이도 칩 */}
                     <div className="mb-5 flex gap-2">
-                        {([
-                            { label: '쉬워요', value: 1 as const },
-                            { label: '할만해요', value: 3 as const },
-                            { label: '어려워요', value: 5 as const },
-                        ] as const).map(({ label, value }) => (
+                        {(
+                            [
+                                { label: "쉬워요", value: 1 as const },
+                                { label: "할만해요", value: 3 as const },
+                                { label: "어려워요", value: 5 as const },
+                            ] as const
+                        ).map(({ label, value }) => (
                             <button
                                 key={value}
-                                onClick={() => setSelectedDifficulty(selectedDifficulty === value ? null : value)}
+                                onClick={() =>
+                                    setSelectedDifficulty(
+                                        selectedDifficulty === value
+                                            ? null
+                                            : value,
+                                    )
+                                }
                                 disabled={feedbackSaved}
                                 className={cn(
-                                    'flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-all',
+                                    "flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-all",
                                     selectedDifficulty === value
-                                        ? 'border-[var(--brand-orange)] bg-[var(--brand-orange)]/10 text-[var(--brand-orange)]'
-                                        : 'border-border bg-background text-muted-foreground hover:border-border/80 hover:text-foreground',
-                                    feedbackSaved && 'opacity-60 cursor-not-allowed'
+                                        ? "border-[var(--brand-orange)] bg-[var(--brand-orange)]/10 text-[var(--brand-orange)]"
+                                        : "border-border bg-background text-muted-foreground hover:border-border/80 hover:text-foreground",
+                                    feedbackSaved &&
+                                        "opacity-60 cursor-not-allowed",
                                 )}
                             >
                                 {label}
@@ -152,29 +167,43 @@ function CompleteContent() {
 
                     {/* 한 줄 평 */}
                     <div className="mb-4 space-y-1.5">
-                        <p className="text-xs font-medium text-muted-foreground">한 줄 평 <span className="font-normal">(선택)</span></p>
+                        <p className="text-xs font-medium text-muted-foreground">
+                            한 줄 평 <span className="font-normal">(선택)</span>
+                        </p>
                         <textarea
                             value={comment}
-                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value.slice(0, 100))}
+                            onChange={(
+                                e: React.ChangeEvent<HTMLTextAreaElement>,
+                            ) => setComment(e.target.value.slice(0, 100))}
                             placeholder="오늘 배운 내용을 한 줄로 남겨보세요"
                             rows={2}
                             disabled={feedbackSaved}
                             className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-60"
                         />
-                        <p className="text-right text-[10px] text-muted-foreground">{comment.length}/100</p>
+                        <p className="text-right text-[10px] text-muted-foreground">
+                            {comment.length}/100
+                        </p>
                     </div>
 
                     <button
                         onClick={handleSaveFeedback}
-                        disabled={feedbackSaved || feedbackSaving || (selectedDifficulty === null && !comment.trim())}
+                        disabled={
+                            feedbackSaved ||
+                            feedbackSaving ||
+                            (selectedDifficulty === null && !comment.trim())
+                        }
                         className={cn(
-                            'w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-all',
+                            "w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-all",
                             feedbackSaved
-                                ? 'bg-green-500/10 text-green-600 cursor-default'
-                                : 'bg-[var(--dark-blue)] text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed'
+                                ? "bg-green-500/10 text-green-600 cursor-default"
+                                : "bg-[var(--dark-blue)] text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed",
                         )}
                     >
-                        {feedbackSaved ? '저장됨 ✓' : feedbackSaving ? '저장 중...' : '저장하기'}
+                        {feedbackSaved
+                            ? "저장됨 ✓"
+                            : feedbackSaving
+                              ? "저장 중..."
+                              : "저장하기"}
                     </button>
                 </div>
             )}
@@ -182,7 +211,7 @@ function CompleteContent() {
             {/* Share & Actions */}
             <div className="flex w-full flex-col gap-3">
                 <Link
-                    href={`/study?step=5${date ? '&date=' + date : ''}`}
+                    href={`/study?step=5${date ? "&date=" + date : ""}`}
                     className={cn(
                         buttonVariants({ variant: "outline" }),
                         "h-14 rounded-xl border-border text-base font-semibold shadow-sm",

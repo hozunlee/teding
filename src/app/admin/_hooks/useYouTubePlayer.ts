@@ -11,6 +11,7 @@ export function useYouTubePlayer(videoInput: string) {
     useEffect(() => {
         const videoId = parseVideoId(videoInput);
         if (videoId.length !== 11) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setTitle("");
             setDuration("");
             return;
