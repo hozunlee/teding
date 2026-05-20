@@ -30,13 +30,21 @@ function CommentToggle({ comment }: { comment: string }) {
   )
 }
 
-export function RecentList() {
-  const [history, setHistory] = useState<HistoryItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [isLoggedIn, setIsLoggedIn] = useState(true)
+export function RecentList({
+  initialHistory,
+  initialLoggedIn
+}: {
+  initialHistory?: HistoryItem[]
+  initialLoggedIn?: boolean
+}) {
+  const [history, setHistory] = useState<HistoryItem[]>(initialHistory || [])
+  const [loading, setLoading] = useState(!initialHistory && initialLoggedIn !== false)
+  const [isLoggedIn, setIsLoggedIn] = useState(initialLoggedIn ?? true)
   const openModal = useAuthModal((s) => s.open)
 
   useEffect(() => {
+    if (initialHistory) return // Already fetched from server
+
     apiFetch('/api/history')
       .then(r => r.json())
       .then(d => {
@@ -45,7 +53,7 @@ export function RecentList() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
-  }, [])
+  }, [initialHistory])
 
   const getLatestStep = (item: HistoryItem) => {
     if (item.step4_completed_at) return 4

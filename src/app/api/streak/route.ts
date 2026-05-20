@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { getAuthedClient } from '@/lib/supabase/api-auth'
 import { getKSTDate, getDayOfWeekKST, getDiffDays } from '@/lib/utils'
-import { isPublicHoliday } from '@/lib/utills/holiday'
+import { getHolidaysForDates } from '@/lib/utills/holiday'
 
 export async function GET(req: Request) {
   const { supabase, user } = await getAuthedClient(req)
@@ -53,21 +53,41 @@ export async function POST(req: Request) {
   if (diffDays <= 1) {
     canMaintain = true
   } else {
-    canMaintain = true // 기본적으로 유지된다고 가정하고 단절 사유(평일 결석 등)가 있는지 검사
+    canMaintain = true 
     const [lastY, lastM, lastD] = lastStudyDate.split('-').map(Number)
     const lastUTC = Date.UTC(lastY, lastM - 1, lastD)
 
+    // 1. 검사할 모든 날짜 수집
+    const datesToCheck: string[] = []
+    const getFormattedDate = (utcTime: number) => {
+      const dObj = new Date(utcTime)
+      const y = dObj.getUTCFullYear()
+      const m = String(dObj.getUTCMonth() + 1).padStart(2, '0')
+      const d = String(dObj.getUTCDate()).padStart(2, '0')
+      return `${y}-${m}-${d}`
+    }
+
     for (let i = 1; i < diffDays; i++) {
       const gapUTC = lastUTC + (i * 24 * 60 * 60 * 1000)
-      const gapDateObj = new Date(gapUTC)
-      const y = gapDateObj.getUTCFullYear()
-      const m = String(gapDateObj.getUTCMonth() + 1).padStart(2, '0')
-      const d = String(gapDateObj.getUTCDate()).padStart(2, '0')
-      const gapDateStr = `${y}-${m}-${d}`
+      const gapDateStr = getFormattedDate(gapUTC)
+      datesToCheck.push(gapDateStr)
+      
+      const dayOfWeek = getDayOfWeekKST(gapDateStr)
+      if (dayOfWeek === 6) {
+        datesToCheck.push(getFormattedDate(gapUTC + (24 * 60 * 60 * 1000)))
+      }
+    }
+
+    // 2. DB에서 한 번에 공휴일 조회
+    const holidaysMap = await getHolidaysForDates(supabase, datesToCheck)
+
+    // 3. 루프 돌며 판단
+    for (let i = 1; i < diffDays; i++) {
+      const gapUTC = lastUTC + (i * 24 * 60 * 60 * 1000)
+      const gapDateStr = getFormattedDate(gapUTC)
       
       // 1. 공휴일 체크
-      const isPubHol = await isPublicHoliday(gapDateStr)
-      if (isPubHol) continue
+      if (holidaysMap.has(gapDateStr)) continue
       
       // 2. 주말 유동성 체크
       const dayOfWeek = getDayOfWeekKST(gapDateStr) // 0: 일, 6: 토
@@ -77,21 +97,14 @@ export async function POST(req: Request) {
       }
       
       if (dayOfWeek === 6) { // 토요일 결석 시 일요일(내일)에 학습하는지 확인
-        const tomorrowUTC = gapUTC + (24 * 60 * 60 * 1000)
-        const tomDate = new Date(tomorrowUTC)
-        const ty = tomDate.getUTCFullYear()
-        const tm = String(tomDate.getUTCMonth() + 1).padStart(2, '0')
-        const td = String(tomDate.getUTCDate()).padStart(2, '0')
-        const tomorrowStr = `${ty}-${tm}-${td}`
+        const tomorrowStr = getFormattedDate(gapUTC + (24 * 60 * 60 * 1000))
 
         // 내일(일요일)이 오늘 학습일이거나, 내일이 공휴일이면 토요일 결석 허용
-        const isSundayPubHol = await isPublicHoliday(tomorrowStr)
-        if (tomorrowStr === todayStr || isSundayPubHol) continue
+        if (tomorrowStr === todayStr || holidaysMap.has(tomorrowStr)) continue
 
         canMaintain = false
         break
-      }
- else {
+      } else {
         // 보너스 대상이 아닌 평일 결석
         canMaintain = false
         break

@@ -21,15 +21,31 @@ interface Props {
   cached: CacheStatus
   startStep: number
   requesterNickname?: string | null
+  mode?: 'today' | 'continue' | 'fallback'
+  videoDate?: string
 }
 
-export function DailyVideoBanner({ video, cached, startStep, requesterNickname }: Props) {
+export function DailyVideoBanner({ video, cached, startStep, requesterNickname, mode = 'today', videoDate }: Props) {
   const thumbnailUrl = `https://img.youtube.com/vi/${video.video_id}/mqdefault.jpg`
   const isReady = cached.transcript && cached.materials
 
+  let headerLabel = '오늘의 영상'
+  if (mode === 'continue') headerLabel = '이어서 학습하기'
+  if (mode === 'fallback') headerLabel = '최근 영상'
+
+  let subMessage = 'TED-Ed · English Study'
+  if (mode === 'continue') subMessage = '오늘은 가볍게 남은 공부를 이어서 해볼까요?'
+  if (mode === 'fallback') subMessage = '주말엔 가볍게 복습해보세요'
+
+  let buttonText = startStep > 1 ? `Step ${startStep}부터 계속하기 →` : '학습 시작 →'
+  if (mode === 'continue') buttonText = `Step ${startStep} 이어하기 →`
+  if (mode === 'fallback') buttonText = '학습 시작 →'
+
+  const href = videoDate ? `/study?date=${videoDate}&step=${startStep}` : `/study?step=${startStep}`
+
   return (
     <div className='group relative overflow-hidden rounded-lg border border-border bg-card p-4 shadow-[var(--shadow-elegant)] transition-all hover:shadow-lg md:p-6'>
-      {requesterNickname && (
+      {requesterNickname && mode === 'today' && (
         <div className='mb-3 flex items-center gap-1.5 text-xs font-medium text-[var(--brand-orange)]'>
           <span>🎉</span>
           <span>{requesterNickname}님이 추천한 오늘의 영상입니다. 같이 공부해봐요!</span>
@@ -53,7 +69,7 @@ export function DailyVideoBanner({ video, cached, startStep, requesterNickname }
         <div className='flex min-w-0 flex-1 flex-col justify-between self-stretch py-1'>
           <div>
             <div className='mb-2 flex items-center justify-between'>
-              <p className='text-mono-label text-muted-foreground'>오늘의 영상</p>
+              <p className='text-mono-label text-muted-foreground'>{headerLabel}</p>
               <div
                 className={cn(
                   'text-mono-micro rounded-[4px] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider',
@@ -66,18 +82,18 @@ export function DailyVideoBanner({ video, cached, startStep, requesterNickname }
             <h2 className='line-clamp-2 text-[1.38rem] font-medium leading-[1.15] tracking-[-0.02em] text-[var(--dark-blue)]'>
               {video.title}
             </h2>
-            <p className='mt-2 text-xs text-muted-foreground'>TED-Ed · English Study</p>
+            <p className='mt-2 text-xs text-muted-foreground'>{subMessage}</p>
           </div>
 
           <div className='mt-6 flex items-center justify-end'>
             <Link
-              href={`/study?step=${startStep}`}
+              href={href}
               className={cn(
                 buttonVariants({ variant: 'default', size: 'sm' }),
                 'h-9 rounded-[4px] bg-[var(--dark-blue)] px-6 text-sm font-medium tracking-tight transition-transform active:scale-95'
               )}
             >
-              {startStep > 1 ? `Step ${startStep}부터 계속하기 →` : '학습 시작 →'}
+              {buttonText}
             </Link>
           </div>
         </div>

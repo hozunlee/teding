@@ -68,178 +68,182 @@ export function StreakCard({
 
     return (
         <div className="flex flex-col gap-4">
-                <div className="relative overflow-hidden rounded-lg border border-border bg-card p-6 shadow-[var(--shadow-elegant)]">
-                    <div className="flex gap-6">
-                        <div className="flex items-center justify-center shrink-0">
-                            <RingGauge streak={currentStreak} />
-                        </div>
-                        <div className="flex flex-col justify-center gap-1 flex-1 min-w-0">
-                            <p className="text-mono-label text-muted-foreground">
-                                내 스트릭
-                            </p>
-                            {isLoggedIn ? (
-                                <>
-                                    <div className="flex items-baseline gap-1">
-                                        <span
-                                            className="text-[3.2rem] font-medium leading-none tracking-[-0.04em]"
-                                            style={{
-                                                color: "var(--dark-blue)",
-                                            }}
-                                        >
-                                            {currentStreak}
-                                        </span>
-                                        <span className="text-sm font-medium text-muted-foreground">
-                                            일
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col gap-0.5">
-                                        <span
-                                            className="text-sm font-bold"
-                                            style={{
-                                                color: "var(--brand-orange)",
-                                            }}
-                                        >
-                                            {seasonLabel} 시즌
-                                        </span>
-                                        <span className="text-[10px] text-muted-foreground">
-                                            최고 기록 {longestStreak}일
-                                        </span>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-[3rem] font-medium leading-none tracking-[-0.04em] text-muted-foreground">
-                                            0
-                                        </span>
-                                        <span className="text-sm font-medium text-muted-foreground">
-                                            일
-                                        </span>
-                                    </div>
-                                    <button
-                                        onClick={() =>
-                                            openModal(
-                                                "로그인하면 공부 기록이 쌓일수록 창밖의 계절이 변합니다.",
-                                            )
-                                        }
-                                        className="text-xs text-left underline underline-offset-2 transition-colors"
-                                        style={{ color: "var(--brand-orange)" }}
-                                    >
-                                        로그인하고 공부 시작하기 →
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+            <div className="relative overflow-hidden rounded-lg border border-border bg-card p-6 shadow-[var(--shadow-elegant)]">
+                <div className="flex gap-6">
+                    <div className="flex items-center justify-center shrink-0">
+                        <RingGauge streak={currentStreak} />
                     </div>
-                </div>
-
-                <div className="rounded-lg border border-border bg-card px-6 py-4 shadow-[var(--shadow-elegant)]">
-                    <p className="text-mono-label text-muted-foreground mb-3">
-                        이번 주 학습 현황
-                    </p>
-                    <div className="flex gap-2">
-                        {DAY_LABELS.map((label, i) => {
-                            const info = dayInfos[i];
-                            const isRed = !!info.holidayName;
-                            const isWeekend = info.isSaturday || info.isSunday;
-                            const hasTooltip = !!(
-                                info.holidayName || isWeekend
-                            );
-
-                            const content = (
-                                <>
-                                    <div
-                                        className="relative h-10 w-full rounded-md transition-all duration-500 flex items-center justify-center overflow-hidden"
-                                        style={
-                                            info.type === "stamp"
-                                                ? {
-                                                      background:
-                                                          "linear-gradient(135deg, #fef3c7, #fde68a)",
-                                                      border: "1px solid #fbbf24",
-                                                      boxShadow:
-                                                          "0 2px 4px rgba(251,191,36,0.2)",
-                                                  }
-                                                : info.type === "coin"
-                                                   ? {
-                                                         background:
-                                                             "rgba(251, 191, 36, 0.05)",
-                                                         border: "1px solid rgba(251, 191, 36, 0.3)",
-                                                     }
-                                                   : {
-                                                         backgroundColor:
-                                                             "rgba(0,0,0,0.03)",
-                                                         border: "1px dashed rgba(0,0,0,0.1)",
-                                                     }
-                                        }
-                                    >
-                                        {info.type === "stamp" && (
-                                            <div
-                                                style={{ width: `${18 + i * 2}px`, height: `${18 + i * 2}px` }}
-                                                className="animate-in fade-in zoom-in duration-700"
-                                            >
-                                                <SeasonIcon season={season} />
-                                            </div>
-                                        )}
-                                        {info.type === "coin" && (
-                                            <div
-                                                style={{ width: `${18 + i * 2}px`, height: `${18 + i * 2}px` }}
-                                                className="animate-in fade-in zoom-in slide-in-from-bottom-2 duration-500"
-                                            >
-                                                <CoinIcon />
-                                            </div>
-                                        )}
-                                    </div>
-
+                    <div className="flex flex-col justify-center gap-1 flex-1 min-w-0">
+                        <p className="text-mono-label text-muted-foreground">
+                            내 스트릭
+                        </p>
+                        {isLoggedIn ? (
+                            <>
+                                <div className="flex items-baseline gap-1">
                                     <span
-                                        className={`text-[11px] font-medium transition-colors ${isRed ? "text-red-500 underline underline-offset-2 decoration-red-500/30" : "text-muted-foreground"}`}
+                                        className="text-[3.2rem] font-medium leading-none tracking-[-0.04em]"
+                                        style={{
+                                            color: "var(--dark-blue)",
+                                        }}
                                     >
-                                        {label}
+                                        {currentStreak}
                                     </span>
-                                </>
-                            );
-
-                            if (hasTooltip) {
-                                return (
-                                    <Popover key={label}>
-                                        <PopoverTrigger
-                                            openOnHover
-                                            delay={100}
-                                            closeDelay={100}
-                                            className="flex flex-1 flex-col items-center gap-2 outline-none cursor-pointer text-left w-full group border-none bg-transparent p-0"
-                                        >
-                                            {content}
-                                        </PopoverTrigger>
-                                        <PopoverContent
-                                            side="bottom"
-                                            className="w-auto max-w-[180px] p-2 text-center text-xs font-normal flex flex-col gap-0.5 select-none"
-                                        >
-                                            <p className="font-semibold text-foreground">
-                                                {info.holidayName
-                                                    ? info.holidayName
-                                                    : "주말은 1회만 해도 스트릭 유지"}
-                                            </p>
-                                            {info.date && (
-                                                <p className="text-[10px] text-muted-foreground">
-                                                    {info.date}
-                                                </p>
-                                            )}
-                                        </PopoverContent>
-                                    </Popover>
-                                );
-                            }
-
-                            return (
-                                <div
-                                    key={label}
-                                    className="flex flex-1 flex-col items-center gap-2"
-                                >
-                                    {content}
+                                    <span className="text-sm font-medium text-muted-foreground">
+                                        일
+                                    </span>
                                 </div>
-                            );
-                        })}
+                                <div className="flex flex-col gap-0.5">
+                                    <span
+                                        className="text-sm font-bold"
+                                        style={{
+                                            color: "var(--brand-orange)",
+                                        }}
+                                    >
+                                        {seasonLabel} 시즌
+                                    </span>
+                                    <span className="text-[10px] text-muted-foreground">
+                                        최고 기록 {longestStreak}일
+                                    </span>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-[3rem] font-medium leading-none tracking-[-0.04em] text-muted-foreground">
+                                        0
+                                    </span>
+                                    <span className="text-sm font-medium text-muted-foreground">
+                                        일
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() =>
+                                        openModal(
+                                            "로그인하면 공부 기록이 쌓일수록 창밖의 계절이 변합니다.",
+                                        )
+                                    }
+                                    className="text-xs text-left underline underline-offset-2 transition-colors"
+                                    style={{ color: "var(--brand-orange)" }}
+                                >
+                                    로그인하고 공부 시작하기 →
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            <div className="rounded-lg border border-border bg-card px-6 py-4 shadow-[var(--shadow-elegant)]">
+                <p className="text-mono-label text-muted-foreground mb-3">
+                    이번 주 학습 현황
+                </p>
+                {/* <span>하루 step 1개만 해도 인정됩니다! </span> */}
+                <div className="flex gap-2">
+                    {DAY_LABELS.map((label, i) => {
+                        const info = dayInfos[i];
+                        const isRed = !!info.holidayName;
+                        const isWeekend = info.isSaturday || info.isSunday;
+                        const hasTooltip = !!(info.holidayName || isWeekend);
+
+                        const content = (
+                            <>
+                                <div
+                                    className="relative h-10 w-full rounded-md transition-all duration-500 flex items-center justify-center overflow-hidden"
+                                    style={
+                                        info.type === "stamp"
+                                            ? {
+                                                  background:
+                                                      "linear-gradient(135deg, #fef3c7, #fde68a)",
+                                                  border: "1px solid #fbbf24",
+                                                  boxShadow:
+                                                      "0 2px 4px rgba(251,191,36,0.2)",
+                                              }
+                                            : info.type === "coin"
+                                              ? {
+                                                    background:
+                                                        "rgba(251, 191, 36, 0.05)",
+                                                    border: "1px solid rgba(251, 191, 36, 0.3)",
+                                                }
+                                              : {
+                                                    backgroundColor:
+                                                        "rgba(0,0,0,0.03)",
+                                                    border: "1px dashed rgba(0,0,0,0.1)",
+                                                }
+                                    }
+                                >
+                                    {info.type === "stamp" && (
+                                        <div
+                                            style={{
+                                                width: `${18 + i * 2}px`,
+                                                height: `${18 + i * 2}px`,
+                                            }}
+                                            className="animate-in fade-in zoom-in duration-700"
+                                        >
+                                            <SeasonIcon season={season} />
+                                        </div>
+                                    )}
+                                    {info.type === "coin" && (
+                                        <div
+                                            style={{
+                                                width: `${18 + i * 2}px`,
+                                                height: `${18 + i * 2}px`,
+                                            }}
+                                            className="animate-in fade-in zoom-in slide-in-from-bottom-2 duration-500"
+                                        >
+                                            <CoinIcon />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <span
+                                    className={`text-[11px] font-medium transition-colors ${isRed ? "text-red-500 underline underline-offset-2 decoration-red-500/30" : "text-muted-foreground"}`}
+                                >
+                                    {label}
+                                </span>
+                            </>
+                        );
+
+                        if (hasTooltip) {
+                            return (
+                                <Popover key={label}>
+                                    <PopoverTrigger
+                                        openOnHover
+                                        delay={100}
+                                        closeDelay={100}
+                                        className="flex flex-1 flex-col items-center gap-2 outline-none cursor-pointer text-left w-full group border-none bg-transparent p-0"
+                                    >
+                                        {content}
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                        side="bottom"
+                                        className="w-auto max-w-[180px] p-2 text-center text-xs font-normal flex flex-col gap-0.5 select-none"
+                                    >
+                                        <p className="font-semibold text-foreground">
+                                            {info.holidayName
+                                                ? info.holidayName
+                                                : "주말은 1회만 해도 스트릭 유지"}
+                                        </p>
+                                        {info.date && (
+                                            <p className="text-[10px] text-muted-foreground">
+                                                {info.date}
+                                            </p>
+                                        )}
+                                    </PopoverContent>
+                                </Popover>
+                            );
+                        }
+
+                        return (
+                            <div
+                                key={label}
+                                className="flex flex-1 flex-col items-center gap-2"
+                            >
+                                {content}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
     );
 }
-

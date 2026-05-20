@@ -10,6 +10,8 @@ export function AdminHolidayTab() {
         holidays,
         holidaysLoading,
         fetchHolidays,
+        saveHolidaysToDB,
+        saving
     } = useHolidays();
 
     return (
@@ -43,9 +45,22 @@ export function AdminHolidayTab() {
                     disabled={holidaysLoading}
                     className="shrink-0"
                 >
-                    {holidaysLoading ? "조회 중..." : "조회"}
+                    {holidaysLoading ? "조회 중..." : "공공 API 조회"}
+                </Button>
+                <Button
+                    type="button"
+                    size="sm"
+                    onClick={saveHolidaysToDB}
+                    disabled={saving}
+                    className="shrink-0"
+                >
+                    {saving ? "저장 중..." : "DB에 저장"}
                 </Button>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+                'DB에 저장' 클릭 시 선택한 월과 그 다음 월의 공휴일이 데이터베이스에 캐싱됩니다.
+            </p>
 
             {holidays === null && (
                 <p className="text-sm text-muted-foreground">
@@ -57,21 +72,17 @@ export function AdminHolidayTab() {
             )}
             {holidays !== null && holidays.length > 0 && (
                 <ul className="flex flex-col divide-y">
-                    {holidays.map((h, i) => {
-                        const d = String(h.locdate);
-                        const dateStr = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
-                        return (
-                            <li
-                                key={h.locdate + i}
-                                className="flex items-center justify-between py-2 text-sm"
-                            >
-                                <span>{h.dateName}</span>
-                                <span className="text-xs font-mono text-muted-foreground">
-                                    {dateStr}
-                                </span>
-                            </li>
-                        );
-                    })}
+                    {holidays.map((h, i) => (
+                        <li
+                            key={h.date + i}
+                            className="flex items-center justify-between py-2 text-sm"
+                        >
+                            <span>{h.name}</span>
+                            <span className="text-xs font-mono text-muted-foreground">
+                                {h.date}
+                            </span>
+                        </li>
+                    ))}
                 </ul>
             )}
         </div>

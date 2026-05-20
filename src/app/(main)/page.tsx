@@ -3,76 +3,125 @@ import { DailyVideoBanner } from "@/components/home/DailyVideoBanner";
 import { StreakCard } from "@/components/home/StreakCard";
 import { RecentList } from "@/components/home/RecentList";
 import { getKSTDate, getDayOfWeekKST } from "@/lib/utils";
-import { getHolidayName } from "@/lib/utills/holiday";
+import { getHolidaysForDates } from "@/lib/utills/holiday";
 
 export default async function TodayPage() {
     const supabase = await createClient();
     const adminSupabase = createServiceClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    
+    // 1. Initial parallel fetches
     const today = getKSTDate();
+    const [authRes, todayVideoRes] = await Promise.all([
+        supabase.auth.getUser(),
+        adminSupabase.from("daily_videos").select("*").eq("date", today).maybeSingle()
+    ]);
+    
+    const user = authRes.data.user;
+    let video = todayVideoRes.data;
+    let mode: 'today' | 'continue' | 'fallback' = 'today';
+    let displayDate = video?.date;
+    let requesterNickname: string | null = null;
+    let history: any[] | undefined = undefined;
 
-    const videoResult = await adminSupabase
-        .from("daily_videos")
-        .select("*")
-        .eq("date", today)
-        .single();
-    const video = videoResult.data;
+    const dow = getDayOfWeekKST(today);
+    const isWeekend = dow === 0 || dow === 6;
 
     let streak = null;
     let weeklyProgress: string[] = [];
     let weeklyCoins: string[] = [];
     const weeklyHolidayMap: Record<string, string> = {};
 
+    // Generate dates for the week to check holidays
+    let datesToCheck = [today];
+    let dates: string[] = [];
+    
     if (user) {
-        // 이번 주 월요일 찾기 (KST 기준)
         const [ty, tm, td] = today.split("-").map(Number);
         const todayUTC = Date.UTC(ty, tm - 1, td);
-        const dayOfWeek = getDayOfWeekKST(today);
-        const dayOffset = (dayOfWeek + 6) % 7; // 0: 월, 6: 일
-
+        const dayOffset = (dow + 6) % 7; // 0: 월, 6: 일
         const mondayUTC = todayUTC - dayOffset * 24 * 60 * 60 * 1000;
-
-        const dates = Array.from({ length: 7 }, (_, i) => {
+        
+        dates = Array.from({ length: 7 }, (_, i) => {
             const d = new Date(mondayUTC + i * 24 * 60 * 60 * 1000);
             const year = d.getUTCFullYear();
             const month = String(d.getUTCMonth() + 1).padStart(2, "0");
             const day = String(d.getUTCDate()).padStart(2, "0");
             return `${year}-${month}-${day}`;
         });
+        
+        dates.forEach(d => {
+            if (!datesToCheck.includes(d)) datesToCheck.push(d);
+        });
+    }
 
-        // 성능 최적화: 전체 조회를 피하고 최근 2주일(지난주 월요일부터 이번주 일요일까지) 데이터로 스캔 제한
+    // Parallel fetch for user progress + holidays
+    const fetchPromises: any[] = [
+        getHolidaysForDates(supabase, datesToCheck)
+    ];
+
+    let streakResIdx = -1;
+    let progressResIdx = -1;
+    let historyResIdx = -1;
+
+    if (user) {
+        const [ty, tm, td] = today.split("-").map(Number);
+        const todayUTC = Date.UTC(ty, tm - 1, td);
+        const dayOffset = (dow + 6) % 7; 
+        const mondayUTC = todayUTC - dayOffset * 24 * 60 * 60 * 1000;
         const lastMondayUTC = mondayUTC - 7 * 24 * 60 * 60 * 1000;
+        
         const lmDate = new Date(lastMondayUTC);
         const lmY = lmDate.getUTCFullYear();
         const lmM = String(lmDate.getUTCMonth() + 1).padStart(2, "0");
         const lmD = String(lmDate.getUTCDate()).padStart(2, "0");
         const lastMondayStr = `${lmY}-${lmM}-${lmD}`;
 
-        const [streakRes, progressRes] = await Promise.all([
-            supabase
-                .from("streaks")
-                .select("*")
-                .eq("user_id", user.id)
-                .single(),
-            supabase
-                .from("user_progress")
-                .select(
-                    "date, step1_completed_at, step2_completed_at, step3_completed_at, step4_completed_at",
-                )
-                .eq("user_id", user.id)
-                .gte("date", lastMondayStr),
-        ]);
+        streakResIdx = fetchPromises.push(supabase.from("streaks").select("*").eq("user_id", user.id).single()) - 1;
+        progressResIdx = fetchPromises.push(
+            supabase.from("user_progress").select("date, step1_completed_at, step2_completed_at, step3_completed_at, step4_completed_at").eq("user_id", user.id).gte("date", lastMondayStr)
+        ) - 1;
+        historyResIdx = fetchPromises.push(
+            supabase.from("user_progress").select(`
+                date, step1_completed_at, step2_completed_at, step3_completed_at, step4_completed_at,
+                video_id, daily_comment
+            `).eq("user_id", user.id).not("step1_completed_at", "is", null).order("date", { ascending: false }).limit(5)
+        ) - 1;
+    }
 
-        streak = streakRes.data;
+    const fetchResults = await Promise.all(fetchPromises);
+    const holidaysMap = fetchResults[0] as Map<string, string>;
+    const isHoliday = holidaysMap.has(today);
 
-        // 타임스탬프를 새벽 3시 오프셋 기준 KST 날짜 문자열(YYYY-MM-DD)로 변환
+    if (user) {
+        streak = fetchResults[streakResIdx].data;
+        const progressResData = fetchResults[progressResIdx].data || [];
+        const historyData = fetchResults[historyResIdx].data || [];
+
+        if (historyData.length > 0) {
+            const videoIds = historyData.map((h: any) => h.video_id);
+            const { data: videosData } = await adminSupabase.from("daily_videos").select("video_id, title, duration, date").in("video_id", videoIds);
+            const videoMap = new Map(videosData?.map(v => [v.video_id, v]));
+            history = historyData.map((p: any) => {
+                const videoInfo = videoMap.get(p.video_id);
+                return {
+                    ...p,
+                    date: videoInfo?.date || p.date,
+                    daily_videos: {
+                        title: videoInfo?.title || '제목 없음',
+                        duration: videoInfo?.duration || ''
+                    }
+                }
+            });
+        } else {
+            history = [];
+        }
+
+        // Logical KST Date calculation
         const getLogicalKSTDate = (isoString: string | null): string | null => {
             if (!isoString) return null;
             const date = new Date(isoString);
-            const kstTime = date.getTime() + 9 * 60 * 60 * 1000; // KST(UTC+9) 보정
-            const logicalTime = kstTime - 3 * 60 * 60 * 1000; // 새벽 3시 기준 소급
+            const kstTime = date.getTime() + 9 * 60 * 60 * 1000; 
+            const logicalTime = kstTime - 3 * 60 * 60 * 1000; 
             const d = new Date(logicalTime);
             const year = d.getUTCFullYear();
             const month = String(d.getUTCMonth() + 1).padStart(2, "0");
@@ -81,14 +130,8 @@ export default async function TodayPage() {
         };
 
         const progressSet = new Set<string>();
-        (progressRes.data ?? []).forEach((p) => {
-            // 각 스텝 완료 타임스탬프에서 날짜를 파싱하여 이번 주 학습일 목록에 추가
-            [
-                p.step1_completed_at,
-                p.step2_completed_at,
-                p.step3_completed_at,
-                p.step4_completed_at,
-            ].forEach((ts) => {
+        progressResData.forEach((p: any) => {
+            [p.step1_completed_at, p.step2_completed_at, p.step3_completed_at, p.step4_completed_at].forEach((ts) => {
                 const dateStr = getLogicalKSTDate(ts);
                 if (dateStr && dates.includes(dateStr)) {
                     progressSet.add(dateStr);
@@ -97,99 +140,96 @@ export default async function TodayPage() {
         });
         weeklyProgress = Array.from(progressSet);
 
-        // 이번 주 공휴일 및 보너스 코인 날짜 계산
-        const dateInfoResults = await Promise.all(
-            dates.map(async (dateStr, idx) => {
-                const holName = await getHolidayName(dateStr);
-                const dow = getDayOfWeekKST(dateStr); // 0: 일, 6: 토
-
-                let coin = null;
-                // 학습하지 않은 날 중 보너스 코인 지급 대상
-                if (!weeklyProgress.includes(dateStr)) {
-                    // 1. 공휴일 (과거/오늘/미래 무관하게 코인 표시)
-                    if (holName) {
+        // Calculate coins and holidays
+        dates.forEach((dateStr, idx) => {
+            const holName = holidaysMap.get(dateStr);
+            const dayOfWeek = getDayOfWeekKST(dateStr);
+            let coin = null;
+            
+            if (!weeklyProgress.includes(dateStr)) {
+                if (holName) {
+                    coin = dateStr;
+                } else if (dayOfWeek === 0 && dateStr <= today) {
+                    coin = dateStr;
+                } else if (dayOfWeek === 6 && dateStr < today) {
+                    const sundayStr = dates[idx + 1];
+                    if (weeklyProgress.includes(sundayStr) || sundayStr === today) {
                         coin = dateStr;
-                    }
-                    // 2. 일요일인 경우 (학습 여부와 상관없이 휴식일 코인 표시)
-                    else if (dow === 0 && dateStr <= today) {
-                        coin = dateStr;
-                    }
-                    // 3. 토요일인 경우 (일요일에 학습했거나, 오늘이 일요일이고 현재 학습 중인 경우)
-                    else if (dow === 6 && dateStr < today) {
-                        const sundayStr = dates[idx + 1];
-                        // 일요일에 학습 기록이 있거나, 오늘이 일요일인데 아직 기록이 없는 경우(보너스 예고)
-                        if (
-                            weeklyProgress.includes(sundayStr) ||
-                            sundayStr === today
-                        ) {
-                            coin = dateStr;
-                        }
                     }
                 }
+            }
 
-                return { dateStr, holName, coin };
-            }),
-        );
-
-        dateInfoResults.forEach((r) => {
-            if (r.holName) weeklyHolidayMap[r.dateStr] = r.holName;
+            if (holName) weeklyHolidayMap[dateStr] = holName;
+            if (coin) weeklyCoins.push(coin);
         });
-        weeklyCoins = dateInfoResults
-            .map((r) => r.coin)
-            .filter((d): d is string => d !== null);
     }
 
-    let requesterNickname: string | null = null;
-    if (video) {
-        const { data: requestData } = await adminSupabase
-            .from("video_requests")
-            .select("user_id")
-            .eq("scheduled_date", today)
-            .eq("status", "scheduled")
-            .maybeSingle();
-
-        if (requestData?.user_id) {
-            const { data: profileData } = await adminSupabase
-                .from("profiles")
-                .select("nickname")
-                .eq("id", requestData.user_id)
-                .single();
-            requesterNickname = profileData?.nickname ?? null;
+    // 3. Resolve video (Fallback / Continue)
+    if (!video && (isWeekend || isHoliday)) {
+        if (user && history) {
+            const incomplete = history.find((h: any) => !h.step4_completed_at);
+            if (incomplete) {
+                mode = 'continue';
+                video = {
+                    id: 'continue-mode-mock-id',
+                    video_id: incomplete.video_id,
+                    title: incomplete.daily_videos?.title || '',
+                    duration: incomplete.daily_videos?.duration || '',
+                    date: incomplete.date,
+                    created_at: new Date().toISOString()
+                };
+                displayDate = incomplete.date;
+            }
+        }
+        
+        if (!video) {
+            const { data: latestVideo } = await adminSupabase
+                .from("daily_videos")
+                .select("*")
+                .order("date", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+            
+            if (latestVideo) {
+                mode = 'fallback';
+                video = latestVideo;
+                displayDate = latestVideo.date;
+            }
         }
     }
 
+    // 4. Resolve cached & progress for the chosen video
     let cached = { transcript: false, materials: false };
     let startStep = 1;
     let isCompleted = false;
 
     if (video) {
-        const cacheChecks = await Promise.all([
-            adminSupabase
-                .from("transcripts")
-                .select("id")
-                .eq("video_id", video.video_id)
-                .single(),
-            adminSupabase
-                .from("learning_materials")
-                .select("id")
-                .eq("video_id", video.video_id)
-                .single(),
-        ]);
-        cached = {
-            transcript: !!cacheChecks[0].data,
-            materials: !!cacheChecks[1].data,
-        };
+        const videoChecks = [];
+        videoChecks.push(adminSupabase.from("transcripts").select("id").eq("video_id", video.video_id).maybeSingle());
+        videoChecks.push(adminSupabase.from("learning_materials").select("id").eq("video_id", video.video_id).maybeSingle());
+        
+        if (mode === 'today') {
+            videoChecks.push(adminSupabase.from("video_requests").select("user_id").eq("scheduled_date", today).eq("status", "scheduled").maybeSingle());
+        }
 
         if (user) {
-            const { data: progress } = await supabase
-                .from("user_progress")
-                .select(
-                    "step1_completed_at,step2_completed_at,step3_completed_at,step4_completed_at",
-                )
-                .eq("user_id", user.id)
-                .eq("video_id", video.video_id)
-                .single();
+            videoChecks.push(supabase.from("user_progress").select("step1_completed_at,step2_completed_at,step3_completed_at,step4_completed_at").eq("user_id", user.id).eq("video_id", video.video_id).maybeSingle());
+        }
 
+        const checkResults = await Promise.all(videoChecks);
+        cached.transcript = !!checkResults[0].data;
+        cached.materials = !!checkResults[1].data;
+
+        if (mode === 'today') {
+            const requestData = checkResults[2]?.data as any;
+            if (requestData?.user_id) {
+                const { data: profileData } = await adminSupabase.from("profiles").select("nickname").eq("id", requestData.user_id).single();
+                requesterNickname = profileData?.nickname ?? null;
+            }
+        }
+
+        if (user) {
+            const progress = checkResults[checkResults.length - 1]?.data as any;
             if (progress) {
                 if (!progress.step1_completed_at) startStep = 1;
                 else if (!progress.step2_completed_at) startStep = 2;
@@ -216,7 +256,7 @@ export default async function TodayPage() {
                 </div>
             </div>
             <p className="text-right mt-1 pb-3 shrink-0 text-mono-label text-muted-foreground">
-                {today.replace(/-/g, ".")}
+                {displayDate?.replace(/-/g, ".") || today.replace(/-/g, ".")}
             </p>
             <div className="flex flex-col gap-8">
                 {video ? (
@@ -225,6 +265,8 @@ export default async function TodayPage() {
                         cached={cached}
                         startStep={startStep}
                         requesterNickname={requesterNickname}
+                        mode={mode}
+                        videoDate={video.date}
                     />
                 ) : (
                     <div className="flex min-h-[200px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-8 text-center text-muted-foreground">
@@ -232,8 +274,7 @@ export default async function TodayPage() {
                             오늘의 영상이 아직 등록되지 않았습니다.
                         </p>
                         <p className="mt-1 text-xs">
-                            관리자가 영상을 준비 중입니다. 잠시 후 다시
-                            확인해주세요.
+                            관리자가 영상을 준비 중입니다. 잠시 후 다시 확인해주세요.
                         </p>
                     </div>
                 )}
@@ -248,7 +289,7 @@ export default async function TodayPage() {
                     isLoggedIn={!!user}
                 />
 
-                <RecentList />
+                <RecentList initialHistory={history} initialLoggedIn={!!user} />
             </div>
         </div>
     );

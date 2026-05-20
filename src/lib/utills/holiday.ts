@@ -1,3 +1,5 @@
+import { SupabaseClient } from '@supabase/supabase-js';
+
 /**
  * 공휴일 및 주말 계산 유틸리티 (Next.js용)
  */
@@ -15,7 +17,7 @@ export interface SimplifiedHoliday {
   name: string; // 공휴일 명칭
 }
 
-// 서버 사이드 전용: 공공 API 직접 호출 로직 (API Route와 공유)
+// 서버 사이드 전용: 공공 API 직접 호출 로직 (API Route 동기화용)
 export const fetchHolidaysFromPublicApi = async (year: string, month: string): Promise<SimplifiedHoliday[]> => {
   const serviceKey = process.env.HOLIDAY_KEY;
   if (!serviceKey) return [];
@@ -29,7 +31,7 @@ export const fetchHolidaysFromPublicApi = async (year: string, month: string): P
 
   try {
     const url = `http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?${params.toString()}`;
-    const res = await fetch(url, { next: { revalidate: 2592000 } }); // 1개월 캐시
+    const res = await fetch(url); // 동기화에 사용되므로 캐시 제외
     if (!res.ok) return [];
 
     const result = await res.json();
@@ -51,37 +53,6 @@ export const fetchHolidaysFromPublicApi = async (year: string, month: string): P
   }
 };
 
-/**
- * 특정 연도와 월의 공휴일 목록을 가져옵니다.
- */
-export const getHolidays = async (year: string, month: string): Promise<SimplifiedHoliday[]> => {
-  // 1. 서버 사이드: 직접 로직 실행
-  if (typeof window === 'undefined') {
-    const holidays = await fetchHolidaysFromPublicApi(year, month);
-    
-    // 노동절(5월 1일) 수동 추가
-    if (month === '05' || month === '5') {
-      const laborDay = `${year}-05-01`;
-      if (!holidays.find(h => h.date === laborDay)) {
-        holidays.push({ date: laborDay, name: '근로자의 날' });
-      }
-    }
-    return holidays;
-  }
-
-  // 2. 클라이언트 사이드: 내부 API 호출
-  try {
-    const res = await fetch(`/api/admin/holidays?year=${year}&month=${month}`);
-    if (res.ok) {
-      const data = await res.json();
-      return data.holidays || [];
-    }
-  } catch (err) {
-    console.error('[getHolidays] Client Fetch Error:', err);
-  }
-  return [];
-};
-
 export const isWeekend = (date: Date | string = new Date()): boolean => {
   const d = new Date(date);
   const kstDate = new Date(d.getTime() + (9 * 60 * 60 * 1000));
@@ -89,33 +60,59 @@ export const isWeekend = (date: Date | string = new Date()): boolean => {
   return day === 0 || day === 6;
 };
 
-export const isPublicHoliday = async (date: Date | string = new Date()): Promise<boolean> => {
+// DB 기반 헬퍼 함수들
+
+/**
+ * 여러 날짜의 공휴일 정보를 한 번의 쿼리로 가져옵니다.
+ * @returns Map<"YYYY-MM-DD", "공휴일명">
+ */
+export const getHolidaysForDates = async (
+  supabase: SupabaseClient,
+  dates: string[]
+): Promise<Map<string, string>> => {
+  if (!dates || dates.length === 0) return new Map();
+
+  const { data, error } = await supabase
+    .from('holidays')
+    .select('date, name')
+    .in('date', dates);
+
+  if (error || !data) {
+    console.error('[getHolidaysForDates] Error:', error);
+    return new Map();
+  }
+
+  return new Map(data.map(h => [h.date, h.name]));
+};
+
+export const isPublicHoliday = async (
+  supabase: SupabaseClient,
+  date: Date | string = new Date()
+): Promise<boolean> => {
   const d = new Date(date);
   const kstDate = new Date(d.getTime() + (9 * 60 * 60 * 1000));
-  const year = String(kstDate.getUTCFullYear());
-  const month = String(kstDate.getUTCMonth() + 1).padStart(2, '0');
   
   const y = kstDate.getUTCFullYear();
   const m = String(kstDate.getUTCMonth() + 1).padStart(2, "0");
   const day = String(kstDate.getUTCDate()).padStart(2, "0");
   const formattedDate = `${y}-${m}-${day}`;
 
-  const holidayList = await getHolidays(year, month);
-  return !!holidayList.find(h => h.date === formattedDate);
+  const holidaysMap = await getHolidaysForDates(supabase, [formattedDate]);
+  return holidaysMap.has(formattedDate);
 };
 
-export const getHolidayName = async (date: Date | string = new Date()): Promise<string | null> => {
-    const d = new Date(date);
-    const kstDate = new Date(d.getTime() + (9 * 60 * 60 * 1000));
-    const year = String(kstDate.getUTCFullYear());
-    const month = String(kstDate.getUTCMonth() + 1).padStart(2, '0');
-    
-    const y = kstDate.getUTCFullYear();
-    const m = String(kstDate.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(kstDate.getUTCDate()).padStart(2, "0");
-    const formattedDate = `${y}-${m}-${day}`;
+export const getHolidayName = async (
+  supabase: SupabaseClient,
+  date: Date | string = new Date()
+): Promise<string | null> => {
+  const d = new Date(date);
+  const kstDate = new Date(d.getTime() + (9 * 60 * 60 * 1000));
   
-    const holidayList = await getHolidays(year, month);
-    const holiday = holidayList.find(h => h.date === formattedDate);
-    return holiday ? holiday.name : null;
+  const y = kstDate.getUTCFullYear();
+  const m = String(kstDate.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(kstDate.getUTCDate()).padStart(2, "0");
+  const formattedDate = `${y}-${m}-${day}`;
+
+  const holidaysMap = await getHolidaysForDates(supabase, [formattedDate]);
+  return holidaysMap.get(formattedDate) ?? null;
 };

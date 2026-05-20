@@ -317,6 +317,27 @@ export interface Database {
         }
         Relationships: []
       }
+      holidays: {
+        Row: {
+          id: string
+          date: string
+          name: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          date: string
+          name: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          date?: string
+          name?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       archive_videos_view: {

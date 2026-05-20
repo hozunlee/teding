@@ -1,5 +1,14 @@
 # DONE
 
+- 2026-05-21 최근 학습기록(`RecentList`) 불러오기 버그 디버깅 및 해결: `user_progress` 테이블과 `daily_videos` 테이블 간에 Supabase DB상 외래키(FK) 관계가 정의되어 있지 않아 Nested Join(`daily_videos!inner(...)`) 쿼리가 실패하는 현상을 수정. `user_progress` 조회 후 `video_id`를 기반으로 `daily_videos`를 개별 쿼리/맵핑하도록 보완하여 대시보드 내 최근 학습 목록 렌더링 정상화.
+
+- 2026-05-21 홈 화면 성능 최적화 및 스마트 콘텐츠 추천 시스템 구현:
+    - 홈 화면 진입 시 필요한 `user`, `streak`, `progress`, `history`, `today_video` 정보를 순차적 페칭(Waterfall) 대신 `Promise.all` 기반의 단일 그룹 병렬 페칭으로 개편하여 DB 네트워크 왕복 시간을 축소하고 속도를 대폭 개선.
+    - 주말 및 공휴일용 스마트 추천 로직 도입:
+        - `DailyVideoBanner` 컴포넌트에 `mode`(`today` | `continue` | `fallback`) 및 `videoDate` prop 지원.
+        - 미완료한 과거 학습 카드가 존재할 경우 이를 메인 배너에서 이어하도록 유도하는 "이어하기(continue)" 모드 적용.
+        - 로그인하지 않은 사용자 및 미완료 과거 학습 데이터가 없는 경우, 가장 최근에 등록되었던 영상을 자동으로 찾아 추천하는 "대체(fallback)" 모드 연동.
+
 - 2026-05-20 StreakCard의 주간 학습 현황 툴팁을 모바일/태블릿 반응성을 위해 Popover(Hover & Press 지원)로 개편 및 터치 영역 확대 완료.
 
 - 2026-05-20 어드민 전용 실시간 알림 기능 및 Radix Popover UI 구현:
