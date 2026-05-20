@@ -2,11 +2,10 @@
 
 import { useAuthModal } from "@/lib/store/auth-modal";
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import { RingGauge } from "./streak/RingGauge";
 import { SeasonIcon, CoinIcon } from "./streak/Icons";
 import { getSeason, getSeasonLabel } from "./streak/utils";
@@ -68,8 +67,7 @@ export function StreakCard({
     });
 
     return (
-        <TooltipProvider>
-            <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
                 <div className="relative overflow-hidden rounded-lg border border-border bg-card p-6 shadow-[var(--shadow-elegant)]">
                     <div className="flex gap-6">
                         <div className="flex items-center justify-center shrink-0">
@@ -148,11 +146,8 @@ export function StreakCard({
                                 info.holidayName || isWeekend
                             );
 
-                            return (
-                                <div
-                                    key={label}
-                                    className="flex flex-1 flex-col items-center gap-2"
-                                >
+                            const content = (
+                                <>
                                     <div
                                         className="relative h-10 w-full rounded-md transition-all duration-500 flex items-center justify-center overflow-hidden"
                                         style={
@@ -165,16 +160,16 @@ export function StreakCard({
                                                           "0 2px 4px rgba(251,191,36,0.2)",
                                                   }
                                                 : info.type === "coin"
-                                                  ? {
-                                                        background:
-                                                            "rgba(251, 191, 36, 0.05)",
-                                                        border: "1px solid rgba(251, 191, 36, 0.3)",
-                                                    }
-                                                  : {
-                                                        backgroundColor:
-                                                            "rgba(0,0,0,0.03)",
-                                                        border: "1px dashed rgba(0,0,0,0.1)",
-                                                    }
+                                                   ? {
+                                                         background:
+                                                             "rgba(251, 191, 36, 0.05)",
+                                                         border: "1px solid rgba(251, 191, 36, 0.3)",
+                                                     }
+                                                   : {
+                                                         backgroundColor:
+                                                             "rgba(0,0,0,0.03)",
+                                                         border: "1px dashed rgba(0,0,0,0.1)",
+                                                     }
                                         }
                                     >
                                         {info.type === "stamp" && (
@@ -195,38 +190,56 @@ export function StreakCard({
                                         )}
                                     </div>
 
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <span
-                                                className={`text-[11px] font-medium transition-colors ${isRed ? "text-red-500 underline underline-offset-2 decoration-red-500/30" : "text-muted-foreground"}`}
-                                            >
-                                                {label}
-                                            </span>
-                                        </TooltipTrigger>
-                                        {hasTooltip && (
-                                            <TooltipContent
-                                                side="bottom"
-                                                className="max-w-[160px] text-center"
-                                            >
-                                                <p className="font-semibold">
-                                                    {info.holidayName
-                                                        ? info.holidayName
-                                                        : "주말은 1회만 해도 스트릭 유지"}
+                                    <span
+                                        className={`text-[11px] font-medium transition-colors ${isRed ? "text-red-500 underline underline-offset-2 decoration-red-500/30" : "text-muted-foreground"}`}
+                                    >
+                                        {label}
+                                    </span>
+                                </>
+                            );
+
+                            if (hasTooltip) {
+                                return (
+                                    <Popover key={label}>
+                                        <PopoverTrigger
+                                            openOnHover
+                                            delay={100}
+                                            closeDelay={100}
+                                            className="flex flex-1 flex-col items-center gap-2 outline-none cursor-pointer text-left w-full group border-none bg-transparent p-0"
+                                        >
+                                            {content}
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                            side="bottom"
+                                            className="w-auto max-w-[180px] p-2 text-center text-xs font-normal flex flex-col gap-0.5 select-none"
+                                        >
+                                            <p className="font-semibold text-foreground">
+                                                {info.holidayName
+                                                    ? info.holidayName
+                                                    : "주말은 1회만 해도 스트릭 유지"}
+                                            </p>
+                                            {info.date && (
+                                                <p className="text-[10px] text-muted-foreground">
+                                                    {info.date}
                                                 </p>
-                                                {info.date && (
-                                                    <p className="text-[10px] opacity-80">
-                                                        {info.date}
-                                                    </p>
-                                                )}
-                                            </TooltipContent>
-                                        )}
-                                    </Tooltip>
+                                            )}
+                                        </PopoverContent>
+                                    </Popover>
+                                );
+                            }
+
+                            return (
+                                <div
+                                    key={label}
+                                    className="flex flex-1 flex-col items-center gap-2"
+                                >
+                                    {content}
                                 </div>
                             );
                         })}
                     </div>
                 </div>
             </div>
-        </TooltipProvider>
     );
 }
+

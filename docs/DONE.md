@@ -1,5 +1,7 @@
 # DONE
 
+- 2026-05-20 StreakCard의 주간 학습 현황 툴팁을 모바일/태블릿 반응성을 위해 Popover(Hover & Press 지원)로 개편 및 터치 영역 확대 완료.
+
 - 2026-05-20 어드민 전용 실시간 알림 기능 및 Radix Popover UI 구현:
     - `study_requests`(영상 조르기) 및 `service_feedback`(의견 보내기) 테이블의 미확인 신규 등록 내역을 통합 조회하는 API `/api/admin/notifications` 엔드포인트 구현 (비어드민/비로그인 차단).
     - 헤더 네비게이션 `About` 메뉴 옆에 `AdminNotificationButton` 추가. 미확인 개수 알림 배지 및 애니메이션(`animate-ping`) 적용.
