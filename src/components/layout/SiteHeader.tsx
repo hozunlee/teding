@@ -6,6 +6,7 @@ import { SignOutButton } from "./SignOutButton";
 import { MobileNav } from "./MobileNav";
 import type { Database } from "@/types/database";
 import { SiteNav } from "./SiteNav";
+import { AdminNotificationButton } from "@/components/admin/AdminNotificationButton";
 
 type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 type StreakRow = Database["public"]["Tables"]["streaks"]["Row"];
@@ -79,6 +80,7 @@ export async function SiteHeader() {
                             >
                                 About
                             </Link>
+                            {isAdmin && <AdminNotificationButton />}
                             <div className="hidden lg:flex items-center gap-4">
                                 <SignOutButton />
                             </div>

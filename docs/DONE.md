@@ -1,5 +1,11 @@
 # DONE
 
+- 2026-05-20 어드민 전용 실시간 알림 기능 및 Radix Popover UI 구현:
+    - `study_requests`(영상 조르기) 및 `service_feedback`(의견 보내기) 테이블의 미확인 신규 등록 내역을 통합 조회하는 API `/api/admin/notifications` 엔드포인트 구현 (비어드민/비로그인 차단).
+    - 헤더 네비게이션 `About` 메뉴 옆에 `AdminNotificationButton` 추가. 미확인 개수 알림 배지 및 애니메이션(`animate-ping`) 적용.
+    - Radix Popover 기반 알림 목록 렌더링, 클릭 시 어드민 페이지 해당 탭(`?tab=requests`, `?tab=feedback`)으로 즉시 이동 지원.
+    - `admin/page.tsx` 내부 `useEffect` 동기화 걷어내어 SSoT 방식으로 리액트 상태 경고 해결 및 ESLint/TypeScript 100% 무오류 통과.
+
 - 2026-05-20 학습 완료 후 학습 페이지 재진입 및 자유 이동 지원:
     - 학습을 완료한 콘텐츠에 다시 접근 시 `/study/complete`로 튕기지 않고 `step=4`로 진입하도록 개선.
     - 복습 시 모든 단계로 자유롭게 이동할 수 있도록 `StepProgress` 컴포넌트의 클릭 제한 로직 우회 구현.

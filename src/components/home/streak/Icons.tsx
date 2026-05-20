@@ -84,12 +84,33 @@ export function SeasonIcon({ season }: { season: Season }) {
             >
                 {/* 짙은 네이비-그레이 나뭇가지 몸통 */}
                 <rect x="18" y="24" width="4" height="12" fill="#475569" />
-                
+
                 {/* 겹겹이 소복하게 쌓인 겨울 설목(눈뭉치) 표현 */}
-                <rect x="6" y="18" width="28" height="10" rx="3" fill="#cbd5e1" />
-                <rect x="10" y="11" width="20" height="12" rx="3" fill="#e2e8f0" />
-                <rect x="14" y="5" width="12" height="10" rx="2" fill="#ffffff" />
-                
+                <rect
+                    x="6"
+                    y="18"
+                    width="28"
+                    height="10"
+                    rx="3"
+                    fill="#cbd5e1"
+                />
+                <rect
+                    x="10"
+                    y="11"
+                    width="20"
+                    height="12"
+                    rx="3"
+                    fill="#e2e8f0"
+                />
+                <rect
+                    x="14"
+                    y="5"
+                    width="12"
+                    height="10"
+                    rx="2"
+                    fill="#ffffff"
+                />
+
                 {/* 반짝이는 눈꽃/빛 반사 디테일 픽셀 */}
                 <rect x="8" y="14" width="2" height="2" fill="#ffffff" />
                 <rect x="28" y="10" width="2" height="2" fill="#ffffff" />
@@ -183,7 +204,7 @@ export const CoinIcon = () => (
                     height="94"
                     fill="none"
                     stroke="#FFE866"
-                    stroke-width="1.5"
+                    strokeWidth="1.5"
                 />
                 <use href="#rivets" />
             </g>
@@ -206,14 +227,14 @@ export const CoinIcon = () => (
                 <use href="#rivets" />
             </g>
 
-            <g stroke-linecap="round" stroke-linejoin="round">
+            <g strokeLinecap="round" strokeLinejoin="round">
                 <line
                     x1="0"
                     y1="0"
                     x2="0"
                     y2="100"
                     stroke="#FFE34D"
-                    stroke-width="3"
+                    strokeWidth="3"
                 />
 
                 <line
@@ -222,7 +243,7 @@ export const CoinIcon = () => (
                     x2="-86.6"
                     y2="-50"
                     stroke="#FFE34D"
-                    stroke-width="3"
+                    strokeWidth="3"
                 />
 
                 <line
@@ -231,7 +252,7 @@ export const CoinIcon = () => (
                     x2="86.6"
                     y2="-50"
                     stroke="#FFE34D"
-                    stroke-width="3"
+                    strokeWidth="3"
                 />
 
                 <line
@@ -240,7 +261,7 @@ export const CoinIcon = () => (
                     x2="0"
                     y2="-100"
                     stroke="#FFEA80"
-                    stroke-width="2"
+                    strokeWidth="2"
                 />
                 <line
                     x1="86.6"
@@ -248,7 +269,7 @@ export const CoinIcon = () => (
                     x2="0"
                     y2="-100"
                     stroke="#FFEA80"
-                    stroke-width="2"
+                    strokeWidth="2"
                 />
 
                 <line
@@ -257,7 +278,7 @@ export const CoinIcon = () => (
                     x2="0"
                     y2="100"
                     stroke="#B37A00"
-                    stroke-width="2"
+                    strokeWidth="2"
                 />
                 <line
                     x1="86.6"
@@ -265,7 +286,7 @@ export const CoinIcon = () => (
                     x2="0"
                     y2="100"
                     stroke="#996800"
-                    stroke-width="2"
+                    strokeWidth="2"
                 />
 
                 <line
@@ -274,7 +295,7 @@ export const CoinIcon = () => (
                     x2="-86.6"
                     y2="50"
                     stroke="#E6AD00"
-                    stroke-width="2"
+                    strokeWidth="2"
                 />
                 <line
                     x1="86.6"
@@ -282,7 +303,7 @@ export const CoinIcon = () => (
                     x2="86.6"
                     y2="50"
                     stroke="#BF8200"
-                    stroke-width="2"
+                    strokeWidth="2"
                 />
             </g>
         </g>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { useAdminCheck } from "./_hooks/useAdminCheck";
 import { AdminVideoTab } from "./_components/AdminVideoTab";
@@ -19,7 +19,19 @@ const TAB_LABELS: Record<AdminTab, string> = {
 
 export default function AdminPage() {
     const { isAdmin } = useAdminCheck();
-    const [activeTab, setActiveTab] = useState<AdminTab>("video");
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const tabParam = searchParams.get("tab") as AdminTab;
+    
+    const activeTab = (tabParam && ["video", "holiday", "requests", "feedback"].includes(tabParam))
+        ? tabParam
+        : "video";
+
+    const handleTabChange = (tab: AdminTab) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("tab", tab);
+        router.push(`/admin?${params.toString()}`);
+    };
 
     if (isAdmin === null) {
         return (
@@ -61,7 +73,7 @@ export default function AdminPage() {
                     <button
                         key={tab}
                         type="button"
-                        onClick={() => setActiveTab(tab)}
+                        onClick={() => handleTabChange(tab)}
                         className={`flex-1 rounded-[4px] py-1.5 text-sm transition-colors ${activeTab === tab ? "bg-background font-medium shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                     >
                         {TAB_LABELS[tab]}
