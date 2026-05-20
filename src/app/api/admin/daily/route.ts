@@ -25,16 +25,17 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { videoId, title, duration, force = false, date: dateParam } = await req.json() as {
+    const { videoId, title, duration, videoUrl, force = false, date: dateParam } = await req.json() as {
       videoId: string
       title: string
       duration: string
+      videoUrl: string
       force?: boolean
       date?: string
     }
 
     const date = dateParam ?? getKSTDate()
-    const { transcriptCached, materialsCached } = await registerDailyVideo({ videoId, title, duration, date, force })
+    const { transcriptCached, materialsCached } = await registerDailyVideo({ videoId, title, duration, videoUrl, date, force })
 
     return Response.json({ ok: true, date, videoId, transcriptCached, materialsCached })
   } catch (err) {

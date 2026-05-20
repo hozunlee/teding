@@ -22,6 +22,19 @@ export async function POST(req: Request) {
     userMessage?: string
   }
 
+  // 서버 사이드에서 비디오 제목 및 시간 추출
+  let videoTitle: string | null = null
+  let videoDuration: string | null = null
+  
+  try {
+    const { getYouTubeMetadata } = await import('@/lib/youtube-server')
+    const metadata = await getYouTubeMetadata(videoId)
+    videoTitle = metadata.title
+    videoDuration = metadata.duration
+  } catch (err) {
+    console.error('[api/request-study] metadata fetch error:', err)
+  }
+
   const serviceClient = createServiceClient()
   const { data, error } = await serviceClient
     .from('video_requests')
@@ -29,6 +42,8 @@ export async function POST(req: Request) {
       user_id: user.id,
       video_id: videoId,
       video_url: videoUrl,
+      video_title: videoTitle,
+      video_duration: videoDuration,
       thumbnail_url: thumbnailUrl ?? null,
       user_message: userMessage ?? null,
     })

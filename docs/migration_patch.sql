@@ -1,4 +1,4 @@
--- Teding Supabase Migration Patch
+-- teding Supabase Migration Patch
 -- 이미 테이블이 생성된 기존 DB에 대해 실행
 -- Supabase Dashboard > SQL Editor에 붙여넣고 실행
 

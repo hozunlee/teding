@@ -7,6 +7,7 @@ interface RegisterOptions {
   videoId: string
   title: string
   duration: string
+  videoUrl: string
   date: string
   force?: boolean
 }
@@ -17,11 +18,11 @@ interface RegisterResult {
 }
 
 export async function registerDailyVideo(opts: RegisterOptions): Promise<RegisterResult> {
-  const { videoId, title, duration, date, force = false } = opts
+  const { videoId, title, duration, videoUrl, date, force = false } = opts
   const supabase = createServiceClient()
 
   const { error: videoError } = await supabase.from('daily_videos').upsert(
-    { date, video_id: videoId, title, duration },
+    { date, video_id: videoId, title, duration, video_url: videoUrl },
     { onConflict: 'date', ignoreDuplicates: !force }
   )
   if (videoError) throw new Error(videoError.message)
@@ -53,7 +54,7 @@ export async function registerDailyVideo(opts: RegisterOptions): Promise<Registe
 
   const materialsCached = !!(cachedMaterials && !force)
   if (!materialsCached) {
-    const materials = await generateWithFallback(transcriptText)
+    const materials = await generateWithFallback(transcriptText, title)
     const { error: matError } = await supabase.from('learning_materials').upsert(
       {
         video_id: videoId,

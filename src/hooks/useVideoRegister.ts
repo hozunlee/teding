@@ -6,6 +6,7 @@ interface RegisterOpts {
   videoId: string
   title: string
   duration: string
+  videoUrl: string
   date: string
   force?: boolean
 }

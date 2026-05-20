@@ -146,6 +146,7 @@ export function AdminRequestsTab() {
             videoId: req.video_id,
             title: req.video_title ?? req.video_id,
             duration: req.video_duration ?? '',
+            videoUrl: req.video_url,
             date: selectedDate,
         });
 

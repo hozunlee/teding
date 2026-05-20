@@ -3,12 +3,15 @@ import type { LearningMaterials } from '@/types/worksheet'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-function buildPrompt(transcript: string): string {
+function buildPrompt(transcript: string, title: string): string {
   return `You are a professional English education expert for Korean adult learners.
 Your goal is to create a high-quality English reading worksheet based on the provided TED-Ed script.
 
 [English Proficiency Level: CEFR A2 (Basic, Simple, and Clear English for Beginners)]
 [Target Language: ENGLISH (except for Korean support fields specified below)]
+
+⚠️ VIDEO CONTEXT:
+Video Title: ${title}
 
 ⚠️ STRATEGIC INSTRUCTION:
 1. First, create a SIMPLIFIED ENGLISH VERSION of the script (Reading Passage, 5-6 paragraphs, A2 level).
@@ -59,11 +62,11 @@ SPECIFIC RULES:
 Return ONLY the JSON object. Do not include markdown fences or any other text.`
 }
 
-export async function generateWithClaude(transcript: string): Promise<LearningMaterials> {
+export async function generateWithClaude(transcript: string, title: string): Promise<LearningMaterials> {
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 8000,
-    messages: [{ role: 'user', content: buildPrompt(transcript) }],
+    messages: [{ role: 'user', content: buildPrompt(transcript, title) }],
   })
 
   const text = message.content[0].type === 'text' ? message.content[0].text : ''

@@ -6,6 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function generateLearningMaterials(
     transcript: string,
+    title: string,
 ): Promise<LearningMaterials> {
     const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash-lite",
@@ -20,6 +21,9 @@ Your goal is to create a high-quality English reading worksheet based on the pro
 
 [English Proficiency Level: CEFR A2 (Basic, Simple, and Clear English for Beginners)]
 [Target Language: ENGLISH (except for Korean support fields specified below)]
+
+⚠️ VIDEO CONTEXT:
+Video Title: ${title}
 
 ⚠️ STRATEGIC INSTRUCTION:
 1. First, create a SIMPLIFIED ENGLISH VERSION of the script (Reading Passage, 5-6 paragraphs, A2 level).
@@ -87,9 +91,10 @@ SPECIFIC RULES:
 
 export async function generateWithFallback(
     transcript: string,
+    title: string,
 ): Promise<LearningMaterials> {
     try {
-        return await generateLearningMaterials(transcript);
+        return await generateLearningMaterials(transcript, title);
     } catch (err) {
         console.warn("Gemini failed, falling back to Claude:", err);
         if (!process.env.ANTHROPIC_API_KEY) {
@@ -97,6 +102,6 @@ export async function generateWithFallback(
                 `Gemini 생성 실패 및 Claude API 키(폴백)가 설정되지 않았습니다. 원본 에러: ${err instanceof Error ? err.message : String(err)}`,
             );
         }
-        return await generateWithClaude(transcript);
+        return await generateWithClaude(transcript, title);
     }
 }

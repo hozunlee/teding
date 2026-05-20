@@ -36,6 +36,7 @@ export function useAdminVideos() {
     // 오늘 등록 완료 시 기본 대상을 내일로 전환
     useEffect(() => {
         if (todayHasVideo && !tomorrowHasVideo && editMode === null) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setTargetDate("tomorrow");
         }
     }, [todayHasVideo, tomorrowHasVideo, editMode]);
@@ -54,7 +55,7 @@ export function useAdminVideos() {
         const res = await fetch("/api/admin/daily", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ videoId, title, duration, force, date }),
+            body: JSON.stringify({ videoId, title, duration, videoUrl: videoInput.trim(), force, date }),
         });
 
         const data = (await res.json()) as {
