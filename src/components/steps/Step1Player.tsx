@@ -7,12 +7,13 @@ import { apiFetch } from '@/lib/api-client'
 
 interface Props {
   videoId: string
+  isCompleted?: boolean
 }
 
-export function Step1Player({ videoId }: Props) {
+export function Step1Player({ videoId, isCompleted = false }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [checked, setChecked] = useState(false)
+  const [checked, setChecked] = useState(isCompleted)
   const [loading, setLoading] = useState(false)
 
   const embedUrl =
@@ -22,14 +23,16 @@ export function Step1Player({ videoId }: Props) {
   async function handleComplete() {
     setLoading(true)
     try {
-      await Promise.all([
-        apiFetch('/api/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoId, step: 1 }),
-        }),
-        apiFetch('/api/streak', { method: 'POST' })
-      ])
+      if (!isCompleted) {
+        await Promise.all([
+          apiFetch('/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ videoId, step: 1 }),
+          }),
+          apiFetch('/api/streak', { method: 'POST' })
+        ])
+      }
       const params = new URLSearchParams(searchParams.toString())
       params.set('step', '2')
       router.push(`/study?${params.toString()}`)

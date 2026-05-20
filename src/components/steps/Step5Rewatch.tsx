@@ -17,26 +17,29 @@ interface Props {
   videoId: string
   videoTitle: string
   transcript: TranscriptData | null
+  isCompleted?: boolean
 }
 
-export function Step5Rewatch({ videoId, videoTitle, transcript }: Props) {
+export function Step5Rewatch({ videoId, videoTitle, transcript, isCompleted = false }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [checked, setChecked] = useState(false)
+  const [checked, setChecked] = useState(isCompleted)
   const [expanded, setExpanded] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleComplete() {
     setLoading(true)
     try {
-      await Promise.all([
-        apiFetch('/api/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoId, step: 4 }),
-        }),
-        apiFetch('/api/streak', { method: 'POST' })
-      ])
+      if (!isCompleted) {
+        await Promise.all([
+          apiFetch('/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ videoId, step: 4 }),
+          }),
+          apiFetch('/api/streak', { method: 'POST' })
+        ])
+      }
       const params = new URLSearchParams(searchParams.toString())
       params.set('videoId', videoId)
       params.set('title', videoTitle)

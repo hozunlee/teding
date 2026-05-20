@@ -39,22 +39,29 @@ export default async function StudyPage({
     )
   }
 
+  // user progress 조회
+  let progress = null
+  if (user) {
+    const { data } = await supabase
+      .from('user_progress')
+      .select('step1_completed_at,step2_completed_at,step3_completed_at,step4_completed_at')
+      .eq('user_id', user.id)
+      .eq('video_id', video.video_id)
+      .single()
+    progress = data
+  }
+
+  const isCompleted = !!progress?.step4_completed_at
+
   if (!stepParam) {
     let currentStep = 1
-    if (user) {
-      const { data: progress } = await supabase
-        .from('user_progress')
-        .select('step1_completed_at,step2_completed_at,step3_completed_at,step4_completed_at')
-        .eq('user_id', user.id)
-        .eq('video_id', video.video_id)
-        .single()
-
-      if (progress) {
-        if (!progress.step1_completed_at) currentStep = 1
-        else if (!progress.step2_completed_at) currentStep = 2
-        else if (!progress.step3_completed_at) currentStep = 3
-        else if (!progress.step4_completed_at) currentStep = 4
-        else redirect('/study/complete')
+    if (progress) {
+      if (!progress.step1_completed_at) currentStep = 1
+      else if (!progress.step2_completed_at) currentStep = 2
+      else if (!progress.step3_completed_at) currentStep = 3
+      else if (!progress.step4_completed_at) currentStep = 4
+      else {
+        currentStep = 4
       }
     }
     
@@ -94,7 +101,7 @@ export default async function StudyPage({
     <div className='container mx-auto max-w-2xl px-4 py-6'>
       {step <= 4 && (
         <div className='mb-6 flex items-center justify-between'>
-          <StepProgress currentStep={step} />
+          <StepProgress currentStep={step} isCompleted={isCompleted} />
         </div>
       )}
 
@@ -103,7 +110,7 @@ export default async function StudyPage({
       </div>
 
       {/* Step 1: 시청 */}
-      {step === 1 && <Step1Player videoId={video.video_id} />}
+      {step === 1 && <Step1Player videoId={video.video_id} isCompleted={isCompleted} />}
 
       {/* Step 2: 학습지 (재배치 — 구 Step 3) */}
       {step === 2 && (
@@ -114,6 +121,7 @@ export default async function StudyPage({
           sentences={materials?.sentences_json as unknown as SentenceAnalysis[] ?? null}
           transcript={transcript}
           materialsReady={materialsReady}
+          isCompleted={isCompleted}
         />
       )}
 
@@ -125,6 +133,7 @@ export default async function StudyPage({
             phrases={materials.phrases_json as unknown as Phrase[]}
             sentences={materials.sentences_json as unknown as SentenceAnalysis[]}
             isLoggedIn={!!user}
+            isCompleted={isCompleted}
           />
         ) : (
           <div className='text-sm text-muted-foreground'>학습자료를 불러오는 중...</div>
@@ -137,6 +146,7 @@ export default async function StudyPage({
           videoId={video.video_id}
           videoTitle={video.title}
           transcript={transcript}
+          isCompleted={isCompleted}
         />
       )}
 

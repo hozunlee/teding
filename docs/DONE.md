@@ -1,5 +1,13 @@
 # DONE
 
+- 2026-05-20 학습 완료 후 학습 페이지 재진입 및 자유 이동 지원:
+    - 학습을 완료한 콘텐츠에 다시 접근 시 `/study/complete`로 튕기지 않고 `step=4`로 진입하도록 개선.
+    - 복습 시 모든 단계로 자유롭게 이동할 수 있도록 `StepProgress` 컴포넌트의 클릭 제한 로직 우회 구현.
+    - 복습 중 완료 버튼 클릭 시 데이터베이스 중복 갱신을 방지하기 위해 `/api/progress` 및 `/api/streak` API 호출을 건너뛰고 단순 경로 이동만 하도록 각 단계 컴포넌트(Step1Player, Step3Worksheet, Step4Phrases, Step5Rewatch) 보완 완료.
+
+- 2026-05-20 이번 주 학습 현황판 겨울나무 스탬프 비주얼 리팩토링:
+    - `src/components/home/streak/Icons.tsx`의 `SeasonIcon` 컴포넌트 내 겨울나무(`winter`)를 소복하게 눈이 내려앉은 풍성한 설목(Snow Tree) 픽셀 아트로 새로 디자인하여 다른 계절의 나무 스탬프들과의 부조화를 해결.
+
 - 2026-05-20 프리미엄 스트릭 시뮬레이터 및 나무 성장 비주얼 고도화:
     - `src/components/home/streak/TreeIcons.tsx` 내 모든 성장 상태 아이콘의 `viewBox`를 `0 0 180 180`으로 일체화하고 크기 및 위치 중앙 정렬.
     - `RingGauge.tsx`에 `TreeRenderer` 및 겨울철 흰 배경에서의 시각성 확보를 위한 계절별(봄/여름/가을/겨울) HSL 파스텔톤 그라데이션 서클 배경판 적용.

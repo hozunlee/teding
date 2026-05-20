@@ -20,9 +20,10 @@ interface Props {
   sentences: SentenceAnalysis[] | null
   transcript: TranscriptData | null
   materialsReady: boolean
+  isCompleted?: boolean
 }
 
-export function Step3Worksheet({ videoId, worksheet, phrases, sentences, transcript, materialsReady }: Props) {
+export function Step3Worksheet({ videoId, worksheet, phrases, sentences, transcript, materialsReady, isCompleted = false }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
@@ -42,14 +43,16 @@ export function Step3Worksheet({ videoId, worksheet, phrases, sentences, transcr
   async function handleComplete() {
     setLoading(true)
     try {
-      await Promise.all([
-        apiFetch('/api/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ videoId, step: 2 }),
-        }),
-        apiFetch('/api/streak', { method: 'POST' })
-      ])
+      if (!isCompleted) {
+        await Promise.all([
+          apiFetch('/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ videoId, step: 2 }),
+          }),
+          apiFetch('/api/streak', { method: 'POST' })
+        ])
+      }
       const params = new URLSearchParams(searchParams.toString())
       params.set('step', '3')
       router.push(`/study?${params.toString()}`)

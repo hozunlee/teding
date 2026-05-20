@@ -17,6 +17,7 @@ interface Props {
   phrases: Phrase[]
   sentences: SentenceAnalysis[]
   isLoggedIn?: boolean
+  isCompleted?: boolean
 }
 
 const CSS_CLASS_COLORS: Record<string, string> = {
@@ -221,7 +222,7 @@ function SentenceCard({
   )
 }
 
-export function Step4Phrases({ videoId, phrases, sentences, isLoggedIn = true }: Props) {
+export function Step4Phrases({ videoId, phrases, sentences, isLoggedIn = true, isCompleted = false }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const openModal = useAuthModal((s) => s.open)
@@ -245,16 +246,24 @@ export function Step4Phrases({ videoId, phrases, sentences, isLoggedIn = true }:
       return
     }
     setLoading(true)
-    const knownSentences = [...known].map(i => sentences[i]?.text ?? '')
-    await apiFetch('/api/progress', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId, step: 3, knownSentences }),
-    })
-    await apiFetch('/api/streak', { method: 'POST' })
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('step', '4')
-    router.push(`/study?${params.toString()}`)
+    try {
+      if (!isCompleted) {
+        const knownSentences = [...known].map(i => sentences[i]?.text ?? '')
+        await apiFetch('/api/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId, step: 3, knownSentences }),
+        })
+        await apiFetch('/api/streak', { method: 'POST' })
+      }
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('step', '4')
+      router.push(`/study?${params.toString()}`)
+    } catch (error) {
+      console.error('Failed to complete step 3:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

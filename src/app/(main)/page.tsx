@@ -211,7 +211,7 @@ export default async function TodayPage() {
                             : "5분짜리 TED-Ed 영상으로 가볍게 시작하는 영어 루틴"}
                     </p>
                     <h1 className="text-3xl sm:text-[2.5rem] font-medium leading-[1.2] tracking-[-0.03em]">
-                        {isCompleted ? "학습 완료 🎉" : "오늘의 AI 학습지 !"}
+                        {isCompleted ? "학습 완료 🎉" : "오늘의 AI 학습지 🤓"}
                     </h1>
                 </div>
             </div>
